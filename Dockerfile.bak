@@ -24,6 +24,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy application files
 COPY . /var/www
 
+# If you have a local .env file, explicitly copy it (optional, but ensures the .env is inside Docker container)
+COPY .env /var/www/.env
+
 # Set correct permissions
 RUN chown -R www-data:www-data /var/www
 
