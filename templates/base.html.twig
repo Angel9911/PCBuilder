@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PC Builder Pro{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ asset('css/auth_login_registration.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/pc_build_configuration.css') }}">
+</head>
+<body>
+
+{% include 'layout/header.html.twig' %}
+{% include 'layout/navigation_bar.html.twig' %}
+<main>
+    {% block content %}        <h2 style="color: red; text-align: center">Base template is not found</h2>
+    {% endblock %}
+</main>
+
+{% include 'layout/footer.html.twig' %}
+
+<script src="{{ asset('js/auth_login_registration.js') }}"></script>
+<script src="{{ asset('js/ai_questionnaire.js') }}"></script>
+<script src="{{ asset('js/pc_build_configuration.js') }}"></script>
+
+</body>
+</html>

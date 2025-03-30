@@ -1,0 +1,25 @@
+<nav class="border-t border-b border-gray-200 bg-white relative">
+    <div class="max-w-7xl mx-auto px-4">
+        <!-- Navigation Menu -->
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center py-3 px-6 space-y-2 sm:space-y-0">
+            <!-- Left-Aligned Button -->
+            <div class="w-full sm:flex-1 text-center sm:text-left">
+                <a href="{{ path('configurator.build') }}" class="inline-block w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-800 transition duration-300">PC Конфигуратор</a>
+            </div>
+
+            <!-- Centered Button -->
+            <div class="w-full sm:flex-1 text-center">
+                <a href="#" class="inline-block w-full sm:w-auto text-gray-600 hover:text-white hover:bg-blue-600 px-4 py-2 rounded-md transition duration-300">
+                    Лаптоп Конфигуратор
+                </a>
+            </div>
+
+            <!-- Right-Aligned Button -->
+            <div class="w-full sm:flex-1 text-center sm:text-right">
+                <a href="{{ path('completed.build') }}" class="inline-block w-full sm:w-auto text-gray-600 hover:text-white hover:bg-blue-600 px-4 py-2 rounded-md transition duration-300">
+                    Готови конфигурации
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>

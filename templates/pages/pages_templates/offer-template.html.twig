@@ -1,0 +1,34 @@
+<!-- Offers Section -->
+<!-- Hidden template for vendor offers -->
+<template id="offer-template">
+    <div class="vendor-offer bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-150">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img class="vendor-logo h-8 w-8 rounded" src="" alt="">
+                <div>
+                    <div class="flex items-center">
+
+                        <span class="stock-status inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mr-2">
+                            <i class="stock-icon h-3 w-3 mr-1"></i>
+                            <span class="stock-text"></span>
+                        </span>
+                        <span class="text-sm text-gray-500 vendor_name"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-right">
+                    <p class="text-lg font-bold text-gray-900 price"></p>
+                    <p class="text-sm shipping-cost"></p>
+                </div>
+                <a href="#" target="_blank" rel="noopener noreferrer"
+                   class="view-offer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    View Offer
+                    <i data-lucide="ExternalLink" class="ml-2 h-4 w-4"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</template>
+<!--Offers will be dynamically inserted here-->
+<div class="mt-4 space-y-3 vendor-offers" id="vendor-offers"></div>

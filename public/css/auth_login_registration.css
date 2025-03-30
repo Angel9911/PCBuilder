@@ -1,0 +1,69 @@
+.hidden { display: none; }
+.form-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    outline: none; /* Remove default focus outline */
+    transition: border 0.3s ease-in-out; /* Smooth transition */
+}
+
+.form-input:focus {
+    border-color: #7F9CF5; /* Blue mixed with white */
+    box-shadow: 0 0 17px rgba(165, 180, 252, 0.7); /* Softer, lighter glow */
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 10px;
+    background-color: #6366F1;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.btn-secondary {
+    width: 100%;
+    padding: 10px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.btn-secondary img {
+    width: 20px;
+    margin-right: 10px;
+}
+.tab-btn {
+    cursor: pointer;
+    padding: 8px 16px;
+    border-bottom: 2px solid transparent;
+}
+.tab-btn.active {
+    border-bottom: 2px solid #6366F1;
+}
+.divider {
+    text-align: center;
+    margin: 10px 0;
+    font-size: 14px;
+    color: gray;
+    position: relative;
+}
+.divider::before, .divider::after {
+    content: "";
+    position: absolute;
+    width: 40%;
+    height: 1px;
+    background: #ccc;
+    top: 50%;
+}
+.divider::before {
+    left: 0;
+}
+.divider::after {
+    right: 0;
+}

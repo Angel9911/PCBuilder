@@ -1,0 +1,14 @@
+{
+    "Component Selection": {
+        "cpu": "Intel Core i3-13100",
+        "gpu": "NVIDIA GeForce RTX 4070 Ti",
+        "motherboard": "ASUS ROG Strix B550-F",
+        "ram": "Corsair Vengeance LPX 16GB",
+        "storage": "Crucial MX500 1TB",
+        "psu": "Corsair CX450M",
+        "sound_card": "Focusrite Scarlett Solo",
+        "network_card": "Gigabit Ethernet PCIe Card (Intel I210-T1)",
+        "pc_case": "Cooler Master MasterBox TD500"
+    },
+    "Explanation": "Selected components provide a moderate performance Intel build with an NVIDIA GPU, suitable for work/office tasks within the budget range of $500 - $1000."
+}
