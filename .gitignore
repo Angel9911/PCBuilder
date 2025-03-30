@@ -22,7 +22,6 @@
 ###< symfony/phpunit-bridge ###
 
 ###> symfony/asset-mapper ###
-/public/assets/
 /assets/vendor/
 # Don't ignore specific static files
 !public/assets/images/
