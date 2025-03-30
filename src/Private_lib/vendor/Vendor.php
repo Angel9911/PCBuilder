@@ -32,7 +32,7 @@ class Vendor extends AbstractVendor
         | ServerExceptionInterface
         | TransportExceptionInterface $exception){
 
-            throw new Exception($exception->getMessage());
+            return [];
         }
     }
 }
