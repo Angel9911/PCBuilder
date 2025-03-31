@@ -114,6 +114,12 @@ document.addEventListener("DOMContentLoaded", function () {
                          }
 
                          offers.forEach(offer => {
+
+                             if (!offer || Object.keys(offer).length === 0 || !offer.logo || !offer.vendor_name || !offer.price) {
+                                 console.log("Empty offer or missing required fields, skipping...");
+                                 return; // Skip the iteration if the offer is empty
+                             }
+
                              if (!offerTemplate) {
                                  console.error("Offer template not loaded yet.");
                                  return;
