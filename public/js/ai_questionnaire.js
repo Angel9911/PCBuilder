@@ -1,9 +1,25 @@
 
 const questions = [
-    { title: "What will you use this PC for?", options: ["Gaming", "Work/Office", "Creative Work", "Programming"] },
-    { title: "What is your budget range?", options: ["Under $500", "$500 - $1000", "$1000 - $2000", "$2000+"] },
-    { title: "What level of performance do you need?", options: ["Basic", "Moderate", "High-end", "Extreme"] },
-    { title: "Do you have brand preferences?", options: ["Intel + NVIDIA", "AMD", "No Preference"] }
+    { title: "What will you use this PC for?",
+        options: ["Gaming", "Work/Office", "Creative Work", "Programming"]
+    },
+    { title: "What types of programs or games will you run?",
+        options: ["Web browsing & office apps", "Photo/video editing & design", "Programming & development tools", "High-performance gaming", "Streaming & content creation"]
+    },
+    { title: "How important to you is the possibility of a future upgrade of your PC?",
+        options: ["Not important", "Somewhat important", "Very important"]
+    },
+    {
+        title: "How much storage space do you need?",
+        options: [
+            "Just for basic tasks (web browsing, documents, light apps)",
+            "Enough for work and casual use (documents, some games, photos)",
+            "Plenty of space for large files (videos, games, creative projects)",
+            "I store a massive amount of data (large media collections, professional work)"
+        ]
+    },
+    { title: "Do you have brand preferences?",
+        options: ["Intel + NVIDIA", "AMD", "No Preference"] }
 ];
 
 let currentStep = 0;

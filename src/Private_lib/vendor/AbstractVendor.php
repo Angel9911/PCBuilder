@@ -83,9 +83,22 @@ abstract class AbstractVendor implements VendorModel
 
     protected function formatPrice(string $price): string
     {
-        $price = preg_replace('/[^0-9]/', '', $price);
+        // Remove non-numeric characters except dots and commas
+        $price = trim($price);
 
-        return number_format(floatval(str_replace(',', '.', $price)), 2);
+        $formattedPrice = '';
+
+        // Match the integer and decimal parts separately
+        if (preg_match('/(\d+)(?:[.,](\d{1,2}))?/', $price, $matches)) {
+
+            $integerPart = $matches[1]; // Main number
+
+            $decimalPart = $matches[2] ?? '00'; // Decimal part (default to "00" if missing)
+
+            $formattedPrice = $integerPart . '.' . $decimalPart;
+        }
+
+        return number_format(floatval($formattedPrice), 2, '.', '');
 
     }
 

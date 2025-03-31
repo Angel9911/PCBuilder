@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Initialize the combobox fields if there are given AI recommendation components or given completed configuration
 
-    if (pcConfiguration && Object.keys(pcConfiguration).length > 0) {
+    if (typeof pcConfiguration !== "undefined" && pcConfiguration && Object.keys(pcConfiguration).length > 0) {
 
         Object.keys(pcConfiguration).forEach(component => {
             let componentData = pcConfiguration[component];
@@ -26,6 +26,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
         });
+    } else{
+        console.warn("the object is not defined or empty");
     }
 
     let offerTemplate = document.querySelector("#offer-template");
