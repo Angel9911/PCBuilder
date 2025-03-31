@@ -72,6 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     savePcConfiguration();
 
+    resetAiQuestionnaire();
      function attachComponentOffersEvent(componentSelectors)
      {
          componentSelectors.forEach(selectBox => {
@@ -305,6 +306,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    function resetAiQuestionnaire() {
+        document.getElementById("start-config").addEventListener("click", function () {
+            window.location.href = "/"; // Redirects to home page
+        });
+    }
 });
 
 
