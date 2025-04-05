@@ -38,9 +38,15 @@ class VendorOfferRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findAllOffers()
+    public function findAllVendorOffers(): array
     {
-
+        return $this->createQueryBuilder('vo')
+            ->join('vo.vendor', 'v')  // Joining Vendor entity (correct)
+            ->join('vo.component', 'co')
+            ->join('co.type', 'ct')// Joining Component entity
+            ->addSelect('v', 'co', 'ct') // Select Vendor and Component
+            ->getQuery()
+            ->getResult();
     }
 
 }

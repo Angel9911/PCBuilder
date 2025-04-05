@@ -24,11 +24,11 @@ class CompletedConfiguration
     #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private \DateTimeInterface $createdAt;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'savedConfigurations')]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
     private ?User $user;
 
-    #[ORM\ManyToMany(targetEntity: PCConfigComponent::class, mappedBy: 'configuration', cascade: ['persist', 'remove'], fetch: 'LAZY')]
+    #[ORM\OneToMany(targetEntity: PCConfigComponent::class, mappedBy: 'configuration', cascade: ['persist', 'remove'], fetch: 'LAZY')]
     private Collection $components;
 
     public function __construct(User $user = null)

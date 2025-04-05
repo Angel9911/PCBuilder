@@ -97,4 +97,9 @@ class PcConfiguratorServiceImpl implements PCConfiguratorService
     {
         return $this->completedConfigurationRepository->getPcConfigurationById($configurationId);
     }
+
+    public function getPcConfigurationDetails(int $configurationId): CompletedConfiguration
+    {
+        return $this->completedConfigurationRepository->getPcConfigurationObjectById($configurationId);
+    }
 }

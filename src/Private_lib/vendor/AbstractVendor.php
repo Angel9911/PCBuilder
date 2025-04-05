@@ -26,10 +26,10 @@ abstract class AbstractVendor implements VendorModel
      * @throws ClientExceptionInterface
      * @throws \Exception
      */
-    public function getProductDetails(string $productUrl, string $domain, string $priceStyleClass, string $statusStyleClass, string $logoStyleClass): array
+    public function getProductDetails(string $vendorName, string $productUrl, string $domain, string $priceStyleClass, string $statusStyleClass, string $logoStyleClass): array
     {
         // Directly fetch product details from the given URL
-        $response = $this->client->request('GET', $productUrl);
+        $response = $this->client->request('GET', $productUrl, ['timeout' => 6]);
 
         if ($response->getStatusCode() !== 200) {
             return [];
@@ -47,7 +47,7 @@ abstract class AbstractVendor implements VendorModel
 
 
         return [
-            'vendor_nane' => 'test',
+            'vendor_nane' => $vendorName,
             'logo' => $productLogoUrl,
             'price' => $this->formatPrice($productPrice),
             'stock_status' => $productStatus !== 'Unknown' ? 'In Stock' : 'Out of Stock',

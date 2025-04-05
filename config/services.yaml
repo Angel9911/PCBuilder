@@ -8,8 +8,10 @@ parameters:
     redis_host: '%env(REDIS_HOST)%'
     redis_url: '%env(REDIS_URL)%'
     redis_port: '%env(REDIS_PORT)%'
-    redis_password: '%env(REDIS_PASSWORD)%'
 services:
+    App\MessageHandler\CachePreloadListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.

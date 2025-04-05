@@ -34,7 +34,6 @@ class CompletedBuildController extends AbstractController
     #[Route('/completed/build', name: 'completed.build')]
     public function completed(): Response
     {
-        $this->redis->delete(CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY);
         // Check if data exists in Redis cache
         if ($this->redis->isKeyExist(CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY)) {
 
@@ -50,6 +49,46 @@ class CompletedBuildController extends AbstractController
         return $this->render('pages/completed_configuration.html.twig' ,
         [
             'configurations' => $result
+        ]);
+    }
+
+    #[Route('/completed/build/details/{buildId}', name: 'completed.build.details')]
+    public function completedBuildDetails(int $buildId, Request $request): Response
+    {
+
+        $cacheKey = CacheConstraints::$PC_CONFIGURATION_KEY. '_' .$buildId;
+
+        if($this->redis->isKeyExist($cacheKey)) {
+
+            $result = $this->redis->get($cacheKey);
+        } else {
+
+            $result = $this->configuratorService->getPcConfigurationById($buildId);
+
+            $this->redis->set($cacheKey, $result, 3600);
+        }
+
+        $pcConfiguration = $this->configuratorService->getPcConfigurationDetails($buildId);
+
+        if($pcConfiguration->getName() !== null){
+
+            $pcConfigurationName = $pcConfiguration->getName();
+        }
+
+        if($pcConfiguration->getCreatedAt() !== null){
+
+            $pcConfigurationCreatedAt = $pcConfiguration->getCreatedAt();
+        }
+
+        return $this->render('pages/completed_configuration_info.html.twig', [
+            'configuration_name' => $pcConfigurationName ?? '',
+            'configuration_date' => isset($pcConfigurationCreatedAt) ? $pcConfigurationCreatedAt->format('Y-m-d') : '',
+            'cpu' => $result['cpu']['name'],
+            'motherboard' => $result['motherboard']['name'],
+            'psu' => $result['psu']['name'],
+            'gpu' => $result['gpu']['name'],
+            'ram' => $result['ram']['name'],
+            'storage' => $result['storage']['name'],
         ]);
     }
 

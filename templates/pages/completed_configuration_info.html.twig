@@ -1,0 +1,165 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}PC Configuration{% endblock %}
+
+{% block content %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Configuration Header -->
+        <div class="bg-blue-600 text-white rounded-lg p-6 mb-8 text-center">
+            <h1 class="text-3xl font-bold">{{ configuration_name }}</h1>
+            <p class="mt-2">High-performance gaming configuration</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Image Section -->
+            <div class="lg:w-1/2">
+                <img src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&q=80&w=800&h=600"
+                     alt="PC Build" class="w-full h-auto rounded-lg shadow-lg">
+                <!-- Pricing & Details -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Build Details</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2">Price Range</h3>
+                            <div class="flex items-center">
+                                <span class="text-2xl font-bold text-blue-600">$3,200 - $3,500</span>
+                                <span class="ml-2 text-sm text-gray-500">(estimated)</span>
+                            </div>
+                            <div class="mt-4 flex items-baseline">
+                                <h3 class="text-lg font-medium text-gray-700">Created at:</h3>
+                                <span class="ml-2 text-gray-600">{{ configuration_date }}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2">Performance Benchmarks</h3>
+                            <ul class="space-y-1 text-gray-600">
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                    4K Gaming: 120+ FPS
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                    Content Creation: Excellent
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                    Future Proof: 5+ years
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Action Buttons -->
+                <div class="mt-8 flex flex-col sm:flex-row gap-4">
+                    <form action="{{ path('get.completed.build', { 'buildId':  2}) }}" method="POST">
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition duration-300">
+                            Приложи конфигурация
+                        </button>
+                    </form>
+                    <!-- Back to Configuration List (Navigation) -->
+                    <a href="{{ path('completed.build') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-lg font-medium transition duration-300 text-center">
+                        Върни се към конфигурациите
+                    </a>
+                </div>
+            </div>
+
+            <!-- Details Section -->
+            <div class="lg:w-1/2">
+                <!-- Description -->
+                <div class="mb-8 bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Build Description</h2>
+                    <p class="text-gray-600">
+                        This premium gaming PC delivers exceptional performance for 4K gaming and content creation.
+                        Carefully selected components ensure optimal cooling and future upgradeability.
+                        Perfect for gamers and professionals who demand the best.
+                    </p>
+                </div>
+
+                <!-- Specifications -->
+                <div class="bg-white p-6 rounded-lg shadow mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Technical Specifications</h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Column 1 -->
+                        <div class="space-y-4">
+                            <!-- CPU -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="text-lg font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-microchip text-blue-500 mr-2"></i>
+                                    Processor (CPU)
+                                </h3>
+                                <p class="text-gray-600 ml-8 mt-1">{{ cpu }}</p>
+                            </div>
+
+                            <!-- CPU Cooler -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="text-lg font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-fan text-blue-500 mr-2"></i>
+                                    CPU Cooler
+                                </h3>
+                                <p class="text-gray-600 ml-8 mt-1">Noctua NH-D15 Chromax Black</p>
+                            </div>
+                            <!-- Motherboard -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="text-lg font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-microchip text-blue-500 mr-2"></i>
+                                    Motherboard
+                                </h3>
+                                <p class="text-gray-600 ml-8 mt-1">{{ motherboard }}</p>
+                            </div>
+
+                            <!-- GPU -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="text-lg font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-gamepad text-blue-500 mr-2"></i>
+                                    Graphics Card
+                                </h3>
+                                <p class="text-gray-600 ml-8 mt-1">{{ gpu }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Column 2 -->
+                        <div class="space-y-4">
+                            <!-- RAM -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="text-lg font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-memory text-blue-500 mr-2"></i>
+                                    Memory
+                                </h3>
+                                <p class="text-gray-600 ml-8 mt-1">{{ ram }}</p>
+                            </div>
+
+                            <!-- Storage -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="text-lg font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-hdd text-blue-500 mr-2"></i>
+                                    Storage
+                                </h3>
+                                <p class="text-gray-600 ml-8 mt-1">{{ storage }}</p>
+                            </div>
+
+                            <!-- PSU -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="text-lg font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-bolt text-blue-500 mr-2"></i>
+                                    Power Supply
+                                </h3>
+                                <p class="text-gray-600 ml-8 mt-1">{{ psu }}</p>
+                            </div>
+
+                            <!-- Case -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="text-lg font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-desktop text-blue-500 mr-2"></i>
+                                    PC Case
+                                </h3>
+                                <p class="text-gray-600 ml-8 mt-1">Corsair 4000D Airflow</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

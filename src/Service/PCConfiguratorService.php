@@ -11,4 +11,6 @@ interface PCConfiguratorService
     public function getPcConfigurations(): array;
 
     public function getPcConfigurationById(int $configurationId): array;
+
+    public function getPcConfigurationDetails(int $configurationId): CompletedConfiguration;
 }

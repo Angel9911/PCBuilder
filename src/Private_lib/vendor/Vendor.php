@@ -20,11 +20,11 @@ class Vendor extends AbstractVendor
     /**
      * @throws Exception
      */
-    public function processVendorOffers(string $productUrl, string $domain, string $priceStyleClass, string $statusStyleClass, string $logoStyleClass): array
+    public function processVendorOffers(string $vendorName, string $productUrl, string $domain, string $priceStyleClass, string $statusStyleClass, string $logoStyleClass): array
     {
         try {
 
-            return $this->getProductDetails($productUrl, $domain, $priceStyleClass, $statusStyleClass, $logoStyleClass);
+            return $this->getProductDetails($vendorName, $productUrl, $domain, $priceStyleClass, $statusStyleClass, $logoStyleClass);
 
         }catch (Exception
         | ClientExceptionInterface

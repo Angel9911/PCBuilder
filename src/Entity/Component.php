@@ -23,7 +23,7 @@ class Component
     #[Groups(["component_read"])]
     private string $model;
 
-    #[ORM\ManyToOne(targetEntity: ComponentType::class, fetch: "EAGER")]
+    #[ORM\ManyToOne(targetEntity: ComponentType::class, fetch: "EAGER", inversedBy: 'components')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(["component_read"])]
     private ComponentType $type;
@@ -32,8 +32,8 @@ class Component
     #[Groups(["component_read"])]
     private int $powerWattage = 0;
 
-    #[ORM\ManyToMany(targetEntity: CompletedConfiguration::class/*, mappedBy: "components"*/, fetch: "LAZY")]
-    private Collection $configurations;
+    #[ORM\OneToMany(targetEntity: PCConfigComponent::class, mappedBy: "component")]
+    private Collection $pcConfigComponents;
 
     public function __construct(string $name, string $model, ComponentType $type, int $powerWattage = 0)
     {
@@ -41,7 +41,7 @@ class Component
         $this->model = $model;
         $this->type = $type;
         $this->powerWattage = $powerWattage;
-        $this->configurations = new ArrayCollection();
+        $this->pcConfigComponents = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -94,16 +94,6 @@ class Component
         $this->powerWattage = $powerWattage;
     }
 
-    public function getConfigurations(): Collection
-    {
-        return $this->configurations;
-    }
-
-    public function setConfigurations(Collection $configurations): void
-    {
-        $this->configurations = $configurations;
-    }
-
     public function toArray(): array
     {
         return [
@@ -112,10 +102,12 @@ class Component
             'model' => $this->getModel(),
             'type' => $this->getType()->getName(), // Assuming 'name' is the key you want from the ComponentType
             'powerWattage' => $this->getPowerWattage(),
-            'configurations' => array_map(function ($config) {
-                return $config->getId(); // Assuming we want the ID of the configurations
-            }, $this->getConfigurations()->toArray()), // Convert Collection to array and return only IDs
         ];
+    }
+
+    public function getPcConfigComponent(): Collection
+    {
+        return $this->pcConfigComponents;
     }
 }
 

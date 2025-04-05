@@ -1,6 +1,7 @@
 {% for configuration in configurations %}
-<div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105">
-    <!-- Build Name Header -->
+    <!-- Configuration Card (Clickable) -->
+    <div class="relative group cursor-pointer transition transform hover:scale-[1.02] hover:shadow-lg"
+         onclick="navigateToBuild('{{ path('completed.build.details', { 'buildId': 2 }) }}')">    <!-- Build Name Header -->
     <div class="bg-blue-600 px-4 py-2">
         <h3 class="text-lg font-medium text-white">{{ configuration.name }}</h3>
     </div>
@@ -28,9 +29,20 @@
             {% endfor %}
         </ul>
 
-        <!-- Build Image -->
-        <div class="aspect-w-16 aspect-h-9">
-            <img src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&q=80&w=300&h=300" alt="The Boom Build" class="object-cover w-full h-48 rounded-md">
+        <!-- Build Image (Clickable) -->
+        <div class="relative aspect-w-16 aspect-h-9 cursor-pointer"
+             onclick="navigateToBuild('{{ path('completed.build.details', { 'buildId': 2 }) }}')">
+
+            <!-- Image -->
+            <img src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&q=80&w=300&h=300"
+                 alt="The Boom Build" class="object-cover w-full h-48 rounded-md transition duration-300 group-hover:shadow-md">
+
+            <!-- View Details Label (Appears only on Image) -->
+            <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <span class="px-4 py-2 text-sm font-medium text-gray-200 bg-gray-800 bg-opacity-75 rounded-md transition duration-300 hover:bg-gray-600 hover:text-white">
+                    View Details
+                </span>
+            </div>
         </div>
 
         <form action="{{ path('get.completed.build', { 'buildId':  configuration.id}) }}" method="POST">
@@ -40,5 +52,11 @@
             </button>
         </form>
     </div>
+    <!-- JavaScript for Navigation -->
+    <script>
+        function navigateToBuild(url) {
+            window.location.href = url;
+        }
+    </script>
 </div>
 {% endfor %}

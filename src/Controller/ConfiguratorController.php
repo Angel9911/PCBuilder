@@ -122,7 +122,17 @@ class ConfiguratorController extends AbstractController
     #[Route('/configurator/component/offers/{componentId}', name: 'configurator.get_offers', methods: ['GET'])]
     public function getComponentOffers(int $componentId): Response
     {
-        $result = $this->vendorScraperService->getVendorsOffers($componentId);
+        $cacheKey = CacheConstraints::$OFFERS_COMPONENT_KEY . '_' . $componentId;
+
+        if($this->redis->isKeyExist($cacheKey)){
+
+            $result = $this->redis->get($cacheKey);//json_decode($this->redis->get($cacheKey));
+        } else {
+
+            $result = $this->vendorScraperService->getVendorOffersByComponent($componentId);
+
+            $this->redis->set($cacheKey, $result, 10800);
+        }
 
         return $this->json($result);
     }

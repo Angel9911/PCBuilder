@@ -9,19 +9,20 @@ use Doctrine\ORM\Mapping as ORM;
 class PCConfigComponent
 {
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: CompletedConfiguration::class/*, inversedBy: 'components'*/)]
+    #[ORM\ManyToOne(targetEntity: CompletedConfiguration::class, inversedBy: 'components')]
     #[ORM\JoinColumn(name: 'configuration_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private ?CompletedConfiguration $configuration;
+    private ?CompletedConfiguration $configuration = null;
+
 
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Component::class/*, inversedBy: 'components'*/)]
+    #[ORM\ManyToOne(targetEntity: Component::class, inversedBy: 'pcConfigComponents')]
     #[ORM\JoinColumn(name: 'component_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
-    private ?Component $components;
+    private ?Component $component = null;
 
     public function __construct(CompletedConfiguration $configuration = null, Component $component= null)
     {
         $this->configuration = $configuration;
-        $this->components = $component;
+        $this->component = $component;
     }
 
     // Getters and setters...
@@ -39,12 +40,12 @@ class PCConfigComponent
 
     public function getComponent(): Component
     {
-        return $this->components;
+        return $this->component;
     }
 
     public function setComponent(Component $component): self
     {
-        $this->components = $component;
+        $this->component = $component;
         return $this;
     }
 }

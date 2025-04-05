@@ -29,10 +29,11 @@ class User
     #[ORM\OneToMany(targetEntity: CompletedConfiguration::class, mappedBy: "user", cascade: ["remove"], fetch: "LAZY")]
     private Collection $savedConfigurations;
 
-    public function __construct(UserAccount $account, string $fullName)
+    public function __construct(UserAccount $account, string $firstName, string $lastName)
     {
         $this->account = $account;
-        $this->fullName = $fullName;
+        $this->firstName = $firstName;
+        $this->lastName = $lastName;
         $this->savedConfigurations = new ArrayCollection();
     }
 

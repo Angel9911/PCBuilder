@@ -27,15 +27,29 @@ class CompletedConfigurationRepository extends ServiceEntityRepository
         $entityManager->flush();
     }
 
+
+    /**
+     * @param int $id
+     * @return CompletedConfiguration
+     */
+    public function getPcConfigurationObjectById(int $id): CompletedConfiguration
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     /**
      * @param int $pcId
-     * @return CompletedConfiguration
+     * @return array
      */
     public function getPcConfigurationById(int $pcId): array
     {
         $resultArray = $this->createQueryBuilder('config')
             ->leftJoin('config.components', 'pcComp')
-            ->leftJoin('pcComp.components', 'component')
+            ->leftJoin('pcComp.component', 'component')
             ->leftJoin('component.type', 'ct')// Join the Component entity
             ->select( 'ct.name AS component_type','component.id AS component_id', 'component.name AS component_name')
             ->andWhere('config.id = :id')
@@ -67,7 +81,7 @@ class CompletedConfigurationRepository extends ServiceEntityRepository
     {
         $resultArray = $this->createQueryBuilder('config')
             ->leftJoin('config.components', 'pcComp')
-            ->leftJoin('pcComp.components', 'component')
+            ->leftJoin('pcComp.component', 'component')
             ->leftJoin('component.type', 'ct')// Join the Component entity
             ->select('config.id', 'config.name', 'config.totalWattage', 'config.createdAt', 'ct.name AS component_type','component.id AS component_id', 'component.name AS component_name')
             ->getQuery()

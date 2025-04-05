@@ -40,7 +40,7 @@ class VendorScraperImpl implements VendorScraperService
      * @throws ServerExceptionInterface
      * @throws \Exception
      */
-    public function getVendorsOffers(int $componentId): ?array
+    public function getVendorOffersByComponent(int $componentId): ?array
     {
 
         $componentOffers = $this->vendorOfferRepository->findOffersByComponentId($componentId); // get correctly offers my component id
@@ -56,13 +56,13 @@ class VendorScraperImpl implements VendorScraperService
                 if($vendorName === $componentOffer->getVendorEntity()->getName()) {
 
                     $productOffersResult[$component->getId()][] = $this->vendor->processVendorOffers(
+                        $vendorName,
                         $componentOffer->getProductUrl(),
                         $componentOffer->getVendorEntity()->getDomainUrl(),
                         $this->vendorsStyles[$vendorName]['product_price_style'],
                         $this->vendorsStyles[$vendorName]['product_status_style'],
                         $this->vendorsStyles[$vendorName]['product_logo_style']
                     );
-
                 }
             }
         }
@@ -70,4 +70,42 @@ class VendorScraperImpl implements VendorScraperService
         return $productOffersResult;
     }
 
+    public function getAllVendorComponents(): array
+    {
+        $getAllVendorsOffers = $this->vendorOfferRepository->findAllVendorOffers();
+
+        $vendorsComponentsResult = [];
+
+        foreach ($getAllVendorsOffers as $vendorOffer) {
+
+            //$vendor = $vendorOffer->getVendorEntity(); TODO: Could be used when in the database there is is_scrapable flag
+
+            $vendorComponent = $vendorOffer->getComponent();
+
+            if(!$vendorComponent || !$vendorComponent->getType()){
+                continue;
+            }
+
+            $vendorComponentType = $vendorComponent->getType()->getName();
+            //var_dump($vendorComponentType);
+            $vendorComponentId = $vendorComponent->getId();
+            //var_dump($vendorComponentId);
+            if (!isset($vendorsComponentsResult[$vendorComponentType])) {
+
+                $vendorsComponentsResult[$vendorComponentType] = [];
+            }
+
+            if(!in_array($vendorComponentId, $vendorsComponentsResult[$vendorComponentType])) {
+
+                $vendorsComponentsResult[$vendorComponentType][] = $vendorComponentId;
+            }
+
+            //echo '<pre>';
+            //print_r($vendorsComponentsResult[$vendorComponentType]);
+            //echo '</pre>';
+        }
+
+        return $vendorsComponentsResult;
+
+    }
 }

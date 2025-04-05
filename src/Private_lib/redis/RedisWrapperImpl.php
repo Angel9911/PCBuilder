@@ -17,13 +17,10 @@ class RedisWrapperImpl implements RedisWrapper
 
         $redisHost = $params->get('redis_host');
 
-        $redisPassword = $params->get('redis_password');
-
         $this->redis = new Client([
             'scheme' => 'tcp',
             'host'   => $redisHost,
             'port'   => $redisPort,
-            'password' => $redisPassword,  // Add password here
             'aggregate' => 'single'
         ]);
     }

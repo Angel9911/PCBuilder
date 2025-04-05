@@ -1,7 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-
     // Initialize the combobox fields if there are given AI recommendation components or given completed configuration
-
     if (typeof pcConfiguration !== "undefined" && pcConfiguration && Object.keys(pcConfiguration).length > 0) {
 
         Object.keys(pcConfiguration).forEach(component => {
