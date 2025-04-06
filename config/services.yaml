@@ -8,6 +8,7 @@ parameters:
     redis_host: '%env(REDIS_HOST)%'
     redis_url: '%env(REDIS_URL)%'
     redis_port: '%env(REDIS_PORT)%'
+    redis_password: '%env(REDIS_PASSWORD)%'
 services:
     #App\MessageHandler\CachePreloadListener:
         #tags:
