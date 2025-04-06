@@ -80,7 +80,7 @@ class OpenAIServiceImpl implements OpenAIService
             $data = $response->toArray();
             $responseText = $data['choices'][0]['message']['content'] ?? '{}';
 
-            file_put_contents('ai_response_log.txt', $responseText);
+            //file_put_contents('ai_response_log.txt', $responseText);
 
             // **Proper JSON decoding**
             $decodedResponse = json_decode($responseText, true);
