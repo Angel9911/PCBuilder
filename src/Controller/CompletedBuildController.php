@@ -81,6 +81,7 @@ class CompletedBuildController extends AbstractController
         }
 
         return $this->render('pages/completed_configuration_info.html.twig', [
+            'configuration_id' => $pcConfiguration->getId(),
             'configuration_name' => $pcConfigurationName ?? '',
             'configuration_date' => isset($pcConfigurationCreatedAt) ? $pcConfigurationCreatedAt->format('Y-m-d') : '',
             'cpu' => $result['cpu']['name'],
