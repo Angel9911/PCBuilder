@@ -24,13 +24,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
         });
-    } else{
+    } else {
         console.warn("the object is not defined or empty");
     }
 
     let offerTemplate = document.querySelector("#offer-template");
 
     if (!offerTemplate) {
+
+        showSpinner(); // Show spinner before fetching
 
         fetch("/configurator/component/offer/template")
             .then(response => response.text())
@@ -41,10 +43,8 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch(error => console.error("❌ Failed to load offer template:", error))
             .finally(() => {
-                // Hide all spinners after request completes
-                document.querySelectorAll(".loading-spinner").forEach(spinner => {
-                    spinner.classList.add("hidden");
-                });
+
+                hideSpinner(); // Hide spinner after request completes
             });
 
     } else {
@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     attachComponentOffersEvent(componentSelectors);
 
-    if(!isAiConfiguration) {
+    if (!isAiConfiguration) {
 
         componentSelectors.forEach(select => { // TODO: Here there is a problem, because the previous method doesn't working and
             select.addEventListener("change", function () {
@@ -71,117 +71,122 @@ document.addEventListener("DOMContentLoaded", function () {
     savePcConfiguration();
 
     resetAiQuestionnaire();
-     function attachComponentOffersEvent(componentSelectors)
-     {
-         componentSelectors.forEach(selectBox => {
 
-             let componentId = selectBox.getAttribute("data-component-id");
+    function attachComponentOffersEvent(componentSelectors) {
+        componentSelectors.forEach(selectBox => {
 
-             let offersContainer = document.querySelector(`[data-offers-for='${componentId}']`);
-             let hideButton = document.querySelector(`[data-toggle-offers][data-component-id='${componentId}']`);
+            let componentId = selectBox.getAttribute("data-component-id");
 
-             if (!offersContainer || !hideButton) {
-                 console.warn(`⚠️ Missing elements for component: ${componentId}`);
-                 return;
-             }
+            let offersContainer = document.querySelector(`[data-offers-for='${componentId}']`);
+            let hideButton = document.querySelector(`[data-toggle-offers][data-component-id='${componentId}']`);
 
-             hideButton.classList.add("hidden");
+            if (!offersContainer || !hideButton) {
+                console.warn(`⚠️ Missing elements for component: ${componentId}`);
+                return;
+            }
 
-             selectBox.addEventListener("change", function ()
-             {
-                 isAiConfiguration = false;
-                 let componentValue = this.value;
+            hideButton.classList.add("hidden");
 
-                 offersContainer.classList.add("hidden");
-                 hideButton.classList.add("hidden");
-                 offersContainer.innerHTML = "";
+            selectBox.addEventListener("change", function () {
+                isAiConfiguration = false;
+                let componentValue = this.value;
 
-                 if (!componentValue) return;
+                offersContainer.classList.add("hidden");
+                hideButton.classList.add("hidden");
+                offersContainer.innerHTML = "";
 
-                 fetch(`/configurator/component/offers/${encodeURIComponent(this.value)}`)
-                     .then(response => response.json())
-                     .then(data => {
-                         let offers = data[componentValue] || [];
+                if (!componentValue) return;
 
-                         //console.log("Fetched offers:", offers); // Debugging
-                         if (!Array.isArray(offers)) {
-                             console.error("Expected an array but got:", offers);
-                             return;
-                         }
+                showSpinner(); // Show spinner before fetching offers
 
-                         if (offers.length === 0) {
-                             offersContainer.innerHTML = "<p class='text-gray-500'>No offers available.</p>";
-                             return;
-                         }
+                fetch(`/configurator/component/offers/${encodeURIComponent(this.value)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let offers = data[componentValue] || [];
 
-                         offers.forEach(offer => {
+                        //console.log("Fetched offers:", offers); // Debugging
+                        if (!Array.isArray(offers)) {
+                            console.error("Expected an array but got:", offers);
+                            return;
+                        }
 
-                             if (Object.keys(offer).length === 0 ) {
-                                 console.log("Empty offer or missing required fields, skipping...");
-                                 return; // Skip the iteration if the offer is empty
-                             }
+                        if (offers.length === 0) {
+                            offersContainer.innerHTML = "<p class='text-gray-500'>No offers available.</p>";
+                            return;
+                        }
 
-                             if (!offerTemplate) {
-                                 console.error("Offer template not loaded yet.");
-                                 return;
-                             }
+                        offers.forEach(offer => {
 
-                             let offerElement = offerTemplate.content.cloneNode(true);
-                             //console.log("Cloned template:", offerElement); //  Debugging
+                            if (Object.keys(offer).length === 0) {
+                                console.log("Empty offer or missing required fields, skipping...");
+                                return; // Skip the iteration if the offer is empty
+                            }
 
-                             offerElement.querySelector(".vendor-logo").src = `${offer.logo}`;
-                             offerElement.querySelector(".vendor-logo").alt = offer.vendor_name;
-                                console.log(offer.stock_status);
-                             offerElement.querySelector(".stock-text").textContent = offer.stock_status ? "In Stock" : "Out of Stock";
+                            if (!offerTemplate) {
+                                console.error("Offer template not loaded yet.");
+                                return;
+                            }
 
-                             let stockStatus = offerElement.querySelector(".stock-status");
-                             stockStatus.className = "stock-status px-2 py-1 rounded-full text-xs font-medium";
+                            let offerElement = offerTemplate.content.cloneNode(true);
+                            //console.log("Cloned template:", offerElement); //  Debugging
 
-                             if (offer.stock_status === 'In Stock') {
-                                 stockStatus.classList.add("bg-green-100", "text-green-800");
-                             }
-                             if (offer.stock_status === 'Out of Stock') {
-                                 stockStatus.classList.add("bg-red-100", "text-red-800");
-                             }
+                            offerElement.querySelector(".vendor-logo").src = `${offer.logo}`;
+                            offerElement.querySelector(".vendor-logo").alt = offer.vendor_name;
+                            console.log(offer.stock_status);
+                            offerElement.querySelector(".stock-text").textContent = offer.stock_status ? "In Stock" : "Out of Stock";
 
-                             offerElement.querySelector(".vendor_name").textContent = offer.vendor_name;
-                             offerElement.querySelector(".price").textContent = offer.price;
-                             offerElement.querySelector(".shipping-cost").textContent = offer.shipping_cost;
+                            let stockStatus = offerElement.querySelector(".stock-status");
+                            stockStatus.className = "stock-status px-2 py-1 rounded-full text-xs font-medium";
 
-                             let linkElement = offerElement.querySelector(".view-offer");
+                            if (offer.stock_status === 'In Stock') {
+                                stockStatus.classList.add("bg-green-100", "text-green-800");
+                            }
+                            if (offer.stock_status === 'Out of Stock') {
+                                stockStatus.classList.add("bg-red-100", "text-red-800");
+                            }
 
-                             if (offer.stock_status === "Out of Stock") {
-                                 // Replace link with a disabled button
-                                 let button = document.createElement("button");
-                                 button.className = "inline-flex items-center px-4 py-2 border border-gray-200 text-sm font-medium rounded-md text-gray-400 bg-gray-50 cursor-not-allowed";
-                                 button.innerHTML = 'Out of Stock <i data-lucide="alert-circle" class="ml-2 h-4 w-4"></i>';
+                            offerElement.querySelector(".vendor_name").textContent = offer.vendor_name;
+                            offerElement.querySelector(".price").textContent = offer.price;
+                            offerElement.querySelector(".shipping-cost").textContent = offer.shipping_cost;
 
-                                 linkElement.parentNode.replaceChild(button, linkElement);
-                             } else {
-                                 // Set the href only for in-stock items
-                                 linkElement.href = offer.link;
-                                 linkElement.classList.remove("cursor-not-allowed", "text-gray-400", "bg-gray-50");
-                             }
+                            let linkElement = offerElement.querySelector(".view-offer");
 
-                             offersContainer.appendChild(offerElement);
-                         });
-                         //console.log("Offers inserted into:", offersContainer);// Debugging
-                         offersContainer.classList.remove("hidden");
-                         hideButton.classList.remove("hidden");
-                     })
-                     .catch(error => {
-                         console.error("Error fetching offers:", error);
-                         offersContainer.innerHTML = "<p class='text-red-500'>Failed to load offers.</p>";
-                     });
-             });
+                            if (offer.stock_status === "Out of Stock") {
+                                // Replace link with a disabled button
+                                let button = document.createElement("button");
+                                button.className = "inline-flex items-center px-4 py-2 border border-gray-200 text-sm font-medium rounded-md text-gray-400 bg-gray-50 cursor-not-allowed";
+                                button.innerHTML = 'Out of Stock <i data-lucide="alert-circle" class="ml-2 h-4 w-4"></i>';
 
-             // Hide Offers Button
-             hideButton.addEventListener("click", function () {
-                 offersContainer.classList.add("hidden");
-                 hideButton.classList.add("hidden");
-             });
-         });
-     }
+                                linkElement.parentNode.replaceChild(button, linkElement);
+                            } else {
+                                // Set the href only for in-stock items
+                                linkElement.href = offer.link;
+                                linkElement.classList.remove("cursor-not-allowed", "text-gray-400", "bg-gray-50");
+                            }
+
+                            offersContainer.appendChild(offerElement);
+                        });
+                        //console.log("Offers inserted into:", offersContainer);// Debugging
+                        offersContainer.classList.remove("hidden");
+                        hideButton.classList.remove("hidden");
+                    })
+                    .catch(error => {
+                        console.error("Error fetching offers:", error);
+                        offersContainer.innerHTML = "<p class='text-red-500'>Failed to load offers.</p>";
+                    })
+                    .finally(() => {
+
+                        hideSpinner(); // Hide spinner after request completes
+                    });
+            });
+
+            // Hide Offers Button
+            hideButton.addEventListener("click", function () {
+                offersContainer.classList.add("hidden");
+                hideButton.classList.add("hidden");
+            });
+        });
+    }
 
     function updateCompatibleComponents() {
 
@@ -196,13 +201,18 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
+        showSpinner(); // show spinner
         // Make AJAX request to fetch compatible components
         fetch(`/configurator/compatible?` + new URLSearchParams(selectedComponents))
             .then(response => response.json())
             .then(data => {
                 updateDropdowns(data);
             })
-            .catch(error => console.error("❌ Error fetching compatible components:", error));
+            .catch(error => console.error("❌ Error fetching compatible components:", error))
+            .finally(() => {
+
+                hideSpinner();// hide spinner
+            });
     }
 
     function updateDropdowns(data) {
@@ -241,7 +251,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function savePcConfiguration(){
+    function savePcConfiguration() {
+        const requiredComponents = ['cpu', 'gpu', 'motherboard', 'ram', 'psu', 'storage'];
+
 
         let saveButton = document.getElementById('saveConfiguration');
         let modal = document.getElementById('saveConfigModal');
@@ -250,7 +262,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Show modal when clicking "Запази Конфигурация"
         saveButton.addEventListener('click', function () {
-            modal.classList.remove('hidden');
+
+            const validationErrors = validateComponents(requiredComponents);
+
+            if (validationErrors.length > 0) {
+                showComponentErrors(validationErrors);
+            } else {
+                modal.classList.remove('hidden'); // Show modal only if valid
+            }
+
         });
 
         // Close modal if "Отказ" is clicked
@@ -259,49 +279,131 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
 
-        confirmSaveButton.addEventListener('click', function (){
+        confirmSaveButton.addEventListener('click', function () {
 
+            // Get the configuration name
             let configName = document.getElementById('configName').value.trim();
 
+            // Validate the configuration name
             if (configName === "") {
-                alert("Моля, въведете име на конфигурацията.");
-                return;
+                alert("Моля, въведете име на конфигурацията."); // Alert for empty configuration name
+                return; // Stop further execution
             }
 
-            let cpu = document.getElementById('cpu-select').value;
-            let motherboard = document.getElementById('motherboard').value;
-            let ram = document.getElementById('ram').value;
-            let gpu = document.getElementById('gpu').value;
-            let storage = document.getElementById('storage').value;
-            let psu = document.getElementById('psu').value;
+            // Gather the selected component values
+            const requestData = fetchComponentData();
+            // Proceed to save the configuration
+            saveConfiguration(requestData);
 
-            let requestData = {
-                name: configName,
-                cpu:cpu,
-                motherboard:motherboard,
-                ram:ram,
-                gpu:gpu,
-                storage:storage,
-                psu:psu
-            };
-
-            // Send the request
-            fetch('/configurator/save', {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(requestData)
-            }).then(response => {
-
-                if (response.ok) {
-                    // Redirect to PC build configuration page
-                    window.location.href = '/completed/build';
-                } else {
-                    console.error('Error processing request');
-                }
-            }).catch(error => console.log(error));
         });
+
+    }
+
+    function fetchComponentData() {
+        let cpu = document.getElementById('cpu-select').value;
+        let motherboard = document.getElementById('motherboard').value;
+        let ram = document.getElementById('ram').value;
+        let gpu = document.getElementById('gpu').value;
+        let storage = document.getElementById('storage').value;
+        let psu = document.getElementById('psu').value;
+
+        return {
+            cpu: cpu,
+            motherboard: motherboard,
+            ram: ram,
+            gpu: gpu,
+            storage: storage,
+            psu: psu
+        };
+    }
+
+    function getComponentLabel(id) {
+        const labels = {
+            cpu: "процесор",
+            gpu: "видеокарта",
+            ram: "рам памет",
+            psu: "захранване",
+            storage: "сторно устройство",
+            cooling: "охлаждане",
+            motherboard: "дънна платка",
+            case: "кутия"
+        };
+        return labels[id] || id;
+    }
+
+    function validateComponents(components) {
+        const errors = [];
+
+        components.forEach(component => {
+
+            const select = document.getElementById(`${component}`);
+
+            const value = select?.value;
+
+            if (!value) {
+                errors.push({component, message: `Моля, изберете ${getComponentLabel(component)}.`});
+            }
+        });
+
+        return errors;
+    }
+
+    function showComponentErrors(errors) {
+        errors.forEach(({component, message}) => {
+
+            const select = document.getElementById(`${component}`);
+
+            // Add red border background
+            select.classList.add("border-red-500", "bg-red-50");
+
+            // Check if error message already exists
+            if (!document.getElementById(`${component}-error`)) {
+                const errorMessage = document.createElement("p");
+                errorMessage.id = `${component}-error`;
+                errorMessage.className = "text-red-500 text-sm mt-2";
+                errorMessage.textContent = message;
+
+                select.parentElement.appendChild(errorMessage);
+            }
+        });
+    }
+
+    function saveConfiguration(requestData) {
+
+        showSpinner(); // show spinner
+        // Send the request
+        fetch('/configurator/save', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestData)
+        }).then(response => {
+
+            if (response.ok) {
+                // Redirect to PC build configuration page
+                window.location.href = '/completed/build';
+            } else {
+                // Handle error response
+                return response.json().then(errorData => {
+                   // handleErrorResponse(errorData);
+                });
+            }
+        }).catch(error => console.log(error))
+            .finally(() => {
+
+                hideSpinner()// hide spinner
+            });
+    }
+
+    // Show the spinner
+    function showSpinner() {
+        document.getElementById("loading-spinner").classList.remove("hidden");
+    }
+
+    // Hide the spinner
+    function hideSpinner() {
+        document.getElementById("loading-spinner").classList.add("hidden");
     }
 
     function resetAiQuestionnaire() {

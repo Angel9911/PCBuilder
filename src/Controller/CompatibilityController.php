@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Constraints\ConfigurationConstraint;
 use App\Service\ComponentService;
 use App\utils\ObjectMapper;
+use App\utils\ValidatorUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -36,11 +38,11 @@ class CompatibilityController extends AbstractController
     {
         $componentsParams = $request->query->all();
 
-        $validParams = array_intersect_key($componentsParams, array_flip([
-            'cpu_id', 'gpu_id', 'ram_id', 'motherboard_id', 'storage_id', 'psu_id'
-        ]));
+        $validComponentsIds = ValidatorUtils::validateAsKey($componentsParams, ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS_IDS);
 
-        $compatiblePcComponents = $this->componentService->getCompatibleComponents($validParams);
+        // TODO: We have to check if each value which comes has valid type and itself valid
+
+        $compatiblePcComponents = $this->componentService->getCompatibleComponents($validComponentsIds);
 
         return $this->json($compatiblePcComponents);
     }

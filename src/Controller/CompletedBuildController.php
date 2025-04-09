@@ -34,6 +34,7 @@ class CompletedBuildController extends AbstractController
     #[Route('/completed/build', name: 'completed.build')]
     public function completed(): Response
     {
+        $this->redis->delete(CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY);
         // Check if data exists in Redis cache
         if ($this->redis->isKeyExist(CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY)) {
 
@@ -45,6 +46,7 @@ class CompletedBuildController extends AbstractController
             $result = $this->configuratorService->getPcConfigurations();
             $this->redis->set(CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY, $result, 3600); // Cache for 1 hour
         }
+
 
         return $this->render('pages/completed_configuration.html.twig' ,
         [

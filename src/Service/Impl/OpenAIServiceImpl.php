@@ -33,7 +33,6 @@ class OpenAIServiceImpl implements OpenAIService
     public function isConnected(): bool
     {
         return false;
-        // TODO: Implement isConnected() method.
     }
 
     /**

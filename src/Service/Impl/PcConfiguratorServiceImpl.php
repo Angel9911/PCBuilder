@@ -7,6 +7,7 @@ use App\Entity\PCConfigComponent;
 use App\Repository\CompletedConfigurationRepository;
 use App\Repository\ComponentRepository;
 use App\Service\PCConfiguratorService;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 
 class PcConfiguratorServiceImpl implements PCConfiguratorService
@@ -35,6 +36,10 @@ class PcConfiguratorServiceImpl implements PCConfiguratorService
         $userPcConfiguration = new CompletedConfiguration();
 
         $userPcConfiguration->setName($componentsValues['name']);
+
+        $currentDate = DateTime::createFromFormat('Y-m-d H:i:s', (new \DateTime())->format('Y-m-d H:i:s'));
+
+        $userPcConfiguration->setCreatedAt($currentDate);
 
         $cpuComponent = $this->componentRepository->findComponentById((int)$componentsValues['cpu']);
         $gpuComponent = $this->componentRepository->findComponentById((int)$componentsValues['gpu']);

@@ -78,7 +78,19 @@ function prevStep() {
     }
 }
 
+// Show the spinner
+function showSpinner() {
+    document.getElementById("loading-spinner").classList.remove("hidden");
+}
+
+// Hide the spinner
+function hideSpinner() {
+    document.getElementById("loading-spinner").classList.add("hidden");
+}
+
+
 function sendAnswersToBackend() {
+    showSpinner();
     //console.log(userAnswers)
     fetch("/configurator/ai", {
         method: "POST",
@@ -102,7 +114,11 @@ function sendAnswersToBackend() {
                 <p>${data.recommendation}</p>
             `;
         })*/
-        .catch(error => console.error("Error:", error));
+        .catch(error => console.error("Error:", error))
+        .finally(() => {
+
+            hideSpinner()// hide spinner
+        });
 }
 
 prevBtn.addEventListener("click", prevStep);

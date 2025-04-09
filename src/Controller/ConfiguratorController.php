@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Constraints\CacheConstraints;
+use App\Constraints\ConfigurationConstraint;
 use App\Entity\CompletedConfiguration;
 use App\Entity\Component;
 use App\Form\PcConfigurationForm;
@@ -15,6 +16,7 @@ use App\Service\OpenAIService;
 use App\Service\PCConfiguratorService;
 use App\Service\VendorScraperService;
 use App\utils\ObjectMapper;
+use App\utils\ValidatorUtils;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -140,14 +142,45 @@ class ConfiguratorController extends AbstractController
     #[Route('/configurator/save', name: 'configurator.save', methods: ['POST'])]
     public function saveConfiguration(Request $request): Response
     {
+        $cacheKey = CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY;
+
         $componentsParams = ObjectMapper::mapJsonToObject($request->getContent());
 
-        $validParams = array_intersect_key($componentsParams, array_flip([
-            'name', 'cpu', 'gpu', 'ram', 'motherboard', 'storage', 'psu'
-        ]));
+        $validComponents = ValidatorUtils::validateAsKey($componentsParams, ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS);
 
+        $missingFields = array_diff(ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS, $validComponents);
 
-        $cacheKey = CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY;
+        if(!empty($missingFields)){
+
+            return $this->json([
+                'error' => 'Missing required fields',
+                'fields' =>  implode(', ', $missingFields),
+            ], 400);
+        }
+
+        $isConfigurationNameValid = ValidatorUtils::validateAsString($validComponents['name']);
+
+        if(!$isConfigurationNameValid){
+
+            return $this->json([
+                'error' => 'Invalid pc configuration name. Name must be a string',
+                'fields' => 'name',
+            ], 400);
+        }
+
+        $isComponentValsValid = ValidatorUtils::validateAsFieldType(
+            $validComponents
+            , ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS
+            , 'number'
+        );
+
+        if(!empty($isComponentValsValid)){
+
+            return $this->json([
+                'error' => 'Invalid data types. There must be integers',
+                'fields' => implode(', ', $isComponentValsValid),
+            ], 400);
+        }
 
         // Check if the cache exists
         if ($this->redis->isKeyExist($cacheKey)) {
@@ -163,25 +196,20 @@ class ConfiguratorController extends AbstractController
             $cachedConfigurations = $this->configuratorService->getPcConfigurations();
         }
 
-        $newConfiguration = $this->configuratorService->savePcConfiguration($validParams);
+        $newConfiguration = $this->configuratorService->savePcConfiguration($validComponents);
 
         $newConfigurationComponents = $this->configuratorService->getPcConfigurationById($newConfiguration->getId());
 
-        $newConfigurationToArray = [
-            $newConfiguration->getId() => [
-                'id' => $newConfiguration->getId(),
-                'name' => $newConfiguration->getName(),
-                'totalWattage' => $newConfiguration->getTotalWattage(),
-            ]
+        $cachedConfigurations[$newConfiguration->getId()] = [
+            'id' => $newConfiguration->getId(),
+            'name' => $newConfiguration->getName(),
+            'totalWattage' => $newConfiguration->getTotalWattage(),
         ];
 
-        // Add the components grouped by type to the result array
+        // Добави и компонентите
         foreach ($newConfigurationComponents as $type => $data) {
-            $newConfigurationToArray[$newConfiguration->getId()][$type] = $data;
+            $cachedConfigurations[$newConfiguration->getId()][$type] = $data;
         }
-
-        // Add the new configuration to the array
-        $cachedConfigurations[] = $newConfigurationToArray;
 
         // Save the updated array back to Redis
         $this->redis->set($cacheKey, $cachedConfigurations, 3600); // Cache for 1 hour
@@ -189,11 +217,6 @@ class ConfiguratorController extends AbstractController
         return $this->json('Configuration saved successfully');
     }
 
-    #[Route('/configurator/all', name: 'configurator.all', methods: ['GET'])]
-    public function getAllConfigurations(): Response
-    {
-
-    }
     #[Route('/test', name: 'configurator.test', methods: ['GET'])]
     public function getAllTest(): Response
     {
@@ -212,6 +235,4 @@ class ConfiguratorController extends AbstractController
             'pc_cases' => $this->componentService->getComponentsByType('pc_case')
         ];
     }
-
-    // TODO: GET certain configuration, maybe by ID(when user selects some configuration from completed_config page.
 }
