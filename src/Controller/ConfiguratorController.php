@@ -148,7 +148,7 @@ class ConfiguratorController extends AbstractController
 
         $validComponents = ValidatorUtils::validateAsKey($componentsParams, ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS);
 
-        $missingFields = array_diff(ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS, $validComponents);
+        $missingFields = array_diff(ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS, array_keys($validComponents));
 
         if(!empty($missingFields)){
 
@@ -158,7 +158,16 @@ class ConfiguratorController extends AbstractController
             ], 400);
         }
 
-        $isConfigurationNameValid = ValidatorUtils::validateAsString($validComponents['name']);
+        if(isset($componentsParams['name'])){
+
+            $isConfigurationNameValid = ValidatorUtils::validateAsString($componentsParams['name']);
+        } else{
+
+            return $this->json([
+                'error' => 'PC Configuration name is missing',
+                'fields' => 'name',
+            ], 400);
+        }
 
         if(!$isConfigurationNameValid){
 
@@ -195,6 +204,12 @@ class ConfiguratorController extends AbstractController
             // If cache is empty, fetch from DB
             $cachedConfigurations = $this->configuratorService->getPcConfigurations();
         }
+
+        // merge name of configuration which components after make validation
+        $validComponents = array_merge(
+            ['name' => $componentsParams['name']],
+            $validComponents
+        );
 
         $newConfiguration = $this->configuratorService->savePcConfiguration($validComponents);
 

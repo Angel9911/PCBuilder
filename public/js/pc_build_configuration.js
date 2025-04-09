@@ -292,6 +292,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Gather the selected component values
             const requestData = fetchComponentData();
+
+            requestData.name = configName;
             // Proceed to save the configuration
             saveConfiguration(requestData);
 
@@ -300,7 +302,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function fetchComponentData() {
-        let cpu = document.getElementById('cpu-select').value;
+        let cpu = document.getElementById('cpu').value;
         let motherboard = document.getElementById('motherboard').value;
         let ram = document.getElementById('ram').value;
         let gpu = document.getElementById('gpu').value;
@@ -371,6 +373,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function saveConfiguration(requestData) {
 
         showSpinner(); // show spinner
+        console.log(requestData);
         // Send the request
         fetch('/configurator/save', {
             method: "POST",
