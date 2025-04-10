@@ -13,17 +13,19 @@
                     <span class="text-sm sm:text-base text-gray-600">AI Precision. Human Performance.</span>
                 </div>
             </a>#}
+
             <a href="{{ path('home') }}" class="flex items-start space-x-3 hover:opacity-70 transition">
                 <!-- Logo Image -->
                 <img src="{{ asset('assets/images/ai_pc_config_logo_fix_version.png') }}"
                      alt="AI PC BUILDER Logo"
-                     class="h-20 w-auto object-contain " />
+                     class="h-20 w-auto object-contain">
 
                 <!-- Text Content -->
                 <div class="flex flex-col leading-tight">
-                    <span class="text-xl sm:text-2xl font-extrabold leading-snug break-words max-w-[8rem] sm:max-w-none" style="color: #003E7E;">
-                        AI PC BUILDER
-                     </span>
+        <span class="text-xl sm:text-2xl font-extrabold leading-snug whitespace-nowrap" style="color: #003E7E;">
+            AI PC BUILDER
+        </span>
+                    <!-- Slogan: hidden on small screens, visible on sm+ -->
                     <span class="text-sm sm:text-base text-gray-600">
                         AI Precision. Human Performance.
                     </span>
@@ -39,26 +41,42 @@
                     </svg>
                 </div>
             </div>
-            <button class="md:hidden p-2 text-gray-600 hover:text-blue-600 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search h-6 w-6">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.3-4.3"></path>
-                </svg>
-            </button>
+            <!-- Header Right Section -->
             <div class="flex items-center space-x-4">
+                <!-- Desktop Navigation -->
                 <div class="hidden md:flex items-center space-x-4">
-                    <a class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors" href="{{ path('home') }}">Начало</a>
-                    <a class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors" href="/contact">Контакти</a>
-                    <a class="hidden lg:block px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors" href="/faq">Често задавани въпроси</a>
+                    <a href="{{ path('home') }}" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">Начало</a>
+                    <a href="/contact" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">Контакти</a>
+                    <a href="/faq" class="hidden lg:block px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">Често задавани въпроси</a>
                 </div>
+
+                <!-- User Icon -->
                 <div class="flex items-center space-x-2">
                     <button id="open-auth-modal" class="p-2 text-gray-600 hover:text-blue-600 transition-colors relative">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user h-6 w-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-user h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
                     </button>
                 </div>
+
+                <!-- Hamburger Menu Button (Mobile Only) -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-toggle" class="p-2 text-gray-600 hover:text-blue-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-menu h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Dropdown Menu -->
+            <div id="mobile-menu" class="md:hidden hidden flex-col space-y-2 mt-2">
+                <a href="{{ path('home') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">Начало</a>
+                <a href="/contact" class="block px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">Контакти</a>
+                <a href="/faq" class="block px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">Често задавани въпроси</a>
             </div>
         </div>
     </div>
