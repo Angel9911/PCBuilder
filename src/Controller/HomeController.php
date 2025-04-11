@@ -15,4 +15,9 @@ class HomeController extends AbstractController
     {
         return $this->render('pages/home_page.html.twig');
     }
+    #[Route('/forum', name: 'forum' , methods: ['GET'])]
+    public function forum(): Response
+    {
+        return $this->render('pages/forum_page.html.twig');
+    }
 }
