@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}PC Builder Pro{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="{{ asset('css/auth_login_registration.css') }}">
     <link rel="stylesheet" href="{{ asset('css/home_page.css') }}">
     <script src="{{ asset('js/home_page.js') }}"></script>
@@ -21,6 +22,10 @@
 
 {% include 'layout/footer.html.twig' %}
 
+<script src="{{ asset('js/ui/spinner.js') }}"></script>
+<script src="{{ asset('js/ui/errors.js') }}"></script>
+<script src="{{ asset('js/component_image_button.js') }}"></script>
+<script src="{{ asset('js/configurator.js') }}"></script>
 <script src="{{ asset('js/auth_login_registration.js') }}"></script>
 <script src="{{ asset('js/ai_questionnaire.js') }}"></script>
 <script src="{{ asset('js/pc_build_configuration.js') }}"></script>

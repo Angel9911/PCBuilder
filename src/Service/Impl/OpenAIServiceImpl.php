@@ -60,6 +60,7 @@ class OpenAIServiceImpl implements OpenAIService
 
                             - Match components to user preferences (brand, budget, usage).
                             - Ensure **full compatibility**.
+                            - The computer parts you will choose should only be for: CPU, GPU, PSU, MOTHERBOARD, RAM, STORAGE
                             - Output **only JSON**:  
                             1. **Component Selection** (structured list).  
                             2. **Explanation** (under 50 words)."
@@ -99,7 +100,7 @@ class OpenAIServiceImpl implements OpenAIService
                     "name" => $value
                 ];
             }
-
+            //$hardcoeed = $this->getHardcodedArray();
             return [
                 'components' => $formatAiResult['Component Selection'],  // Returns an associative array
                 'explanation' => $decodedResponse['Explanation']
@@ -115,36 +116,36 @@ class OpenAIServiceImpl implements OpenAIService
         $hardcodedResponse = [
             "Component Selection" => [
                 "CPU" => [
-                    "name" => "Intel Core i7-13700K",
-                    'id' => 1,
-                    "generation" => "13th Gen",
-                    "power_wattage" => 60
+                    "name" => "Intel Core i9-13900K",
+                    //'id' => 1,
+                    //"generation" => "13th Gen",
+                    //"power_wattage" => 60
                 ],
                 "Motherboard" => [
                     "name" => "ASUS PRIME H610M-K D4",
-                    "year" => "2024"
+                    //"year" => "2024"
                 ],
                 "RAM" => [
-                    "name" => "Corsair Vengeance DDR5 32GB",
-                    "year" => "2024"
+                    "name" => "Gigabyte Z790 AORUS ELITE",
+                    //"year" => "2024"
                 ],
                 "GPU" => [
-                    "name" => "NVIDIA GeForce RTX 4070 Ti",
-                    "year" => "2024",
-                    "power_wattage" => 300
+                    "name" => "NVIDIA GeForce RTX 4090",
+                    //"year" => "2024",
+                    //"power_wattage" => 300
                 ],
                 "PSU" => [
-                    "name" => "EVGA SuperNOVA 1200 P3",
-                    "year" => "2024",
-                    "power_wattage" => 1200
+                    "name" => "Seasonic FOCUS GX-850",
+                    //"year" => "2024",
+                    //"power_wattage" => 1200
                 ],
                 // Adding missing components with placeholders
                 "Storage" => [
-                    "name" => "Samsung 970 EVO Plus 1TB",
-                    "type" => "NVMe SSD",
-                    "year" => "2024"
+                    "name" => "Crucial MX500 1TB",
+                    //"type" => "NVMe SSD",
+                    //"year" => "2024"
                 ],
-                "CPU Cooling" => [
+               /* "CPU Cooling" => [
                     "name" => "Corsair iCUE H150i ELITE CAPELLIX",
                     "type" => "Liquid Cooler",
                     "year" => "2024"
@@ -158,7 +159,7 @@ class OpenAIServiceImpl implements OpenAIService
                     "name" => "TP-Link Archer TX3000E",
                     "type" => "Wi-Fi 6 PCIe Adapter",
                     "year" => "2024"
-                ]
+                ]*/
             ],
             "Explanation" => "This build is optimized for high-performance workstation tasks like 3D rendering and AI workloads. The Intel Core i9-14900K provides top-tier processing power, while the NVIDIA RTX 6000 Ada ensures excellent GPU acceleration..."
         ];

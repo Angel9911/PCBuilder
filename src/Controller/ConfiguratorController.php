@@ -61,7 +61,6 @@ class ConfiguratorController extends AbstractController
 
         $isAiConfiguration= (bool)$session->get('isAiConfiguration');
 
-
         $componentsData = $this->populateComponentsFields();
 
 
@@ -78,6 +77,7 @@ class ConfiguratorController extends AbstractController
             'rams' => $componentsData['rams'],
             'storages' => $componentsData['storages'],
             'pc_cases' => $componentsData['pc_cases'],
+            'monitors' => $componentsData['monitors']
         ]);
     }
 
@@ -247,7 +247,8 @@ class ConfiguratorController extends AbstractController
             'gpus' => $this->componentService->getComponentsByType('gpu'),
             'rams' => $this->componentService->getComponentsByType('ram'),
             'storages' => $this->componentService->getComponentsByType('storage'),
-            'pc_cases' => $this->componentService->getComponentsByType('pc_case')
+            'pc_cases' => $this->componentService->getComponentsByType('pc_case'),
+            'monitors' => $this->componentService->getComponentsByType('monitor')
         ];
     }
 }

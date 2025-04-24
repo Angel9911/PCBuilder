@@ -115,14 +115,23 @@
                         <li class="group hover:bg-gray-50 transition-colors duration-150">
 
                             {% include 'pages/pages_templates/component-combobox-template.html.twig' with {
-                                id: 'psu',
-                                label: 'Power Supply',
-                                icon_path: '/assets/images/icons8-power-over-ethernet-50.png',
-                                filter_path: '/components/psu/filter',
-                                default_option: 'Select Power Supply (PSU)',
-                                options: psus
+                                id: 'monitor',
+                                label: 'Monitor',
+                                icon_path: '/assets/images/icons8-server-50.png',
+                                filter_path: '/components/case/filter',
+                                default_option: 'Select Monitor',
+                                image_url: 'https://www.pic.bg/data/asbis/782669-f60cf782e860e111661df24196c5b790.png',
+                                options: monitors
                             } %}
-
+                            <!-- Image preview area -->
+                            <div id="monitor-image-preview" class="mt-4 hidden text-center">
+                                <img
+                                        id="monitor-image"
+                                        src=""
+                                        alt="Monitor Preview"
+                                        class="mx-auto max-w-xs rounded-lg shadow-lg border border-gray-200"
+                                >
+                            </div>
                         </li>
 
                         <li class="group hover:bg-gray-50 transition-colors duration-150">
@@ -133,67 +142,38 @@
                                 icon_path: '/assets/images/icons8-server-50.png',
                                 filter_path: '/components/case/filter',
                                 default_option: 'Select Case',
+                                image_url: 'https://www.pic.bg/data/asbis/782669-f60cf782e860e111661df24196c5b790.png',
                                 options: pc_cases
                             } %}
 
+                            <div id="pc_case-image-preview" class="mt-4 hidden text-center">
+                                <img
+                                        id="pc_case-image"
+                                        src=""
+                                        alt="PC Case Preview"
+                                        class="mx-auto max-w-xs rounded-lg shadow-lg border border-gray-200"
+                                >
+                            </div>
                         </li>
 
                         <li class="group hover:bg-gray-50 transition-colors duration-150">
-                            <div class="px-4 py-4 sm:px-6">
-                                <!-- Component Header -->
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 bg-blue-100 rounded-md p-2">
-                                            <img src="{{ asset('/assets/images/icons8-monitor-50.png') }}" alt="Monitor" class="w-9 h-9">
-                                        </div>
-                                        <div class="ml-4">
-                                            <h4 class="text-lg font-medium text-gray-900">Monitor</h4>
-                                        </div>
-                                    </div>
-                                    <button class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center" onclick="window.location.href='/components/monitor/filter'">
-                                        Advanced Filter
-                                        <i data-lucide="Filter" class="inline-block h-4 w-4 ml-1"></i>
-                                    </button>
-                                </div>
 
+                            {% include 'pages/pages_templates/component-combobox-template.html.twig' with {
+                                id: 'psu',
+                                label: 'Power Supply',
+                                icon_path: '/assets/images/icons8-power-over-ethernet-50.png',
+                                filter_path: '/components/psu/filter',
+                                default_option: 'Select Power Supply (PSU)',
+                                options: psus
+                            } %}
 
-                                <div class="flex items-center space-x-4">
-                                    <div class="relative flex-1">
-                                        <select data-component-id="monitor" class="block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-lg transition-shadow duration-150 hover:shadow-md group-hover:border-blue-300">
-                                            <option value="">Select Monitor</option>
-
-                                            <option value="LG 27GL83A-B 27" 1440p=" ">
-                                            LG 27GL83A-B 27" 1440p 144Hz
-                                            </option>
-
-                                            <option value="ASUS TUF Gaming VG259QM 24.5" 1080p="" >
-                                            ASUS TUF Gaming VG259QM 24.5" 1080p 280Hz
-                                            </option>
-
-                                            <option value="Dell S2721DGF 27" 1440p="" >
-                                            Dell S2721DGF 27" 1440p 165Hz
-                                            </option>
-
-                                        </select>
-                                        <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                            <i data-lucide="ChevronDown" class="h-5 w-5 text-gray-400"></i>
-                                        </div>
-                                    </div>
-                                    <!-- Hide Offers Button -->
-                                    <!-- Include the Hide Offers button -->
-                                    {% include 'pages/pages_templates/hide-offer-template.html.twig' with { component_id: 'monitor' } %}
-                                </div>
-
-                                <!-- Offers Section -->
-
-                            </div>
                         </li>
 
                     </ul>
                     <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
                         <button id="saveConfiguration" class="w-full flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
                             <i data-lucide="Save" class="h-5 w-5 mr-2"></i>
-                            Запаси Конфигурация
+                            Запази Конфигурация
                         </button>
                         <p class="mt-2 text-sm text-center text-gray-500">
                             Запазете конфигурацията си за достъп до нея по-късно или я споделете с други

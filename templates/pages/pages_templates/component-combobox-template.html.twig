@@ -15,21 +15,20 @@
             <i data-lucide="Filter" class="inline-block h-4 w-4 ml-1"></i>
         </button>
     </div>
-
-    <!-- Component Selection and Show Offers -->
     <div class="flex items-center space -x-4">
         <div class="relative flex-1">
-            <select id="{{ id }}" data-component-id="{{ id }}" class="block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-lg transition-shadow duration-150 hover:shadow-md group-hover:border-blue-300">
-                <option value="">{{ default_option }}</option>
-                {% for option in options %}
-                    <option value="{{ option.id ?? option }}">{{ option.name ?? option }}</option>
-                {% endfor %}
-            </select>
+            <div class="custom-select" data-component-id="{{ id }}" >
+                <div class="select-selected">{{ default_option }}</div>
+                <div class="select-items select-hide">
+                    {% for option in options %}
+                        <div class="select-item" data-value="{{ option.id ?? option }}">{{ option.name ?? option }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
             <!-- Spinner -->
             <div data-spinner-for="{{ id }}" class="loading-spinner hidden"></div>
-            <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                <i data-lucide="ChevronDown" class="h-5 w-5 text-gray-400"></i>
-            </div>
+
         </div>
 
         <!-- Hide Offers Button -->
@@ -41,5 +40,16 @@
     <!-- Offers Section -->
     <!-- Hidden template for vendor offers -->
     <div class="mt-4 space-y-3 vendor-offers hidden" data-offers-for="{{ id }}"></div>
+
+    <!-- if the combobox is monitor or pc case -->
+    {% if id == 'pc_case' or id == 'monitor'%}
+        <button
+                id="{{ id }}-view-image"
+                type="button"
+                class="ml-2 text-blue-600 hover:text-blue-800 text-sm font-medium transition duration-150 ease-in-out"
+        >
+            View Image
+        </button>
+    {% endif %}
 
 </div>

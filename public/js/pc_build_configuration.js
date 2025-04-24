@@ -1,26 +1,60 @@
 document.addEventListener("DOMContentLoaded", function () {
+    //setup early
+    document.querySelectorAll(".custom-select").forEach(selectBox => {
+        let selected = selectBox.querySelector(".select-selected");
+        let items = selectBox.querySelectorAll(".select-item");
+
+        selected.addEventListener("click", () => {
+
+            selectBox.querySelector(".select-items").classList.toggle("select-hide");
+        });
+
+        items.forEach(item => {
+            item.addEventListener("click", () => {
+                selected.textContent = item.textContent;
+                selectBox.dataset.selectedValue = item.dataset.value;
+
+                selectBox.querySelector(".select-items").classList.add("select-hide");
+
+                // Trigger change event
+                selectBox.dispatchEvent(new CustomEvent("change", {
+                        detail: {
+                            value: item.dataset.value,
+                            name: item.textContent
+                        }
+                }));
+            });
+        });
+    });
+
+
+    let isCompletedConfiguration = false;
     // Initialize the combobox fields if there are given AI recommendation components or given completed configuration
     if (typeof pcConfiguration !== "undefined" && pcConfiguration && Object.keys(pcConfiguration).length > 0) {
-
+        isCompletedConfiguration = true;
         Object.keys(pcConfiguration).forEach(component => {
             let componentData = pcConfiguration[component];
-            let selectElement = document.querySelector(`select[data-component-id="${component.toLowerCase()}"]`);
+
+            let selectBox = document.querySelector(`.custom-select[data-component-id="${component.toLowerCase()}"]`);
 
 
-            if (selectElement) {
-                let componentOption = Array.from(selectElement.options).find(option => option.textContent.trim() === componentData.name);
+            if (selectBox) {
+
+                let items = selectBox.querySelectorAll(".select-item");
+                let componentOption = Array.from(items).find(item => item.textContent.trim() === componentData.name);
 
 
                 if (componentOption) {
-                    componentOption.selected = true;
+                    selectBox.querySelector(".select-selected").textContent = componentOption.textContent;
+                    selectBox.dataset.selectedValue = componentOption.dataset.value;
 
-                    // Trigger change event to load offers
-                    setTimeout(() => {
-                        selectElement.dispatchEvent(new Event("change"));
-                        //console.log(`🔄 Change Event Dispatched for AI-selected: ${componentData.name}`);
-                    }, 100);
-                } else {
-                    console.warn(`⚠️ No matching option found for ${componentData.name} in ${component}`);
+                    // Trigger custom change event
+                    selectBox.dispatchEvent(new CustomEvent("change", {
+                        detail: {
+                            value: componentOption.dataset.value,
+                            name: componentOption.textContent
+                        }
+                    }));
                 }
             }
         });
@@ -57,20 +91,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     attachComponentOffersEvent(componentSelectors);
 
-    if (!isAiConfiguration) {
 
-        componentSelectors.forEach(select => { // TODO: Here there is a problem, because the previous method doesn't working and
+        componentSelectors.forEach(select => {
             select.addEventListener("change", function () {
-
-                updateCompatibleComponents(); // 🔥 Only fetch if NOT from AI or if not from completed configuration
+                //if (!isCompletedConfiguration) { // Only fetch compatible components if not a completed configuration
+                    updateCompatibleComponents();
+                //}
+                //updateCompatibleComponents(); // 🔥 Only fetch if NOT from AI or if not from completed configuration
 
             });
         });
-    }
 
     savePcConfiguration();
 
     resetAiQuestionnaire();
+    // Handles image toggle per component (monitor, pc_case)
+    setupImageToggle('monitor');
+    setupImageToggle('pc_case');
 
     function attachComponentOffersEvent(componentSelectors) {
         componentSelectors.forEach(selectBox => {
@@ -87,9 +124,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             hideButton.classList.add("hidden");
 
-            selectBox.addEventListener("change", function () {
-                isAiConfiguration = false;
-                let componentValue = this.value;
+            selectBox.addEventListener("change", function (e) {
+                isCompletedConfiguration = false;
+
+                const componentValue = e.detail?.value || this.dataset.selectedValue || "";
 
                 offersContainer.classList.add("hidden");
                 hideButton.classList.add("hidden");
@@ -99,12 +137,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 showSpinner(); // Show spinner before fetching offers
 
-                fetch(`/configurator/component/offers/${encodeURIComponent(this.value)}`)
+                fetch(`/configurator/component/offers/${encodeURIComponent(componentValue)}`)
                     .then(response => response.json())
                     .then(data => {
                         let offers = data[componentValue] || [];
 
-                        //console.log("Fetched offers:", offers); // Debugging
                         if (!Array.isArray(offers)) {
                             console.error("Expected an array but got:", offers);
                             return;
@@ -128,7 +165,6 @@ document.addEventListener("DOMContentLoaded", function () {
                             }
 
                             let offerElement = offerTemplate.content.cloneNode(true);
-                            //console.log("Cloned template:", offerElement); //  Debugging
 
                             offerElement.querySelector(".vendor-logo").src = `${offer.logo}`;
                             offerElement.querySelector(".vendor-logo").alt = offer.vendor_name;
@@ -166,7 +202,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                             offersContainer.appendChild(offerElement);
                         });
-                        //console.log("Offers inserted into:", offersContainer);// Debugging
+
                         offersContainer.classList.remove("hidden");
                         hideButton.classList.remove("hidden");
                     })
@@ -191,11 +227,11 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateCompatibleComponents() {
 
         let selectedComponents = {};
-
         // Gather selected components
         componentSelectors.forEach(select => {
             let componentType = select.getAttribute("data-component-id");
-            let selectedValue = select.value;
+            //let selectedValue = select.value;
+            let selectedValue = select.dataset.selectedValue || "";
             if (selectedValue) {
                 selectedComponents[componentType + "_id"] = selectedValue;
             }
@@ -206,7 +242,10 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch(`/configurator/compatible?` + new URLSearchParams(selectedComponents))
             .then(response => response.json())
             .then(data => {
+
                 updateDropdowns(data);
+
+
             })
             .catch(error => console.error("❌ Error fetching compatible components:", error))
             .finally(() => {
@@ -219,194 +258,81 @@ document.addEventListener("DOMContentLoaded", function () {
 
         Object.keys(data).forEach(componentType => {
             let componentName = componentType.replace("_ids", ""); // Convert "cpu_ids" to "cpu"
-            let selectElement = document.querySelector(`select[data-component-id="${componentName}"]`);
+            //let selectElement = document.querySelector(`select[data-component-id="${componentName}"]`);
+            let selectBox = document.querySelector(`.custom-select[data-component-id="${componentName}"]`);
             let spinnerElement = document.querySelector(`[data-spinner-for="${componentName}"]`);
 
-            if (selectElement) {
-                let selectedValue = selectElement.value; // Preserve user's selection
-                let options = Array.from(selectElement.options);
-                // Remove all options except the first placeholder
-                options.slice(1).forEach(option => option.remove());
+            if (selectBox) {
 
-                // ✅ Fix: Iterate over object entries instead of using .forEach()
+                let selectedDiv = selectBox.querySelector(".select-selected");
+                let itemsContainer = selectBox.querySelector(".select-items");
+
+                // Clear previous items
+                itemsContainer.innerHTML = "";
+                let currentSelectedValue = selectBox.dataset.selectedValue;
+
+
+                // ✅ ADD DEFAULT "Select an option" item first
+                let defaultItem = document.createElement("div");
+                defaultItem.className = "select-item";
+                defaultItem.dataset.value = "";
+                defaultItem.textContent = "Select an option";
+                defaultItem.addEventListener("click", () => {
+                    selectedDiv.textContent = "Select an option";
+                    selectBox.dataset.selectedValue = "";
+
+                    itemsContainer.classList.add("select-hide");
+
+                    selectBox.dispatchEvent(new CustomEvent("change", {
+                        detail: {
+                            value: "",
+                            name: ""
+                        }
+                    }));
+                });
+                itemsContainer.appendChild(defaultItem); // ⬅️ PLACE IT HERE
+
+
+                // Populate new options
                 Object.entries(data[componentType]).forEach(([id, names]) => {
-                    let option = document.createElement("option");
-                    option.value = id;
-                    option.textContent = names[0]; // First element in name array
-                    selectElement.appendChild(option);
+                    let item = document.createElement("div");
+                    item.className = "select-item";
+                    item.dataset.value = id;
+                    item.textContent = names[0];
+
+                    item.addEventListener("click", () => {
+                        selectedDiv.textContent = item.textContent;
+                        selectBox.dataset.selectedValue = id;
+
+                        itemsContainer.classList.add("select-hide");
+
+                        selectBox.dispatchEvent(new CustomEvent("change", {
+                            detail: {
+                                value: id,
+                                name: names[0]
+                            }
+                        }));
+                    });
+
+                    itemsContainer.appendChild(item);
                 });
 
-                // Restore previous selection if still valid
-                if (selectedValue && Object.keys(data[componentType]).includes(selectedValue)) {
-                    selectElement.value = selectedValue;
+                // Restore selected if still valid
+                if (currentSelectedValue && data[componentType][currentSelectedValue]) {
+                    selectedDiv.textContent = data[componentType][currentSelectedValue][0];
+                    selectBox.dataset.selectedValue = currentSelectedValue;
                 } else {
-                    selectElement.value = ""; // Reset if no longer valid
+                    // Reset selected
+                    selectedDiv.textContent = "Select an option";
+                    selectBox.dataset.selectedValue = "";
                 }
-
             }
             // Hide spinner when dropdown is updated
             if (spinnerElement) {
                 spinnerElement.classList.add("hidden");
             }
         });
-    }
 
-    function savePcConfiguration() {
-        const requiredComponents = ['cpu', 'gpu', 'motherboard', 'ram', 'psu', 'storage'];
-
-
-        let saveButton = document.getElementById('saveConfiguration');
-        let modal = document.getElementById('saveConfigModal');
-        let cancelSaveButton = document.getElementById('cancelSave');
-        let confirmSaveButton = document.getElementById('confirmSave');
-
-        // Show modal when clicking "Запази Конфигурация"
-        saveButton.addEventListener('click', function () {
-
-            const validationErrors = validateComponents(requiredComponents);
-
-            if (validationErrors.length > 0) {
-                showComponentErrors(validationErrors);
-            } else {
-                modal.classList.remove('hidden'); // Show modal only if valid
-            }
-
-        });
-
-        // Close modal if "Отказ" is clicked
-        cancelSaveButton.addEventListener('click', function () {
-            modal.classList.add('hidden');
-        });
-
-
-        confirmSaveButton.addEventListener('click', function () {
-
-            // Get the configuration name
-            let configName = document.getElementById('configName').value.trim();
-
-            // Validate the configuration name
-            if (configName === "") {
-                alert("Моля, въведете име на конфигурацията."); // Alert for empty configuration name
-                return; // Stop further execution
-            }
-
-            // Gather the selected component values
-            const requestData = fetchComponentData();
-
-            requestData.name = configName;
-            // Proceed to save the configuration
-            saveConfiguration(requestData);
-
-        });
-
-    }
-
-    function fetchComponentData() {
-        let cpu = document.getElementById('cpu').value;
-        let motherboard = document.getElementById('motherboard').value;
-        let ram = document.getElementById('ram').value;
-        let gpu = document.getElementById('gpu').value;
-        let storage = document.getElementById('storage').value;
-        let psu = document.getElementById('psu').value;
-
-        return {
-            cpu: cpu,
-            motherboard: motherboard,
-            ram: ram,
-            gpu: gpu,
-            storage: storage,
-            psu: psu
-        };
-    }
-
-    function getComponentLabel(id) {
-        const labels = {
-            cpu: "процесор",
-            gpu: "видеокарта",
-            ram: "рам памет",
-            psu: "захранване",
-            storage: "сторно устройство",
-            cooling: "охлаждане",
-            motherboard: "дънна платка",
-            case: "кутия"
-        };
-        return labels[id] || id;
-    }
-
-    function validateComponents(components) {
-        const errors = [];
-
-        components.forEach(component => {
-
-            const select = document.getElementById(`${component}`);
-
-            const value = select?.value;
-
-            if (!value) {
-                errors.push({component, message: `Моля, изберете ${getComponentLabel(component)}.`});
-            }
-        });
-
-        return errors;
-    }
-
-    function showComponentErrors(errors) {
-        errors.forEach(({component, message}) => {
-
-            const select = document.getElementById(`${component}`);
-
-            // Add red border background
-            select.classList.add("border-red-500", "bg-red-50");
-
-            // Check if error message already exists
-            if (!document.getElementById(`${component}-error`)) {
-                const errorMessage = document.createElement("p");
-                errorMessage.id = `${component}-error`;
-                errorMessage.className = "text-red-500 text-sm mt-2";
-                errorMessage.textContent = message;
-
-                select.parentElement.appendChild(errorMessage);
-            }
-        });
-    }
-
-    function saveConfiguration(requestData) {
-
-        showSpinner(); // show spinner
-        console.log(requestData);
-        // Send the request
-        fetch('/configurator/save', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(requestData)
-        }).then(response => {
-
-            if (response.ok) {
-                // Redirect to PC build configuration page
-                window.location.href = '/completed/build';
-            } else {
-                // Handle error response
-                return response.json().then(errorData => {
-                   // handleErrorResponse(errorData);
-                });
-            }
-        }).catch(error => console.log(error))
-            .finally(() => {
-
-                hideSpinner()// hide spinner
-            });
-    }
-
-    // Show the spinner
-    function showSpinner() {
-        document.getElementById("loading-spinner").classList.remove("hidden");
-    }
-
-    // Hide the spinner
-    function hideSpinner() {
-        document.getElementById("loading-spinner").classList.add("hidden");
     }
 
     function resetAiQuestionnaire() {

@@ -37,14 +37,49 @@ class CompatibilityController extends AbstractController
     public function compatible(Request $request): JsonResponse
     {
         $componentsParams = $request->query->all();
+        /*echo'<pre>';
+        print_r($componentsParams);
+        echo'</pre>';
+        die();*/
 
-        $validComponentsIds = ValidatorUtils::validateAsKey($componentsParams, ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS_IDS);
+        if(!empty($componentsParams)) {
 
-        // TODO: We have to check if each value which comes has valid type and itself valid
+            $validComponentsIds = ValidatorUtils::validateAsKey(array_keys($componentsParams), ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS_IDS);
 
-        $compatiblePcComponents = $this->componentService->getCompatibleComponents($validComponentsIds);
+            if (!empty($validComponentsIds)) {
+
+                return $this->json([
+                    'error' => 'Invalid components',
+                    'fields' => implode(', ', $validComponentsIds),
+                ], 400);
+            }
+
+            // TODO: We have to check if each value which comes has valid type and itself valid
+
+            $compatiblePcComponents = $this->componentService->getCompatibleComponents($componentsParams);
+
+            if (!empty($compatiblePcComponents)) {
+
+                return $this->json($compatiblePcComponents);
+            }
+        }
+        $compatiblePcComponents = $this->componentService->getCompatibleComponents($componentsParams);
 
         return $this->json($compatiblePcComponents);
+    }
+
+    protected function populateComponentsFields(): array
+    {
+
+        return [
+            'cpus' => $this->componentService->getComponentsByType('cpu'),
+            'motherboards' => $this->componentService->getComponentsByType('motherboard'),
+            'psus' => $this->componentService->getComponentsByType('psu'),
+            'gpus' => $this->componentService->getComponentsByType('gpu'),
+            'rams' => $this->componentService->getComponentsByType('ram'),
+            'storages' => $this->componentService->getComponentsByType('storage'),
+            'pc_cases' => $this->componentService->getComponentsByType('pc_case')
+        ];
     }
 
 }

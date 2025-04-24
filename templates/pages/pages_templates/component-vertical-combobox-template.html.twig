@@ -1,0 +1,31 @@
+{% if id == 'pc_case' %}
+    <div class="px-4 py-4 sm:px-6">
+        <!-- Component Header -->
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-100 rounded-md p-2">
+                    <img src="{{ asset(icon_path) }}" alt="{{ label }}" class="w-9 h-9">
+                </div>
+                <div class="ml-4">
+                    <h4 class="text-lg font-medium text-gray-900">{{ label }}</h4>
+                </div>
+            </div>
+            <button class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center" onclick="window.location.href='{{ filter_path }}'">
+                Advanced Filter
+                <i data-lucide="Filter" class="inline-block h-4 w-4 ml-1"></i>
+            </button>
+        </div>
+
+        <!-- PC Case Images Section -->
+        <div class="overflow-y-auto max-h-60"> <!-- Set a max height for scrolling -->
+            <div class="grid grid-cols-1 gap-4"> <!-- Use grid for vertical layout -->
+                {% for option in options %}
+                    <div class="flex items-center space-x-2 border p-2 rounded-md">
+                        <img src="{{ image_url }}" alt="{{ option.name }}" class="w-16 h-16 object-cover"> <!-- Adjust size as needed -->
+                        <span class="text-gray-900">{{ option.name }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endif %}

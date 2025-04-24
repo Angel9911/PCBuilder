@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Topic{% endblock %}
+
+{% block content %}
+
+    <div class="max-w-4xl mx-auto px-4 py-10 space-y-8">
+
+        <a href="{{ path('forum') }}"
+           class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium transition duration-150 ease-in-out mb-4">
+            ← Обратно към форума
+        </a>
+
+        <!-- Topic Header -->
+        <div class="bg-white p-6 rounded-xl shadow">
+            <h1 class="text-2xl font-bold text-blue-800">{{ topic.title }}</h1>
+            <p class="text-sm text-gray-600 mt-1">
+                Публикувано от
+                <span class="font-medium text-gray-800">{{ topic.user.account.username }}</span> ·
+                {{ topic.createdAt|date('d.m.Y H:i') }}
+            </p>
+            <div class="mt-4 text-gray-700 leading-relaxed">
+                {{ topic.description|raw }}
+            </div>
+        </div>
+
+        <!-- Comments -->
+        <div class="space-y-6">
+            <h2 class="text-xl font-semibold text-gray-800">Коментари ({{ topic.comments|length }})</h2>
+
+            {% for comment in topic.comments %}
+                <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-sm font-medium text-gray-800">{{ comment.user.account.username }}</span>
+                        <span class="text-sm text-gray-500">{{ comment.createdAt|date('d.m.Y H:i') }}</span>
+                    </div>
+                    <div class="text-gray-700 text-sm whitespace-pre-wrap">{{ comment.content }}</div>
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-sm">Все още няма коментари по тази тема.</p>
+            {% endfor %}
+        </div>
+
+        <!-- New Comment Form (optional) -->
+            <div class="bg-white p-6 rounded-xl shadow mt-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">Добави коментар</h3>
+                <form action="{{ path('forum.topic.comment_add', { topicId: topic.id }) }}" method="post">
+                <textarea
+                        name="content"
+                        rows="4"
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm resize-none"
+                        placeholder="Вашият коментар..."
+                        required
+                ></textarea>
+                    <div class="mt-4 text-right">
+                        <button type="submit"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+                            Публикувай
+                        </button>
+                    </div>
+                </form>
+            </div>
+    </div>
+{% endblock %}

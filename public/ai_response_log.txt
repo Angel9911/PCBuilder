@@ -1,14 +1,14 @@
 {
     "Component Selection": {
-        "CPU": "AMD Ryzen 9 7950X",
-        "GPU": "NVIDIA GeForce RTX 4090",
-        "Motherboard": "MSI MEG X670E ACE",
-        "RAM": "Corsair Vengeance DDR5 64GB",
-        "Storage": "Seagate Barracuda 4TB",
-        "PSU": "EVGA SuperNOVA 1200 P3",
-        "Sound Card": "Creative Sound Blaster AE-7",
-        "Network Card": "Intel AX200",
-        "PC Case": "Lian Li PC-O11 Dynamic"
+        "cpu": "Intel Core i3-13100",
+        "gpu": "NVIDIA GeForce RTX 4070 Ti",
+        "motherboard": "ASUS ROG Strix B550-F",
+        "ram": "Corsair Vengeance LPX 16GB",
+        "storage": "Crucial MX500 1TB",
+        "psu": "Corsair CX450M",
+        "sound_card": "Focusrite Scarlett Solo",
+        "network_card": "Gigabit Ethernet PCIe Card (Intel I210-T1)",
+        "pc_case": "Cooler Master MasterBox TD500"
     },
-    "Explanation": "Selected high-end components to meet gaming and demanding photo/video editing needs. Future-proof with ample RAM and storage. Top-tier GPU for gaming performance. Quality sound and network cards. Spacious and airflow optimized case for cooling."
+    "Explanation": "Selected components provide a moderate performance Intel build with an NVIDIA GPU, suitable for work/office tasks within the budget range of $500 - $1000."
 }

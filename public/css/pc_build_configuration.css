@@ -67,3 +67,91 @@
     text-decoration: none;
     cursor: pointer;
 }
+
+/* Base container */
+.custom-select {
+    position: relative;
+    font-family: inherit;
+    width: 100%;
+}
+
+/* Selected item (what user sees) */
+.select-selected {
+    background-color: white;
+    padding: 12px;
+    border: 1px solid #d1d5db; /* Tailwind's gray-300 */
+    border-radius: 0.5rem;      /* rounded-lg */
+    font-size: 0.875rem;        /* text-sm */
+    color: #111827;             /* gray-900 */
+    cursor: pointer;
+    transition: box-shadow 0.15s ease-in-out, border 0.15s ease-in-out;
+}
+
+/* Hover on selected */
+.select-selected:hover {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); /* Tailwind blue-500 ring */
+    border-color: #93c5fd; /* blue-300 */
+}
+
+/* Dropdown container */
+.select-items {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    z-index: 99;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    transform-origin: top;
+    transition: all 0.15s ease;
+    opacity: 0;
+    transform: scaleY(0.95);
+    pointer-events: none;
+}
+
+/* Each item */
+.select-item {
+    padding: 10px 12px;
+    font-size: 0.875rem;
+    color: #1f2937; /* gray-800 */
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+/* Hover on dropdown item */
+.select-item:hover {
+    background-color: #f3f4f6; /* gray-100 */
+}
+
+/* Show the dropdown */
+.select-items:not(.select-hide) {
+    opacity: 1;
+    transform: scaleY(1);
+    pointer-events: auto;
+}
+
+/* Hidden by default */
+.select-hide {
+    display: block; /* keep block layout */
+    opacity: 0;
+    transform: scaleY(0.95);
+    pointer-events: none;
+}
+
+.select-item:hover {
+    background-color: #ddd;
+}
+.select-items:not(.select-hide) {
+    display: block;
+}
+
+.select-hide {
+    display: none;
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+}
