@@ -16,6 +16,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 selectBox.querySelector(".select-items").classList.add("select-hide");
 
+                /*// ✅ REMOVE ERROR MESSAGE AND STYLING IF PRESENT
+                const componentType = selectBox.getAttribute("data-component-id");
+                const errorMsg = document.getElementById(`${componentType}-error`);
+                if (errorMsg) errorMsg.remove();
+
+                selected.classList.remove("border-red-500", "bg-red-50");*/
+
+
                 // Trigger change event
                 selectBox.dispatchEvent(new CustomEvent("change", {
                         detail: {
@@ -255,84 +263,84 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateDropdowns(data) {
+        Object.keys(allOptions).forEach(componentType => {
+            const selectBox = document.querySelector(`.custom-select[data-component-id="${componentType}"]`);
+            const spinnerElement = document.querySelector(`[data-spinner-for="${componentType}"]`);
+            if (!selectBox) return;
 
-        Object.keys(data).forEach(componentType => {
-            let componentName = componentType.replace("_ids", ""); // Convert "cpu_ids" to "cpu"
-            //let selectElement = document.querySelector(`select[data-component-id="${componentName}"]`);
-            let selectBox = document.querySelector(`.custom-select[data-component-id="${componentName}"]`);
-            let spinnerElement = document.querySelector(`[data-spinner-for="${componentName}"]`);
+            const selectedDiv = selectBox.querySelector(".select-selected");
+            const itemsContainer = selectBox.querySelector(".select-items");
+            const currentSelectedValue = selectBox.dataset.selectedValue;
 
-            if (selectBox) {
+            // ✅ Use the currently shown value as the real default
+            const defaultText = selectBox.dataset.defaultText || "Select an option";//selectedDiv.textContent.trim();
+            console.log(selectBox.dataset);
+            console.log(currentSelectedValue);
+            console.log(defaultText);
+            itemsContainer.innerHTML = "";
 
-                let selectedDiv = selectBox.querySelector(".select-selected");
-                let itemsContainer = selectBox.querySelector(".select-items");
+            // ✅ Build compatibility map from server response
+            const serverKey = `${componentType}_ids`;
+            const compatibleItems = (data[serverKey] || []).reduce((acc, item) => {
+                acc[item.component_id] = item.name;
+                return acc;
+            }, {});
 
-                // Clear previous items
-                itemsContainer.innerHTML = "";
-                let currentSelectedValue = selectBox.dataset.selectedValue;
+            // ✅ Default "Select an option"
+            const defaultItem = document.createElement("div");
+            defaultItem.className = "select-item";
+            defaultItem.dataset.value = "";
+            defaultItem.textContent = defaultText;
+            defaultItem.addEventListener("click", () => {
+                selectedDiv.textContent = defaultText;
+                selectBox.dataset.selectedValue = "";
+                itemsContainer.classList.add("select-hide");
 
+                selectBox.dispatchEvent(new CustomEvent("change", {
+                    detail: {value: "", name: ""}
+                }));
+            });
+            itemsContainer.appendChild(defaultItem);
 
-                // ✅ ADD DEFAULT "Select an option" item first
-                let defaultItem = document.createElement("div");
-                defaultItem.className = "select-item";
-                defaultItem.dataset.value = "";
-                defaultItem.textContent = "Select an option";
-                defaultItem.addEventListener("click", () => {
-                    selectedDiv.textContent = "Select an option";
-                    selectBox.dataset.selectedValue = "";
+            // ✅ Loop all known options
+            Object.entries(allOptions[componentType]).forEach(([id, name]) => {
+                const isCompatible = compatibleItems.hasOwnProperty(id);
+                const item = document.createElement("div");
+                item.className = `select-item ${isCompatible ? 'bg-blue-100 hover:bg-blue-200 cursor-pointer' : 'bg-red-100 text-gray-400 cursor-not-allowed'}`;
+                item.dataset.value = id;
+                item.textContent = name;
 
-                    itemsContainer.classList.add("select-hide");
-
-                    selectBox.dispatchEvent(new CustomEvent("change", {
-                        detail: {
-                            value: "",
-                            name: ""
-                        }
-                    }));
-                });
-                itemsContainer.appendChild(defaultItem); // ⬅️ PLACE IT HERE
-
-
-                // Populate new options
-                Object.entries(data[componentType]).forEach(([id, names]) => {
-                    let item = document.createElement("div");
-                    item.className = "select-item";
-                    item.dataset.value = id;
-                    item.textContent = names[0];
-
+                if (isCompatible) {
                     item.addEventListener("click", () => {
-                        selectedDiv.textContent = item.textContent;
+                        selectedDiv.textContent = name;
                         selectBox.dataset.selectedValue = id;
-
                         itemsContainer.classList.add("select-hide");
 
+                       /* // ✅ Remove error for this specific component
+                        const componentType = selectBox.getAttribute("data-component-id");
+                        const errorMsg = document.getElementById(`${componentType}-error`);
+                        if (errorMsg) errorMsg.remove();*/
+
                         selectBox.dispatchEvent(new CustomEvent("change", {
-                            detail: {
-                                value: id,
-                                name: names[0]
-                            }
+                            detail: {value: id, name}
                         }));
                     });
-
-                    itemsContainer.appendChild(item);
-                });
-
-                // Restore selected if still valid
-                if (currentSelectedValue && data[componentType][currentSelectedValue]) {
-                    selectedDiv.textContent = data[componentType][currentSelectedValue][0];
-                    selectBox.dataset.selectedValue = currentSelectedValue;
-                } else {
-                    // Reset selected
-                    selectedDiv.textContent = "Select an option";
-                    selectBox.dataset.selectedValue = "";
                 }
-            }
-            // Hide spinner when dropdown is updated
-            if (spinnerElement) {
-                spinnerElement.classList.add("hidden");
-            }
-        });
 
+                itemsContainer.appendChild(item);
+            });
+
+            // ✅ Restore current selection if it's still present in compatible
+            if (currentSelectedValue && compatibleItems[currentSelectedValue]) {
+                selectedDiv.textContent = compatibleItems[currentSelectedValue];
+            } else {
+                // Either not compatible anymore or nothing selected
+                selectedDiv.textContent = defaultText;
+                selectBox.dataset.selectedValue = "";
+            }
+
+            if (spinnerElement) spinnerElement.classList.add("hidden");
+        });
     }
 
     function resetAiQuestionnaire() {

@@ -17,7 +17,10 @@
     </div>
     <div class="flex items-center space -x-4">
         <div class="relative flex-1">
-            <div class="custom-select" data-component-id="{{ id }}" >
+            <div class="custom-select"
+                 data-component-id="{{ id }}"
+                 data-default-text="{{ default_option }}"
+                 data-selected-value="">
                 <div class="select-selected">{{ default_option }}</div>
                 <div class="select-items select-hide">
                     {% for option in options %}

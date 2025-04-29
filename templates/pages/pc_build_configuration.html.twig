@@ -237,8 +237,53 @@
         </div>
     </div>
     <script>
+
         var pcConfiguration = {{ pcConfiguration|json_encode|raw }};
         var isAiConfiguration = {{ isAiConfiguration|json_encode|raw }};
+
+        const allOptions = {
+            cpu: {
+                {% for cpu in cpus %}
+                "{{ cpu.id }}": "{{ cpu.name }}"{% if not loop.last %},{% endif %}
+                {% endfor %}
+            },
+            motherboard: {
+                {% for mobo in motherboards %}
+                "{{ mobo.id }}": "{{ mobo.name }}"{% if not loop.last %},{% endif %}
+                {% endfor %}
+            },
+            gpu: {
+                {% for gpu in gpus %}
+                "{{ gpu.id }}": "{{ gpu.name }}"{% if not loop.last %},{% endif %}
+                {% endfor %}
+            },
+            ram: {
+                {% for ram in rams %}
+                "{{ ram.id }}": "{{ ram.name }}"{% if not loop.last %},{% endif %}
+                {% endfor %}
+            },
+            storage: {
+                {% for storage in storages %}
+                "{{ storage.id }}": "{{ storage.name }}"{% if not loop.last %},{% endif %}
+                {% endfor %}
+            },
+            psu: {
+                {% for psu in psus %}
+                "{{ psu.id }}": "{{ psu.name }}"{% if not loop.last %},{% endif %}
+                {% endfor %}
+            },
+            pc_case: {
+                {% for case in pc_cases %}
+                "{{ case.id }}": "{{ case.name }}"{% if not loop.last %},{% endif %}
+                {% endfor %}
+            },
+            monitor: {
+                {% for monitor in monitors %}
+                "{{ monitor.id }}": "{{ monitor.name }}"{% if not loop.last %},{% endif %}
+                {% endfor %}
+            }
+        };
+
     </script>
 {% endblock %}
 
