@@ -83,276 +83,549 @@ class ComponentRepository extends ServiceEntityRepository
     }
 
     /**
-     * Used when the user doesn't pass any parameter to compatible method.
-     * @param string $type
-     * @return array
+     * ANOTHER APPROACH IS BELOW
+     * ANOTHER APPROACH IS BELOW
+     * ANOTHER APPROACH IS BELOW
      */
-    public function findComponentsByTypeMapped(string $type): array
-    {
-        $results = $this->createQueryBuilder('c')
-            ->select('c.id', 'c.name')
-            ->innerJoin('c.type', 'ct')
-            ->andWhere('ct.name = :type')
-            ->setParameter('type', $type)
-            ->getQuery()
-            ->getArrayResult();
-
-        $mapped = [];
-        foreach ($results as $row) {
-            $mapped[$row['id']] = [$row['name']];
-        }
-
-        return $mapped;
-    }
 
     /**
-     * @param array $componentParams
-     * @return array[]
-     * @throws Exception
+     * Second algorithm for compatibility because the first algorithm generates many records and breaks the server
+     * TODO: move the logic from this method in service class
+     * @param array $selected
+     * @return array
      */
-    public function findCompatibleComponents(array $componentParams = []): array
-    {
+    function getCompatibleParts(array $selected) { // findCompatibleComponents
+        $response = [];
+
         $connection = $this->entityManager->getConnection();
 
-        // if the given component parameters are empty, return the default values
-        if(empty($componentParams)){
+        // Get selected specs
+        $cpu = isset($selected['cpu_id']) ? $this->getComponentSpecs($connection, 'cpu', $selected['cpu_id']) : null;
+        $gpu = isset($selected['gpu_id']) ? $this->getComponentSpecs($connection, 'gpu', $selected['gpu_id']) : null;
+        $monitor = isset($selected['monitor_id']) ? $this->getComponentSpecs($connection, 'monitor', $selected['monitor_id']) : null;
+        $motherboard = isset($selected['motherboard_id']) ? $this->getComponentSpecs($connection, 'motherboard', $selected['motherboard_id']) : null;
+        $case = isset($selected['pc_case_id']) ? $this->getComponentSpecs($connection, 'pc_case', $selected['pc_case_id']) : null;
+        $ram = isset($selected['ram_id']) ? $this->getComponentSpecs($connection, 'ram', $selected['ram_id']) : null;
+        $storage = isset($selected['ram_id']) ? $this->getComponentSpecs($connection, 'storage', $selected['storage_id']) : null;
+        $psu = isset($selected['psu_id']) ? $this->getComponentSpecs($connection, 'psu', $selected['psu_id']) : null;
+        //TODO: PSU  used for compatibility with cpu,gpu,monitor
 
-            return [
-                'cpu_ids' => $this->findComponentsByTypeMapped('cpu'),
-                'motherboard_ids' => $this->findComponentsByTypeMapped('motherboard'),
-                'psu_ids' => $this->findComponentsByTypeMapped('psu'),
-                'gpu_ids' => $this->findComponentsByTypeMapped('gpu'),
-                'ram_ids' => $this->findComponentsByTypeMapped('ram'),
-                'storage_ids' => $this->findComponentsByTypeMapped('storage'),
-                'pc_case_ids' => $this->findComponentsByTypeMapped('pc_case'),
-                'monitor_ids' => $this->findComponentsByTypeMapped('monitor'),
-            ];
+        // Get compatible parts
+        $response['cpu_ids'] = $this->getCompatibleCPUs($connection, $cpu, $motherboard, $ram, $psu, $gpu, $monitor);;
+        $response['motherboard_ids'] = $this->getCompatibleMotherboards($connection, $motherboard,$cpu, $ram, $storage, $case, $gpu);
+        $response['ram_ids'] = $this->getCompatibleRAM($connection, $ram, $cpu, $motherboard);
+        $response['gpu_ids'] = $this->getCompatibleGPUs($connection, $gpu, $motherboard, $case, $psu, $cpu, $monitor);
+        $response['storage_ids'] = $this->getCompatibleStorage($connection, $storage, $motherboard);
+        $response['psu_ids'] = $this->getCompatiblePSUs($connection, $cpu, $gpu, $monitor);
+        $response['pc_case_ids'] = $this->getCompatibleCases($connection, $case, $motherboard, $gpu);
+        $response['monitor_ids'] = $this->getAllMonitors($connection, $monitor, $psu, $cpu, $gpu);
+
+        return $response;
+    }
+
+    function getComponentSpecs($conn, string $type, int $id): ?array {
+
+        $stmt = $conn->prepare("
+            SELECT t.*, comp.name
+            FROM {$type} t
+            JOIN components comp ON comp.id = t.component_id
+            WHERE t.component_id = :id
+        ");
+
+        $resultData = $stmt->executeQuery(['id' => $id]);
+
+        return $resultData->fetchAssociative();
+
+    }
+
+    function getAllMonitors($conn, ?array $selectedMonitor
+        , ?array $psu
+        , ?array $cpu // used only if the psu is selected(sum power wattage)
+        , ?array $gpu // used only if the psu is selected(sum power wattage)
+    ): array {
+        $results = [];
+
+        $conditions = [];
+        $params = [];
+
+        if ($selectedMonitor) {
+            // Exclude the selected monitor from results
+            $conditions[] = "m.component_id != :selected_id";
+            $params['selected_id'] = $selectedMonitor['component_id'];
+
+            $results[] = ['component_id' => $selectedMonitor['component_id'], 'name' => $selectedMonitor['name'] ?? 'Selected Monitor'];
         }
 
-        $sqlQuery =
-    "
-            WITH selected_components AS 
-        (
-        SELECT 
-            comp.id AS component_id, 
-            mb.component_id AS motherboard_id, mb.socket AS mb_socket, mb.chipset AS mb_chipset, mb.memory_type AS mb_memory_type, mb.storage_interfaces,
-            cpu.component_id AS cpu_id, cpu.socket AS cpu_socket, cpu.chipset AS cpu_chipset, cpu.memory_type AS cpu_memory_type, cpu.power_wattage AS cpu_power,
-            ram.component_id AS ram_id, ram.type AS ram_type,
-            storage.component_id AS storage_id, storage.interface AS storage_interface,
-            psu.component_id AS psu_id, psu.power_wattage AS psu_power,
-            gpu.component_id AS gpu_id, gpu.power_wattage AS gpu_power,
-            pc_case.component_id AS pc_case_id, pc_case.gpu_clearance_mm AS gpu_length_mm,
-            monitor.component_id AS monitor_id, monitor.power_wattage AS monitor_power
-        FROM components comp
-        LEFT JOIN motherboard mb ON comp.id = mb.component_id
-        LEFT JOIN cpu ON comp.id = cpu.component_id
-        LEFT JOIN ram ON comp.id = ram.component_id
-        LEFT JOIN storage ON comp.id = storage.component_id
-        LEFT JOIN psu ON comp.id = psu.component_id
-        LEFT JOIN gpu ON comp.id = gpu.component_id
-        LEFT JOIN pc_case ON comp.id = pc_case.component_id
-        LEFT JOIN monitor ON comp.id = monitor.component_id
-        )
-    SELECT DISTINCT
-        mb.component_id AS motherboard_id, comp_mb.name as motherboard_name,
-        cpu.component_id AS cpu_id, comp_cpu.name as cpu_name,
-        ram.component_id AS ram_id, comp_ram.name as ram_name,
-        storage.component_id AS storage_id, comp_storage.name as storage_name,
-        psu.component_id AS psu_id, comp_psu.name as psu_name,
-        gpu.component_id AS gpu_id, comp_gpu.name as gpu_name,
-        pc_case.component_id AS pc_case_id, comp_case.name as case_name,
-        monitor.component_id AS monitor_id, comp_monitor.name as monitor_name,
-        FROM selected_components sc
+        if($psu && $cpu && $gpu){
 
-    --  CPU-Motherboard Compatibility (matching socket AND chipset)
-    LEFT JOIN motherboard mb ON sc.motherboard_id = mb.component_id
-    LEFT JOIN components comp_mb ON mb.component_id = comp_mb.id
-    LEFT JOIN cpu ON cpu.socket = mb.socket AND mb.chipset = ANY(cpu.chipset)
-    LEFT JOIN components comp_cpu ON cpu.component_id = comp_cpu.id
-    
-    --  RAM-Motherboard Compatibility (should match motherboard memory_type/modules/max_memory_supported with RAM memory type/modules/capacity_gb)
-    --  RAM-CPU Compatability (should match CPU memory type with RAM memory_type)
-    LEFT JOIN ram ON ram.type = mb.memory_type 
-        AND ram.type = cpu.memory_type 
-        AND ram.modules <= mb.memory_slots
-        AND ram.capacity_gb <= mb.max_memory_supported
-    LEFT JOIN components comp_ram ON ram.component_id = comp_ram.id
-    
-    --  Storage Compatibility (should match motherboard's supported interfaces)
-    LEFT JOIN storage ON storage.interface = ANY(mb.storage_interfaces)
-    LEFT JOIN components comp_storage ON storage.component_id = comp_storage.id
-    
-    -- PC Case Compatibility (should match pc case form factor with motherboard form factor)
-    LEFT JOIN pc_case ON TRUE
-    LEFT JOIN pc_case_form_factors cf ON pc_case.id = cf.pc_case_id AND cf.form_factor_id = mb.form_factor_id
-    LEFT JOIN components comp_case ON pc_case.component_id = comp_case.id
-    
-    --  GPU Compatibility (should match motherboard PCIe AND should fit in pc case)
-    LEFT JOIN gpu ON gpu.pcie_version <= mb.pcie_version AND gpu.length_mm <= pc_case.gpu_clearance_mm 
-    LEFT JOIN components comp_gpu ON gpu.component_id = comp_gpu.id
-    
-    -- Monitor Compatibility(now it's used only for PSU power_wattage) 
-    LEFT JOIN monitor ON true
-    LEFT JOIN components comp_monitor ON monitor.component_id = comp_monitor.id
-    
-    -- PSU Compatibility (must provide enough power for CPU + GPU + Monitor + 100 in advance)
-    LEFT JOIN psu ON psu.power_wattage >= (COALESCE(cpu.power_wattage, 0) + COALESCE(gpu.power_wattage, 0) + COALESCE(monitor.power_wattage, 0) + 100)
-    LEFT JOIN components comp_psu ON psu.component_id = comp_psu.id
-    
-    --  Apply dynamic filtering for selected components
-    WHERE 1=1
+            $cpuPower = $cpu['power_wattage'] ?? 0;
+
+            $gpuPower = $gpu['power_wattage'] ?? 0;
+
+            // Max power allowed for GPU based on PSU minus other components and safety buffer
+            $maxMonitorPower = $psu['power_wattage'] - ($cpuPower + $gpuPower + 100);
+
+            // Prevent negative allowance
+            $maxMonitorPower = max($maxMonitorPower, 0);
+
+            $conditions[] = "m.power_wattage <= :max_monitor_power";
+            $params['max_monitor_power'] = $maxMonitorPower;
+        }
+
+        $whereSql = '';
+
+        if(!empty($conditions)){
+
+            $whereSql = 'WHERE '. implode(" AND ", $conditions);
+        }
+
+        $sql = "SELECT m.component_id, comp.name 
+                FROM monitor m 
+                JOIN components comp ON comp.id = m.component_id
+                 {$whereSql}
+        ";
+
+        $stmt = $conn->prepare($sql);
+
+        $results = array_merge($results, $stmt->executeQuery($params)->fetchAllAssociative());
+
+        return $results;
+    }
+
+    function getCompatibleCases($conn, ?array $selectedCase, ?array $mb, ?array $gpu): array {
+        $conditions = []; // used for where clause in sql
+        $params = []; // pass parameters for filtering
+
+        $results = [];
+
+        if ($selectedCase) {
+            $conditions[] = "gpu.component_id != :selected_id";
+            $params['selected_id'] = $selectedCase['component_id'];
+
+            $results[] = ['component_id' => $selectedCase['component_id'], 'name' => $selectedCase['name'] ?? 'Selected Case'];
+        }
+
+        /*if(!$mb && !$gpu) {
+
+            return $results;
+        }*/
+
+        if($mb){
+
+            $conditions[] = "EXISTS (
+            SELECT 1
+            FROM pc_case_form_factors cf         
+            WHERE cf.pc_case_id = pc.id
+                AND cf.form_factor_id = :form_factor_id
+            )";
+
+            $params['form_factor_id'] = $mb['form_factor_id'];
+        }
+        if($gpu){
+
+            $conditions[] = "pc.gpu_clearance_mm >= :length_mm";
+            $params['length_mm'] = $gpu['length_mm'];
+        }
+
+        $whereSql = '';
+
+        if(!empty($conditions)){
+
+            $whereSql = 'WHERE '. implode(" AND ", $conditions);
+        }
+
+        $sql = "
+            SELECT pc.component_id, comp.name
+            FROM pc_case pc
+            JOIN components comp ON comp.id = pc.component_id
+            {$whereSql}
+        ";
+
+        $stmt = $conn->prepare($sql);
+
+        $results = array_merge($results, $stmt->executeQuery($params)->fetchAllAssociative());
+
+        return $results;
+
+    }
+
+    function getCompatiblePSUs($conn, ?array $cpu, ?array $gpu, ?array $monitor): array {
+        $requiredPower =
+            ($cpu['power_wattage'] ?? 0) +
+            ($gpu['power_wattage'] ?? 0) +
+            ($monitor['power_wattage'] ?? 0) + 100;
+
+        $sql = "
+        SELECT psu.component_id, comp.name
+        FROM psu
+        JOIN components comp ON comp.id = psu.component_id
+        WHERE psu.power_wattage >= :required
     ";
 
-        // Dynamically add filters based on provided parameters
-        $parameters = [];
-        if (!empty($componentParams['cpu_id'])) {
-            $sqlQuery .= " AND cpu.component_id = :cpu_id";
-            $parameters['cpu_id'] = $componentParams['cpu_id'];
-        }
-        if (!empty($componentParams['motherboard_id'])) {
-            $sqlQuery .= " AND mb.component_id = :motherboard_id";
-            $parameters['motherboard_id'] = $componentParams['motherboard_id'];
-        }
-        if (!empty($componentParams['ram_id'])) {
-            $sqlQuery .= " AND ram.component_id = :ram_id";
-            $parameters['ram_id'] = $componentParams['ram_id'];
-        }
-        if (!empty($componentParams['storage_id'])) {
-            $sqlQuery .= " AND storage.component_id = :storage_id";
-            $parameters['storage_id'] = $componentParams['storage_id'];
-        }
-        if (!empty($componentParams['psu_id'])) {
-            $sqlQuery .= " AND psu.component_id = :psu_id";
-            $parameters['psu_id'] = $componentParams['psu_id'];
-        }
-        if (!empty($componentParams['gpu_id'])) {
-            $sqlQuery .= " AND gpu.component_id = :gpu_id";
-            $parameters['gpu_id'] = $componentParams['gpu_id'];
-        }
-        if (!empty($componentParams['pc_case_id'])) {
-            $sqlQuery .= " AND pc_case.component_id = :pc_case_id";
-            $parameters['pc_case_id'] = $componentParams['pc_case_id'];
-        }
-        if (!empty($componentParams['monitor_id'])) {
-            $sqlQuery .= " AND monitor.component_id = :monitor_id";
-            $parameters['monitor_id'] = $componentParams['monitor_id'];
-        }
+        $stmt = $conn->prepare($sql);
 
-        // Execute query
-        $stmt = $connection->prepare($sqlQuery);
-        $resultData = $stmt->executeQuery($parameters);
-
-        $resultAsArray = $resultData->fetchAllAssociative();
-
-    // Filter out any items where all component IDs are null
-        $filteredResult = array_filter($resultAsArray, function ($element) {
-
-
-            return $element['motherboard_id'] != null ||
-                $element['cpu_id'] != null ||
-                $element['ram_id'] != null ||
-                $element['storage_id'] != null ||
-                $element['psu_id'] != null ||
-                $element['gpu_id'] != null ||
-                $element['pc_case_id'] != null ||
-                $element['monitor_id'] != null;
-        });
-
-        // Define arrays for each component type
-        $motherboard_ids = [];
-        $cpu_ids = [];
-        $ram_ids = [];
-        $storage_ids = [];
-        $psu_ids = [];
-        $gpu_ids = [];
-        $pc_case_ids = [];
-        $monitor_ids = [];
-
-        // Loop through each row and collect unique values
-        foreach ($filteredResult as $row) {
-
-            if (!is_null($row['motherboard_id']) && !is_null($row['motherboard_name'])){
-
-                $motherboard_ids[$row['motherboard_id']][] = $row['motherboard_name'];
-            }
-            if (!is_null($row['cpu_id']) && !is_null($row['cpu_name'])){
-
-                $cpu_ids[$row['cpu_id']][] = $row['cpu_name'];
-            }
-            if (!is_null($row['ram_id']) && !is_null($row['ram_name'])){
-
-                $ram_ids[$row['ram_id']][] = $row['ram_name'];
-            }
-            if (!is_null($row['storage_id']) && !is_null($row['storage_name'])){
-
-                $storage_ids[$row['storage_id']][] = $row['storage_name'];
-            }
-            if (!is_null($row['psu_id']) && !is_null($row['psu_name'])){
-
-                $psu_ids[$row['psu_id']][] = $row['psu_name'];
-            }
-            if (!is_null($row['gpu_id']) && !is_null($row['gpu_name'])){
-
-                $gpu_ids[$row['gpu_id']][] = $row['gpu_name'];
-            }
-            if (!is_null($row['pc_case_id']) && !is_null($row['case_name'])){
-
-                $pc_case_ids[$row['pc_case_id']][] = $row['case_name'];
-            }
-            if (!is_null($row['monitor_id']) && !is_null($row['monitor_name'])){
-
-                $pc_case_ids[$row['monitor_id']][] = $row['monitor_name'];
-            }
-        }
-
-        $motherboards = $this->getUniqueComponents($motherboard_ids);
-        $cpus= $this->getUniqueComponents($cpu_ids);
-        $rams= $this->getUniqueComponents($ram_ids);
-        $storages = $this->getUniqueComponents($storage_ids);
-        $psus = $this->getUniqueComponents($psu_ids);
-        $gpus = $this->getUniqueComponents($gpu_ids);
-        $pcCases = $this->getUniqueComponents($pc_case_ids);
-        $monitors = $this->getUniqueComponents($monitor_ids);
-
-        // Final structured output
-        $result = [
-            'motherboard_ids' => $motherboards,
-            'cpu_ids' => $cpus,
-            'ram_ids' => $rams,
-            'storage_ids' => $storages,
-            'psu_ids' => $psus,
-            'gpu_ids' => $gpus,
-            'ps_case_ids' => $pcCases,
-            'monitor_ids' => $monitors,
-        ];
-
-        // Print the result
-        return $result;
+        return $stmt->executeQuery(['required' => $requiredPower])->fetchAllAssociative();
     }
 
-    /**
-     * Find components within a power consumption range
-     */
-    public function findComponentsByPowerRange(int $minWatt, int $maxWatt): array
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.powerWattage BETWEEN :minWatt AND :maxWatt')
-            ->setParameter('minWatt', $minWatt)
-            ->setParameter('maxWatt', $maxWatt)
-            ->getQuery()
-            ->getResult();
-    }
+    function getCompatibleStorage($conn, ?array $selectedStorage, ?array $mb): array {
+        $conditions = []; // used for where clause in sql
+        $params = []; // pass parameters for filtering
 
-    /**
-     * @param array $components
-     * @return array
-     */
-    public function getUniqueComponents(array $components): array
-    {
-        foreach ($components as $id => $names) {
-            $components[$id] = array_values(array_unique($names));
+        $results = [];
+
+        if($selectedStorage){
+            $conditions[] = "s.component_id != :selected_id";
+            $params['selected_id'] = $selectedStorage['component_id'];
+
+            $results[] = ['component_id' => $selectedStorage['component_id'], 'name' => $selectedStorage['name'] ?? 'Selected Storage'];
         }
-        return $components;
+
+        if($mb){
+
+            $storageInterfaces = str_getcsv(trim($mb['storage_interfaces'], '{}'));
+
+            if(!empty($storageInterfaces)){
+
+                $conditions[] = "s.interface = ANY(:interfaces::text[])";
+                $params['interfaces'] = '{' . implode(',', $storageInterfaces) . '}';
+            }
+        }
+
+        $whereSql = '';
+
+        if(!empty($conditions)){
+
+            $whereSql = 'WHERE '. implode(" AND ", $conditions);
+        }
+
+        $sql = "
+            SELECT s.component_id, comp.name
+            FROM storage s
+            JOIN components comp ON comp.id = s.component_id
+            {$whereSql}
+        ";
+
+        $stmt = $conn->prepare($sql);
+
+        $results = array_merge($results, $stmt->executeQuery($params)->fetchAllAssociative());
+
+        return $results;
     }
 
+    function getCompatibleGPUs( $conn
+        , ?array $selectedGpu
+        , ?array $mb
+        , ?array $case
+        , ?array $psu
+        , ?array $cpu // used only if the psu is selected(sum power wattage)
+        , ?array $monitor // used only if the psu is selected(sum power wattage)
+    ): array {
+
+        $conditions = []; // used for where clause in sql
+        $params = []; // pass parameters for filtering
+
+        $results = [];
+
+        if ($selectedGpu) {
+            $conditions[] = "gpu.component_id != :selected_id";
+            $params['selected_id'] = $selectedGpu['component_id'];
+
+            $results[] = ['component_id' => $selectedGpu['component_id'], 'name' => $selectedGpu['name'] ?? 'Selected GPU'];
+        }
+
+        if ($mb) {
+
+            $conditions[] = "gpu.pcie_version <= :pcie_version";
+            $params['pcie_version'] = $mb['pcie_version'];
+        }
+
+        if ($case) {
+
+            $conditions[] = "gpu.length_mm <= :gpu_clearance";
+            $params['gpu_clearance'] = $case['gpu_clearance_mm'];
+        }
+
+        if($psu && $cpu && $monitor){
+
+            $cpuPower = $cpu['power_wattage'] ?? 0;
+
+            $monitorPower = $monitor['power_wattage'] ?? 0;
+
+            // Max power allowed for GPU based on PSU minus other components and safety buffer
+            $maxGpuPower = $psu['power_wattage'] - ($cpuPower + $monitorPower + 100);
+
+            // Prevent negative allowance
+            $maxGpuPower = max($maxGpuPower, 0);
+
+            $conditions[] = "gpu.power_wattage <= :max_gpu_power";
+            var_dump($cpu);
+            var_dump($monitorPower);
+            var_dump($maxGpuPower);
+            $params['max_cpu_power'] = $maxGpuPower;
+        }
+
+        $whereSql = '';
+
+        if(!empty($conditions)){
+
+            $whereSql = 'WHERE '. implode(" AND ", $conditions);
+        }
+
+        $sql = "
+        SELECT gpu.component_id, comp.name
+        FROM gpu
+        JOIN components comp ON comp.id = gpu.component_id
+        {$whereSql}
+        ";
+
+        $stmt = $conn->prepare($sql);
+
+        $results = array_merge($results, $stmt->executeQuery($params)->fetchAllAssociative());
+
+        return $results;
+    }
+
+    function getCompatibleRAM( $conn, ?array $selectedRam, ?array $cpu, ?array $mb): array {
+        $conditions = []; // used for where clause in sql
+        $params = []; // pass parameters for filtering
+
+        $results = [];
+
+        if ($selectedRam) {
+            $conditions[] = "ram.component_id != :selected_id";
+            $params['selected_id'] = $selectedRam['component_id'];
+
+            // if only ram is passed
+            $results[] = ['component_id' => $selectedRam['component_id'], 'name' => $selectedRam['name'] ?? 'Selected RAM'];
+        }
+
+        /*if(!$cpu && !$mb){
+
+            //motherboard and cpu not passed
+            return $results;
+        }*/
+
+        if ($cpu) {
+
+            $conditions[] = "ram.type = :cpu_type";
+            $params['cpu_type'] = $cpu['memory_type'];
+        }
+
+        if ($mb) {
+
+            $conditions[] = "ram.type = :mb_type";
+            $params['mb_type'] = $mb['memory_type'];
+
+            $conditions[] = "ram.modules <= :slots";
+            $params['slots'] = $mb['memory_slots'];
+
+            $conditions[] = "ram.capacity_gb <= :max_capacity";
+            $params['max_capacity'] = $mb['max_memory_supported'];
+        }
+
+        $whereSql = '';
+
+        if(!empty($conditions)){
+
+            $whereSql = 'WHERE '. implode(" AND ", $conditions);
+        }
+
+        $sql = "
+        SELECT ram.component_id, comp.name
+        FROM ram
+        JOIN components comp ON comp.id = ram.component_id
+        {$whereSql}
+    ";
+
+        $stmt = $conn->prepare($sql);
+
+        $results = array_merge($results, $stmt->executeQuery($params)->fetchAllAssociative());
+
+        return $results;
+    }
+
+    function getCompatibleMotherboards(
+            $conn,
+            ?array $selectedMb,
+            ?array $cpu,
+            ?array $ram,
+            ?array $storage,
+            ?array $pcCase,
+            ?array $gpu
+    ): array {
+        $conditions = []; // used for where clause in sql
+        $params = []; // pass parameters for filtering
+
+        $results = [];
+
+        if ($selectedMb) {
+            $conditions[] = "mb.component_id != :selected_id";
+            $params['selected_id'] = $selectedMb['component_id'];
+
+            $results[] = ['component_id' => $selectedMb['component_id'], 'name' => $selectedMb['name'] ?? 'Selected Motherboard'];
+        }
+
+        /*if(!$cpu && !$ram && !$storage && !$pcCase && !$gpu){
+
+            return $results;
+        }*/
+
+        if($cpu){
+
+            $conditions[] = "mb.socket = :socket";
+            $params['socket'] = $cpu['socket'];
+
+            $cpuChipsets= str_getcsv(trim($cpu['chipset'], '{}'));
+
+            if(!empty($cpuChipsets)){
+
+                $conditions[] = "mb.chipset = ANY(:cpu_chipsets::text[])"; // but here cpu chipset is array text[]
+
+                $params['cpu_chipsets'] = '{' . implode(',', $cpuChipsets) . '}';
+            }
+        }
+
+        if($ram){
+
+            $conditions[] = "mb.memory_type = :memory_type";
+            $params['memory_type'] = $ram['type'];
+
+            $conditions[] = "mb.slots <= :modules";
+            $params['modules'] = $ram['modules'];
+
+            $conditions[] = "mb.max_memory_supported >= :capacity_gb";
+            $params['capacity_gb'] = $ram['capacity_gb'];
+        }
+
+        if($storage){
+
+            $conditions[] = ":interface = ANY(mb.storage_interfaces)";
+            $params['interface'] = $storage['interface'];
+        }
+
+        // PC Case compatibility (Motherboard form factor must be supported by the PC case)
+        if ($pcCase) {
+
+            $conditions[] = "EXISTS (
+            SELECT 1
+            FROM pc_case_form_factors cf
+            WHERE cf.pc_case_id = :case_id
+              AND cf.form_factor_id = mb.form_factor_id
+            )";
+
+            $params['case_id'] = $pcCase['component_id']; // assuming component_id is pc_case_id
+        }
+
+        if($gpu){
+
+            $conditions[] = "mb.pcie_version >= :gpu_pcie_version";
+            $params['gpu_pcie_version'] = $gpu['pcie_version'];
+        }
+
+        $whereSql = '';
+
+        if(!empty($conditions)){
+
+            $whereSql = 'WHERE '. implode(" AND ", $conditions);
+        }
+
+        $sql = "
+            SELECT mb.component_id, comp.name
+            FROM motherboard mb
+            JOIN components comp ON comp.id = mb.component_id
+            {$whereSql}
+        ";
+
+        $stmt = $conn->prepare($sql);
+
+        $results = array_merge($results, $stmt->executeQuery($params)->fetchAllAssociative());
+
+        return $results;
+    }
+
+    function getCompatibleCPUs( $conn
+        , ?array $selectedCpu
+        , ?array $motherboard
+        , ?array $ram
+        , ?array $psu
+        , ?array $gpu // used only if the psu is selected(sum power wattage)
+        , ?array $monitor // used only if the psu is selected(sum power wattage)
+    ): array {
+        $conditions = []; // used for where clause in sql
+        $params = []; // pass parameters for filtering
+
+        $results = [];
+
+        if ($selectedCpu) {
+            $conditions[] = "cpu.component_id != :selected_id";
+            $params['selected_id'] = $selectedCpu['component_id'];
+
+            $results[] = ['component_id' => $selectedCpu['component_id'], 'name' => $selectedCpu['name'] ?? 'Selected CPU'];
+        }
+
+        /*if(!$motherboard && !$ram){
+
+            return $results;
+        }*/
+
+        if($motherboard){
+
+            $conditions[] = "cpu.socket = :socket";
+            $params['socket'] = $motherboard['socket'];
+
+            $conditions[] = ":chipset = ANY(cpu.chipset)";
+            $params['chipset'] =  $motherboard['chipset'];
+        }
+
+        if($ram){
+
+            $conditions[] = "cpu.memory_type = :type";
+            $params['type'] = $ram['type'];
+        }
+
+        if($psu && $gpu && $monitor){
+
+            $gpuPower = $gpu['power_wattage'] ?? 0;
+
+            $monitorPower = $monitor['power_wattage'] ?? 0;
+
+            // Max power allowed for CPU based on PSU minus other components and safety buffer
+            $maxCpuPower = $psu['power_wattage'] - ($gpuPower + $monitorPower + 100);
+
+            // Prevent negative allowance
+            $maxCpuPower = max($maxCpuPower, 0);
+
+            $conditions[] = "cpu.power_wattage <= :max_cpu_power";
+            $params['max_cpu_power'] = $maxCpuPower;
+        }
+
+        $whereSql = '';
+
+        if(!empty($conditions)){
+
+            $whereSql = 'WHERE '. implode(" AND ", $conditions);
+        }
+
+        // Build final query
+        $sql = "
+        SELECT cpu.component_id, comp.name
+        FROM cpu
+        JOIN components comp ON comp.id = cpu.component_id
+        {$whereSql}
+        ";
+
+        $stmt = $conn->prepare($sql);
+
+        $results = array_merge($results, $stmt->executeQuery($params)->fetchAllAssociative());
+
+        return $results;
+    }
+
+    private function calculateRequiredPsuPower(?array $cpu, ?array $gpu, ?array $monitor): int {
+        return
+            ($cpu['power_wattage'] ?? 0) +
+            ($gpu['power_wattage'] ?? 0) +
+            ($monitor['power_wattage'] ?? 0) +
+            100; // buffer
+    }
 }

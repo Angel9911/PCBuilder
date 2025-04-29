@@ -37,10 +37,6 @@ class CompatibilityController extends AbstractController
     public function compatible(Request $request): JsonResponse
     {
         $componentsParams = $request->query->all();
-        /*echo'<pre>';
-        print_r($componentsParams);
-        echo'</pre>';
-        die();*/
 
         if(!empty($componentsParams)) {
 
@@ -58,13 +54,20 @@ class CompatibilityController extends AbstractController
 
             $compatiblePcComponents = $this->componentService->getCompatibleComponents($componentsParams);
 
+            /*echo'<pre>';
+            print_r($compatiblePcComponents);
+            echo'</pre>';*/
+
             if (!empty($compatiblePcComponents)) {
 
                 return $this->json($compatiblePcComponents);
             }
         }
-        $compatiblePcComponents = $this->componentService->getCompatibleComponents($componentsParams);
 
+        $compatiblePcComponents = $this->componentService->getCompatibleComponents($componentsParams);
+        /*echo'<pre>';
+        print_r($compatiblePcComponents);
+        echo'</pre>';*/
         return $this->json($compatiblePcComponents);
     }
 

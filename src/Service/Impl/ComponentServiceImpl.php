@@ -38,7 +38,9 @@ class ComponentServiceImpl implements ComponentService
     {
         try{
 
-            $compatibleParts = $this->componentRepository->findCompatibleComponents($filterParams);
+            //$compatibleParts = $this->componentRepository->findCompatibleComponents($filterParams);
+
+            $compatibleParts = $this->componentRepository->getCompatibleParts($filterParams);
 
             return $compatibleParts;
 
