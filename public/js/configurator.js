@@ -1,19 +1,14 @@
 function fetchComponentData() {
-    let cpu = document.getElementById('cpu').value;
-    let motherboard = document.getElementById('motherboard').value;
-    let ram = document.getElementById('ram').value;
-    let gpu = document.getElementById('gpu').value;
-    let storage = document.getElementById('storage').value;
-    let psu = document.getElementById('psu').value;
+    const componentIds = ['cpu', 'motherboard', 'ram', 'gpu', 'storage', 'psu'];
+    const data = {};
 
-    return {
-        cpu: cpu,
-        motherboard: motherboard,
-        ram: ram,
-        gpu: gpu,
-        storage: storage,
-        psu: psu
-    };
+    componentIds.forEach(component => {
+        const selectBox = document.querySelector(`.custom-select[data-component-id="${component}"]`);
+        const value = selectBox?.dataset.selectedValue || "";
+        data[component] = value;
+    });
+
+    return data;
 }
 function saveConfiguration(requestData) {
 
@@ -57,7 +52,7 @@ function savePcConfiguration() {
     saveButton.addEventListener('click', function () {
 
         const validationErrors = validateComponents(requiredComponents);
-
+        console.log(validationErrors);
         if (validationErrors.length > 0) {
             showComponentErrors(validationErrors);
         } else {

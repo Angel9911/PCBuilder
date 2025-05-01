@@ -16,8 +16,7 @@ function validateComponents(components) {
 
     components.forEach(component => {
         const wrapper = document.querySelector(`.custom-select[data-component-id="${component}"]`);
-        const selected = wrapper?.querySelector('.select-selected');
-        const selectedValue = selected?.getAttribute('data-value');
+        const selectedValue = wrapper?.dataset.selectedValue;
 
         if (!selectedValue) {
             errors.push({
@@ -36,14 +35,14 @@ function showComponentErrors(errors) {
 
         if (!selected || !wrapper) return;
 
-        // Add red border background
-        selected.classList.add("border", "border-red-500", "bg-red-50");
+        // Add red border via class
+        wrapper.classList.add("error");
 
         // Remove existing error message if any
         const oldError = document.getElementById(`${component}-error`);
         if (oldError) oldError.remove();
 
-        // Add error message if not present
+        // Create and append error message
         const errorMessage = document.createElement("p");
         errorMessage.id = `${component}-error`;
         errorMessage.className = "text-red-500 text-sm mt-2";

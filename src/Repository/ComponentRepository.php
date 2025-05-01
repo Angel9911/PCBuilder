@@ -101,17 +101,18 @@ class ComponentRepository extends ServiceEntityRepository
 
         // Get selected specs
         $cpu = isset($selected['cpu_id']) ? $this->getComponentSpecs($connection, 'cpu', $selected['cpu_id']) : null;
+
         $gpu = isset($selected['gpu_id']) ? $this->getComponentSpecs($connection, 'gpu', $selected['gpu_id']) : null;
         $monitor = isset($selected['monitor_id']) ? $this->getComponentSpecs($connection, 'monitor', $selected['monitor_id']) : null;
         $motherboard = isset($selected['motherboard_id']) ? $this->getComponentSpecs($connection, 'motherboard', $selected['motherboard_id']) : null;
         $case = isset($selected['pc_case_id']) ? $this->getComponentSpecs($connection, 'pc_case', $selected['pc_case_id']) : null;
         $ram = isset($selected['ram_id']) ? $this->getComponentSpecs($connection, 'ram', $selected['ram_id']) : null;
-        $storage = isset($selected['ram_id']) ? $this->getComponentSpecs($connection, 'storage', $selected['storage_id']) : null;
+        $storage = isset($selected['storage_id']) ? $this->getComponentSpecs($connection, 'storage', $selected['storage_id']) : null;
         $psu = isset($selected['psu_id']) ? $this->getComponentSpecs($connection, 'psu', $selected['psu_id']) : null;
-        //TODO: PSU  used for compatibility with cpu,gpu,monitor
+        //TODO: if choose first psu and then other component with power_wattage(cpu,gpu,monitor) it will not calculate the required power_wattage
 
         // Get compatible parts
-        $response['cpu_ids'] = $this->getCompatibleCPUs($connection, $cpu, $motherboard, $ram, $psu, $gpu, $monitor);;
+        $response['cpu_ids'] = $this->getCompatibleCPUs($connection, $cpu, $motherboard, $ram, $psu, $gpu, $monitor);
         $response['motherboard_ids'] = $this->getCompatibleMotherboards($connection, $motherboard,$cpu, $ram, $storage, $case, $gpu);
         $response['ram_ids'] = $this->getCompatibleRAM($connection, $ram, $cpu, $motherboard);
         $response['gpu_ids'] = $this->getCompatibleGPUs($connection, $gpu, $motherboard, $case, $psu, $cpu, $monitor);
@@ -199,7 +200,7 @@ class ComponentRepository extends ServiceEntityRepository
         $results = [];
 
         if ($selectedCase) {
-            $conditions[] = "gpu.component_id != :selected_id";
+            $conditions[] = "pc.component_id != :selected_id";
             $params['selected_id'] = $selectedCase['component_id'];
 
             $results[] = ['component_id' => $selectedCase['component_id'], 'name' => $selectedCase['name'] ?? 'Selected Case'];
@@ -358,9 +359,7 @@ class ComponentRepository extends ServiceEntityRepository
             $maxGpuPower = max($maxGpuPower, 0);
 
             $conditions[] = "gpu.power_wattage <= :max_gpu_power";
-            var_dump($cpu);
-            var_dump($monitorPower);
-            var_dump($maxGpuPower);
+
             $params['max_cpu_power'] = $maxGpuPower;
         }
 
@@ -490,7 +489,7 @@ class ComponentRepository extends ServiceEntityRepository
             $conditions[] = "mb.memory_type = :memory_type";
             $params['memory_type'] = $ram['type'];
 
-            $conditions[] = "mb.slots <= :modules";
+            $conditions[] = "mb.memory_slots >= :modules";
             $params['modules'] = $ram['modules'];
 
             $conditions[] = "mb.max_memory_supported >= :capacity_gb";
@@ -578,7 +577,6 @@ class ComponentRepository extends ServiceEntityRepository
         }
 
         if($ram){
-
             $conditions[] = "cpu.memory_type = :type";
             $params['type'] = $ram['type'];
         }

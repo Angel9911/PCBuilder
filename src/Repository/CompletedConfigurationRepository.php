@@ -77,43 +77,65 @@ class CompletedConfigurationRepository extends ServiceEntityRepository
         return $result;
     }
 
-    public function getAllPcConfigurations(): array
+    private function findPcConfigurations(int $limit = 8, int $offset = 0): array
+    {
+        $resultArray = $this->createQueryBuilder('config')
+            ->select('config.id', 'config.name', 'config.totalWattage', 'config.createdAt')
+            ->orderBy('config.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getArrayResult();
+
+        return $resultArray;
+    }
+
+    private function findComponentsByPcConfigurations(array $pcIds): array
     {
         $resultArray = $this->createQueryBuilder('config')
             ->leftJoin('config.components', 'pcComp')
             ->leftJoin('pcComp.component', 'component')
-            ->leftJoin('component.type', 'ct')// Join the Component entity
-            ->select('config.id', 'config.name', 'config.totalWattage', 'config.createdAt', 'ct.name AS component_type','component.id AS component_id', 'component.name AS component_name')
+            ->leftJoin('component.type', 'ct')
+            ->select('config.id AS config_id', 'component.id AS component_id', 'component.name AS component_name','ct.name AS component_type')
+            ->where('config.id IN (:ids)')
+            ->setParameter('ids', $pcIds)
             ->getQuery()
-            ->getResult();
+            ->getArrayResult();
 
-        $filteredResultArray = array_filter($resultArray, function ($item) {
+        return $resultArray;
+    }
 
-            return !is_null($item['component_id']);
-        });
+    public function getAllPcConfigurations(int $limit, int $offset): array
+    {
+        $configs = $this->findPcConfigurations($limit, $offset);
+        $configIds = array_column($configs, 'id');
 
-        $result = [];
-        foreach ($filteredResultArray as $item) {
+        $components = $this->findComponentsByPcConfigurations($configIds);
 
-            if(!isset($result[$item['id']])) {
-
-                $result[$item['id']] = [
-                  'id' => $item['id'],
-                  'name' => $item['name'],
-                  'totalWattage' => $item['totalWattage'],
-                  'createdAt' => $item['createdAt'],
-                ];
-            }
-
-            if(!isset($result[$item['id']]['component_type']['components'])) {
-
-                $result[$item['id']][$item['component_type']]['components'][] = [
-                    'component_id' => $item['component_id'],
-                    'component_name' => $item['component_name'],
-                ];
-            }
+        // Initialize map
+        $final = [];
+        foreach ($configs as $conf) {
+            $final[$conf['id']] = $conf;
+            $final[$conf['id']]['components'] = [];
         }
 
-        return $result;
+        // Merge components into corresponding config
+        foreach ($components as $comp) {
+
+            $final[$comp['config_id']]['components'][$comp['component_type']][] = [
+                'component_id' => $comp['component_id'],
+                'component_name' => $comp['component_name'],
+            ];
+        }
+
+        return array_values($final);
+    }
+
+    public function getTotalsCountConfigurations(): int
+    {
+        return (int) $this->createQueryBuilder('config')
+            ->select('COUNT(DISTINCT config.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }

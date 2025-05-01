@@ -93,9 +93,9 @@ class PcConfiguratorServiceImpl implements PCConfiguratorService
         return $userPcConfiguration;
     }
 
-    public function getPcConfigurations(): array
+    public function getPcConfigurations(int $limit, int $offset): array
     {
-        return $this->completedConfigurationRepository->getAllPcConfigurations();
+        return $this->completedConfigurationRepository->getAllPcConfigurations($limit, $offset);
     }
 
     public function getPcConfigurationById(int $configurationId): array
@@ -106,5 +106,10 @@ class PcConfiguratorServiceImpl implements PCConfiguratorService
     public function getPcConfigurationDetails(int $configurationId): CompletedConfiguration
     {
         return $this->completedConfigurationRepository->getPcConfigurationObjectById($configurationId);
+    }
+
+    public function getTotalsCountConfigurations(): int
+    {
+        return $this->completedConfigurationRepository->getTotalsCountConfigurations();
     }
 }

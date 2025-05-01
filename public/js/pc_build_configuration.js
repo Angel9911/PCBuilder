@@ -16,20 +16,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 selectBox.querySelector(".select-items").classList.add("select-hide");
 
-                /*// ✅ REMOVE ERROR MESSAGE AND STYLING IF PRESENT
+                // ✅ REMOVE ERROR MESSAGE AND STYLING IF PRESENT
                 const componentType = selectBox.getAttribute("data-component-id");
                 const errorMsg = document.getElementById(`${componentType}-error`);
                 if (errorMsg) errorMsg.remove();
 
-                selected.classList.remove("border-red-500", "bg-red-50");*/
+                selectBox.classList.remove("error"); // remove red border class
 
-
-                // Trigger change event
+                // ✅ Trigger change event
                 selectBox.dispatchEvent(new CustomEvent("change", {
-                        detail: {
-                            value: item.dataset.value,
-                            name: item.textContent
-                        }
+                    detail: {
+                        value: item.dataset.value,
+                        name: item.textContent
+                    }
                 }));
             });
         });
@@ -102,11 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         componentSelectors.forEach(select => {
             select.addEventListener("change", function () {
-                //if (!isCompletedConfiguration) { // Only fetch compatible components if not a completed configuration
                     updateCompatibleComponents();
-                //}
-                //updateCompatibleComponents(); // 🔥 Only fetch if NOT from AI or if not from completed configuration
-
             });
         });
 
@@ -274,9 +269,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // ✅ Use the currently shown value as the real default
             const defaultText = selectBox.dataset.defaultText || "Select an option";//selectedDiv.textContent.trim();
-            console.log(selectBox.dataset);
-            console.log(currentSelectedValue);
-            console.log(defaultText);
+
             itemsContainer.innerHTML = "";
 
             // ✅ Build compatibility map from server response
@@ -316,10 +309,12 @@ document.addEventListener("DOMContentLoaded", function () {
                         selectBox.dataset.selectedValue = id;
                         itemsContainer.classList.add("select-hide");
 
-                       /* // ✅ Remove error for this specific component
+                        // ✅ REMOVE ERROR MESSAGE AND STYLING IF PRESENT
                         const componentType = selectBox.getAttribute("data-component-id");
                         const errorMsg = document.getElementById(`${componentType}-error`);
-                        if (errorMsg) errorMsg.remove();*/
+                        if (errorMsg) errorMsg.remove();
+
+                        selectBox.classList.remove("error"); // remove red border class
 
                         selectBox.dispatchEvent(new CustomEvent("change", {
                             detail: {value: id, name}

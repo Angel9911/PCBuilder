@@ -142,7 +142,6 @@ class ConfiguratorController extends AbstractController
     #[Route('/configurator/save', name: 'configurator.save', methods: ['POST'])]
     public function saveConfiguration(Request $request): Response
     {
-        $cacheKey = CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY;
 
         $componentsParams = ObjectMapper::mapJsonToObject($request->getContent());
 
@@ -191,18 +190,22 @@ class ConfiguratorController extends AbstractController
             ], 400);
         }
 
-        // Check if the cache exists
+        $limit = 8;
+        $offset = 0;
+
+        $cacheKey = CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY . '_page_1';
+
         if ($this->redis->isKeyExist($cacheKey)) {
-            // Retrieve cached configurations
+
             $cachedConfigurations = $this->redis->get($cacheKey);
 
-            // Ensure it's an array
             if (!is_array($cachedConfigurations)) {
+
                 $cachedConfigurations = [];
             }
         } else {
-            // If cache is empty, fetch from DB
-            $cachedConfigurations = $this->configuratorService->getPcConfigurations();
+
+            $cachedConfigurations = $this->configuratorService->getPcConfigurations($limit, $offset);
         }
 
         // merge name of configuration which components after make validation
@@ -225,9 +228,9 @@ class ConfiguratorController extends AbstractController
         foreach ($newConfigurationComponents as $type => $data) {
             $cachedConfigurations[$newConfiguration->getId()][$type] = $data;
         }
-
         // Save the updated array back to Redis
-        $this->redis->set($cacheKey, $cachedConfigurations, 3600); // Cache for 1 hour
+        $this->addNewConfigurationPageCache($cachedConfigurations);
+        //$this->redis->set($cacheKey, $cachedConfigurations, 3600); // Cache for 1 hour
 
         return $this->json('Configuration saved successfully');
     }
@@ -236,6 +239,40 @@ class ConfiguratorController extends AbstractController
     public function getAllTest(): Response
     {
         return $this->json( $this->componentService->getAllComponents(), 200, [], ['groups' => 'component_read']);
+    }
+
+    protected function addNewConfigurationPageCache(array $configuration, int $limit = 8): void
+    {
+        $page = 1;
+
+        $exceedConfiguration = [$configuration];
+
+
+        while (!empty($exceedConfiguration)) {
+
+            $pageKey = CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY . '_page_' . $page;
+
+            $cached = $this->redis->get($pageKey);
+
+            if(!is_array($cached)){
+
+                $cached = [];
+            }
+
+            $mergedConfigurations = array_merge($exceedConfiguration, $cached);
+
+            if(count($mergedConfigurations) > $limit){
+
+                $exceedConfiguration = array_splice($mergedConfigurations, $limit);
+            } else {
+
+                $exceedConfiguration = [];
+            }
+
+            $this->redis->set($pageKey, $mergedConfigurations, 3600); // the merged array consists 8 configurations
+
+            $page++;
+        }
     }
     protected function populateComponentsFields(): array
     {

@@ -32,25 +32,40 @@ class CompletedBuildController extends AbstractController
 
 
     #[Route('/completed/build', name: 'completed.build')]
-    public function completed(): Response
+    public function completed(Request $request): Response
     {
-        $this->redis->delete(CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY);
-        // Check if data exists in Redis cache
-        if ($this->redis->isKeyExist(CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY)) {
 
-            $result = $this->redis->get(CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY);
+        $page = max(1, (int) $request->get('page', 1));
+
+        $limit = 8;
+
+        $offset = ($page - 1) * $limit;
+
+        $configurationsPageKey = CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY . "_page_" . $page;
+
+        $this->redis->delete($configurationsPageKey);
+        // Check if data exists in Redis cache
+        if ($this->redis->isKeyExist($configurationsPageKey)) {
+
+            $result = $this->redis->get($configurationsPageKey);
 
         } else {
 
             // Fetch from database and cache the result
-            $result = $this->configuratorService->getPcConfigurations();
-            $this->redis->set(CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY, $result, 3600); // Cache for 1 hour
+            $result = $this->configuratorService->getPcConfigurations($limit, $offset);
+
+            $this->redis->set($configurationsPageKey, $result, 3600); // Cache for 1 hour
         }
 
+        $totalCount = $this->configuratorService->getTotalsCountConfigurations(); // create this method
+
+        $totalPages = ceil($totalCount / $limit);
 
         return $this->render('pages/completed_configuration.html.twig' ,
         [
-            'configurations' => $result
+            'configurations' => $result,
+            'totalPages' => $totalPages,
+            'currentPage' => $page,
         ]);
     }
 
