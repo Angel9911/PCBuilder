@@ -71,6 +71,11 @@ class CompatibilityController extends AbstractController
         return $this->json($compatiblePcComponents);
     }
 
+    public function bott()
+    {
+
+    }
+
     protected function populateComponentsFields(): array
     {
 

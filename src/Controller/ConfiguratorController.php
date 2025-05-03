@@ -104,6 +104,16 @@ class ConfiguratorController extends AbstractController
         return $this->redirectToRoute('configurator.build');
     }
 
+    #[Route('/configurator/bottleneck', name: 'configurator.bottleneck', methods: ['POST'])]
+    public function calculateAIBottleneck(Request $request): Response
+    {
+        $bottleneckComponents = ObjectMapper::mapJsonToObject($request->getContent());
+
+        $bottleneckCalculation = $this->openAIService->calculateBottleneckConfiguration($bottleneckComponents);
+
+        return $this->json($bottleneckCalculation);
+    }
+
     #[Route('/configurator/manual', name: 'configurator.manual', methods: ['GET'])]
     public function manualPcConfiguration(Request $request): Response
     {
