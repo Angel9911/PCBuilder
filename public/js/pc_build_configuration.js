@@ -319,6 +319,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         selectBox.dispatchEvent(new CustomEvent("change", {
                             detail: {value: id, name}
                         }));
+                        // Trigger bottleneck analysis after component selection
+                        triggerBottleneckAICheck();
                     });
                 }
 

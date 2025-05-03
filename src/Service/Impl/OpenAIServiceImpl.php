@@ -8,7 +8,10 @@ use App\Service\OpenAIService;
 use App\utils\ObjectMapper;
 use Exception;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -73,7 +76,7 @@ class OpenAIServiceImpl implements OpenAIService
                             ])
                         ]
                     ],
-                    'temperature' => 0.5,
+                    'temperature' => 0.2,
                 ],
             ]);
 
@@ -108,6 +111,84 @@ class OpenAIServiceImpl implements OpenAIService
 
         } catch (Exception $e) {
             throw new Exception("Failed to generate OpenAI recommended PC configuration: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     * @throws Exception
+     * @throws DecodingExceptionInterface
+     */
+    public function calculateBottleneckConfiguration(array $bottleneckComponents): array
+    {
+
+        try {
+            $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/chat/completions', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->apiKey,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'model' => 'gpt-3.5-turbo',
+                    'messages' => [
+                        [
+                            'role' => 'system',
+                            'content' => "You are a PC performance expert. Based on the user's CPU and GPU, estimate if there is a performance bottleneck.
+
+                    Instructions:
+                    - Return an estimated bottleneck **percentage**.
+                    - Classify bottleneck into one of 3 categories:
+                        1. well-matched (0–10%)
+                        2. minor-bottleneck (11–20%)
+                        3. significant-bottleneck (21%+)
+                    - Assume 1080p gaming at high settings.
+
+                    Use real-world logic. Example outputs:
+
+                    Example 1:
+                    CPU: Intel i3-10100F, GPU: RTX 4080 
+                    → { bottleneck_percentage: 35, bottleneck_status: significant-bottleneck}
+                    Example 2:
+                    CPU: Ryzen 5 5600X, GPU: RTX 3060 Ti 
+                    → { bottleneck_percentage: 5, bottleneck_status: well-matched}
+                    Now respond with the same format."
+
+                        ],
+                        [
+                            'role' => 'user',
+                            'content' => json_encode([
+                                'CPU' => $bottleneckComponents['cpu'],
+                                'GPU' => $bottleneckComponents['gpu']
+                            ])
+                        ]
+                    ],
+                    'temperature' => 0.2,
+                ],
+            ]);
+
+            $result = $response->toArray();
+
+            $resultText = $result['choices'][0]['message']['content'] ?? '{}';
+
+            /*echo '<pre>';
+            print_r($result['choices'][0]['message']['content']);
+            echo '</pre>';*/
+
+            $decodedResult = json_decode($resultText, true);
+
+            if(!isset($decodedResult['bottleneck_percentage']) || !isset($decodedResult['bottleneck_status'])) {
+
+                throw new Exception("Invalid AI response format.");
+            }
+
+            return [
+                'bottleneck_percentage' => $decodedResult['bottleneck_percentage'],
+                'bottleneck_status' => $decodedResult['bottleneck_status']
+            ];
+
+        } catch(Exception $e){
+
+            throw new Exception("Failed to generate bottleneck between cpu and gpu: " . $e->getMessage());
         }
     }
 

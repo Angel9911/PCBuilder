@@ -1,0 +1,32 @@
+<!-- Bottleneck Analysis Container -->
+<div id="bottleneck-analysis" class="hidden mt-6 mb-8">
+    <div id="bottleneck-box" class="bg-white shadow overflow-hidden sm:rounded-lg border-l-4 transition-colors duration-500">
+        <div id="bottleneck-bg" class="p-6 transition-colors duration-500">
+            <div class="flex flex-col sm:flex-row items-center">
+                <div class="flex items-center mb-3 sm:mb-0 sm:mr-6">
+                    <h3 id="bottleneck-heading" class="text-lg font-semibold transition-colors duration-500">Component Compatibility</h3>
+                    <div class="relative ml-2">
+                        <button class="text-gray-500 hover:text-gray-700 focus:outline-none" aria-label="Show bottleneck information">
+                            <svg class="lucide lucide-info w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-1 w-full sm:w-auto">
+                    <div class="flex items-center justify-between mb-2">
+                        <span id="bottleneck-status-label" class="text-sm font-medium transition-colors duration-500">Bottleneck Status</span>
+                        <span id="bottleneck-status" class="text-sm font-bold transition-colors duration-500">—</span>
+                    </div>
+                    <div class="h-4 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <div id="bottleneck-bar" class="h-full transition-all duration-1000 ease-out w-0"></div>
+                    </div>
+                    <div class="mt-2 text-right">
+                        <span id="bottleneck-percent" class="text-xs font-semibold transition-colors duration-500">—</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-gray-200">
+                <p id="bottleneck-message" class="text-sm text-gray-600"></p>
+            </div>
+        </div>
+    </div>
+</div>

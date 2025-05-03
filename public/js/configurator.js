@@ -13,7 +13,7 @@ function fetchComponentData() {
 function saveConfiguration(requestData) {
 
     showSpinner(); // show spinner
-    console.log(requestData);
+
     // Send the request
     fetch('/configurator/save', {
         method: "POST",
