@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Constraints\CacheConstraints;
 use App\Private_lib\redis\RedisWrapper;
 use App\Service\PCConfiguratorService;
+use App\utils\ValidatorUtils;
 use Doctrine\ORM\Cache;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -61,7 +62,7 @@ class CompletedBuildController extends AbstractController
 
         $totalPages = ceil($totalCount / $limit);
 
-        return $this->render('pages/completed_configuration.html.twig' ,
+        return $this->render('pages/completed_configuration_page/completed_configuration.html.twig' ,
         [
             'configurations' => $result,
             'totalPages' => $totalPages,
@@ -70,8 +71,16 @@ class CompletedBuildController extends AbstractController
     }
 
     #[Route('/completed/build/details/{buildId}', name: 'completed.build.details')]
-    public function completedBuildDetails(int $buildId, Request $request): Response
+    public function completedBuildDetails($buildId): Response
     {
+        if(!ValidatorUtils::validateAsNumber($buildId)){
+
+            return $this->json([
+                'error' => 'Invalid ID. It must be a positive number.'
+            ], 400);
+        }
+
+        $buildId = (int) $buildId;
 
         $cacheKey = CacheConstraints::$PC_CONFIGURATION_KEY. '_' .$buildId;
 
@@ -97,7 +106,7 @@ class CompletedBuildController extends AbstractController
             $pcConfigurationCreatedAt = $pcConfiguration->getCreatedAt();
         }
 
-        return $this->render('pages/completed_configuration_info.html.twig', [
+        return $this->render('pages/completed_configuration_page/completed_configuration_info.html.twig', [
             'configuration_id' => $pcConfiguration->getId(),
             'configuration_name' => $pcConfigurationName ?? '',
             'configuration_date' => isset($pcConfigurationCreatedAt) ? $pcConfigurationCreatedAt->format('Y-m-d') : '',
@@ -111,8 +120,16 @@ class CompletedBuildController extends AbstractController
     }
 
     #[Route('/completed/build/{buildId}', name: 'get.completed.build')]
-    public function completedBuild(int $buildId, Request $request): Response
+    public function completedBuild($buildId, Request $request): Response
     {
+        if(!ValidatorUtils::validateAsNumber($buildId)){
+
+            return $this->json([
+                'error' => 'Invalid ID. It must be a positive number.'
+            ], 400);
+        }
+
+        $buildId = (int) $buildId;
 
         $session = $request->getSession();
 

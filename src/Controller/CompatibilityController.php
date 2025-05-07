@@ -40,23 +40,36 @@ class CompatibilityController extends AbstractController
 
         if(!empty($componentsParams)) {
 
-            $validComponentsIds = ValidatorUtils::validateAsKey(array_keys($componentsParams), ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS_IDS);
+            $validComponentsIds = ValidatorUtils::filterValidKeys($componentsParams, ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS_IDS);
 
-            if (!empty($validComponentsIds)) {
+            // Find invalid keys (difference between provided and allowed)
+            $missingFields = array_diff(array_keys($componentsParams), ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS_IDS);
+
+            if (!empty($missingFields)) {
 
                 return $this->json([
                     'error' => 'Invalid components',
-                    'fields' => implode(', ', $validComponentsIds),
+                    'fields' => implode(', ', $missingFields),
                 ], 400);
             }
 
-            // TODO: We have to check if each value which comes has valid type and itself valid
+            $invalidComponentTypes = array_filter(
+                $validComponentsIds,
+                function ($value, $key) {
+                    return !ValidatorUtils::validateAsNumber($value);
+                },
+                ARRAY_FILTER_USE_BOTH
+            );
 
-            $compatiblePcComponents = $this->componentService->getCompatibleComponents($componentsParams);
+            if(!empty($invalidComponentTypes)) {
 
-            /*echo'<pre>';
-            print_r($compatiblePcComponents);
-            echo'</pre>';*/
+                return $this->json([
+                    'error' => 'Invalid component values',
+                    'fields' => implode(', ', $invalidComponentTypes),
+                ], 400);
+            }
+
+            $compatiblePcComponents = $this->componentService->getCompatibleComponents($validComponentsIds);
 
             if (!empty($compatiblePcComponents)) {
 
@@ -65,15 +78,8 @@ class CompatibilityController extends AbstractController
         }
 
         $compatiblePcComponents = $this->componentService->getCompatibleComponents($componentsParams);
-        /*echo'<pre>';
-        print_r($compatiblePcComponents);
-        echo'</pre>';*/
+
         return $this->json($compatiblePcComponents);
-    }
-
-    public function bott()
-    {
-
     }
 
     protected function populateComponentsFields(): array

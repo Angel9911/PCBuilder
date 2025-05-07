@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Component;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -83,37 +84,32 @@ class ComponentRepository extends ServiceEntityRepository
     }
 
     /**
-     * ANOTHER APPROACH IS BELOW
-     * ANOTHER APPROACH IS BELOW
-     * ANOTHER APPROACH IS BELOW
-     */
-
-    /**
      * Second algorithm for compatibility because the first algorithm generates many records and breaks the server
-     * TODO: move the logic from this method in service class
      * @param array $selected
      * @return array
+     * @throws Exception
      */
-    function getCompatibleParts(array $selected) { // findCompatibleComponents
+    function findCompatibleComponents(array $selected): array
+    {
+        //TODO: move the logic from this method in service class
         $response = [];
 
         $connection = $this->entityManager->getConnection();
 
         // Get selected specs
-        $cpu = isset($selected['cpu_id']) ? $this->getComponentSpecs($connection, 'cpu', $selected['cpu_id']) : null;
-
-        $gpu = isset($selected['gpu_id']) ? $this->getComponentSpecs($connection, 'gpu', $selected['gpu_id']) : null;
-        $monitor = isset($selected['monitor_id']) ? $this->getComponentSpecs($connection, 'monitor', $selected['monitor_id']) : null;
-        $motherboard = isset($selected['motherboard_id']) ? $this->getComponentSpecs($connection, 'motherboard', $selected['motherboard_id']) : null;
-        $case = isset($selected['pc_case_id']) ? $this->getComponentSpecs($connection, 'pc_case', $selected['pc_case_id']) : null;
-        $ram = isset($selected['ram_id']) ? $this->getComponentSpecs($connection, 'ram', $selected['ram_id']) : null;
-        $storage = isset($selected['storage_id']) ? $this->getComponentSpecs($connection, 'storage', $selected['storage_id']) : null;
-        $psu = isset($selected['psu_id']) ? $this->getComponentSpecs($connection, 'psu', $selected['psu_id']) : null;
+        $cpu = isset($selected['cpu_id']) ? $this->getComponentSpecs('cpu', $connection, $selected['cpu_id']) : null;
+        $gpu = isset($selected['gpu_id']) ? $this->getComponentSpecs('gpu', $connection, $selected['gpu_id']) : null;
+        $monitor = isset($selected['monitor_id']) ? $this->getComponentSpecs('monitor', $connection, $selected['monitor_id']) : null;
+        $motherboard = isset($selected['motherboard_id']) ? $this->getComponentSpecs('motherboard', $connection, $selected['motherboard_id']) : null;
+        $case = isset($selected['pc_case_id']) ? $this->getComponentSpecs('pc_case', $connection, $selected['pc_case_id']) : null;
+        $ram = isset($selected['ram_id']) ? $this->getComponentSpecs('ram', $connection, $selected['ram_id']) : null;
+        $storage = isset($selected['storage_id']) ? $this->getComponentSpecs('storage', $connection, $selected['storage_id']) : null;
+        $psu = isset($selected['psu_id']) ? $this->getComponentSpecs('psu', $connection, $selected['psu_id']) : null;
         //TODO: if choose first psu and then other component with power_wattage(cpu,gpu,monitor) it will not calculate the required power_wattage
 
         // Get compatible parts
         $response['cpu_ids'] = $this->getCompatibleCPUs($connection, $cpu, $motherboard, $ram, $psu, $gpu, $monitor);
-        $response['motherboard_ids'] = $this->getCompatibleMotherboards($connection, $motherboard,$cpu, $ram, $storage, $case, $gpu);
+        $response['motherboard_ids'] = $this->getCompatibleMotherboards($connection, $motherboard, $cpu, $ram, $storage, $case, $gpu);
         $response['ram_ids'] = $this->getCompatibleRAM($connection, $ram, $cpu, $motherboard);
         $response['gpu_ids'] = $this->getCompatibleGPUs($connection, $gpu, $motherboard, $case, $psu, $cpu, $monitor);
         $response['storage_ids'] = $this->getCompatibleStorage($connection, $storage, $motherboard);
@@ -124,18 +120,38 @@ class ComponentRepository extends ServiceEntityRepository
         return $response;
     }
 
-    function getComponentSpecs($conn, string $type, int $id): ?array {
+    /**
+     * @throws Exception
+     */
+    function getComponentSpecs(string $type, Connection $conn = null, int $id = 0): ?array
+    {
 
-        $stmt = $conn->prepare("
-            SELECT t.*, comp.name
+        // If no connection is passed, use default from service container
+        if ($conn === null) {
+
+            $conn = $this->entityManager->getConnection(); // Make sure this is injected in your service constructor
+        }
+
+        $sql = "
+            SELECT t.*, comp.name, ct.name AS component_type
             FROM {$type} t
             JOIN components comp ON comp.id = t.component_id
-            WHERE t.component_id = :id
-        ");
+            JOIN component_types ct ON ct.id = comp.type_id
+        ";
 
-        $resultData = $stmt->executeQuery(['id' => $id]);
+        // Add WHERE clause only if ID is passed
+        $params = [];
 
-        return $resultData->fetchAssociative();
+        if ($id > 0) {
+
+            $sql .= " WHERE t.component_id = :id";
+            $params['id'] = $id;
+        }
+
+        $stmt = $conn->prepare($sql);
+
+        $result = $stmt->executeQuery($params);
+        return $id > 0 ? ($result->fetchAssociative() ?: []) : $result->fetchAllAssociative();
 
     }
 
@@ -420,6 +436,15 @@ class ComponentRepository extends ServiceEntityRepository
 
             $conditions[] = "ram.capacity_gb <= :max_capacity";
             $params['max_capacity'] = $mb['max_memory_supported'];
+
+            $motherboardSupportedSpeed = str_getcsv(trim($mb['supported_memory_speeds'], '{}'));
+
+            if(!empty($motherboardSupportedSpeed)){
+
+                $conditions[] = "ram.speed_mhz = ANY(:supported_speeds::integer[])";
+                $params['supported_speeds'] = '{' . implode(',', $motherboardSupportedSpeed) . '}';
+            }
+
         }
 
         $whereSql = '';
@@ -494,6 +519,9 @@ class ComponentRepository extends ServiceEntityRepository
 
             $conditions[] = "mb.max_memory_supported >= :capacity_gb";
             $params['capacity_gb'] = $ram['capacity_gb'];
+
+            $conditions[] = ":speed_mhz = ANY(mb.supported_memory_speeds)";
+            $params['speed_mhz'] = $ram['speed_mhz'];
         }
 
         if($storage){
@@ -534,6 +562,8 @@ class ComponentRepository extends ServiceEntityRepository
             JOIN components comp ON comp.id = mb.component_id
             {$whereSql}
         ";
+
+        //var_dump($sql);
 
         $stmt = $conn->prepare($sql);
 

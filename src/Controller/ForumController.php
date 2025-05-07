@@ -25,7 +25,7 @@ class ForumController extends AbstractController
 
         $topic = $this->forumSectionService->getTopicDetails($topicId);
 
-        return $this->render('pages/forum_user_topic_details.html.twig', [
+        return $this->render('pages/forum_page/forum_user_topic_details.html.twig', [
             'topic' => $topic
         ]);
     }

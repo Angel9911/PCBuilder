@@ -64,7 +64,7 @@ class ConfiguratorController extends AbstractController
         $componentsData = $this->populateComponentsFields();
 
 
-        return $this->render('pages/pc_build_configuration.html.twig', [
+        return $this->render('pages/pc_configurator_page/pc_build_configuration.html.twig', [
             'pcConfiguration' => $pcConfiguration,
             'isAiConfiguration' => $isAiConfiguration,
             'explanation' => $explanation,
@@ -109,7 +109,44 @@ class ConfiguratorController extends AbstractController
     {
         $bottleneckComponents = ObjectMapper::mapJsonToObject($request->getContent());
 
-        $bottleneckCalculation = $this->openAIService->calculateBottleneckConfiguration($bottleneckComponents);
+        if(empty($bottleneckComponents)){
+
+            return $this->json([
+                'error' => 'Invalid or empty payload',
+            ], 400);
+        }
+
+        $validBottleneckComponents = ValidatorUtils::validateAsKey($bottleneckComponents, ConfigurationConstraint::$BOTTLENECK_REQUIRED_PC_COMPONENTS);
+
+        $missingRequiredFields = array_diff(ConfigurationConstraint::$BOTTLENECK_REQUIRED_PC_COMPONENTS, array_keys($validBottleneckComponents));
+
+        if(!empty($missingRequiredFields)){
+
+            return $this->json([
+                'error' => 'Missing required fields',
+                'fields' => implode(', ', $missingRequiredFields)
+            ], 400);
+        }
+
+        $invalidComponentTypes = array_filter(
+            $validBottleneckComponents,
+            function ($value, $key) {
+                return ValidatorUtils::validateAsString($value);
+            },
+            ARRAY_FILTER_USE_BOTH
+        );
+
+        $missingValidFields = array_diff(ConfigurationConstraint::$BOTTLENECK_REQUIRED_PC_COMPONENTS, array_keys($invalidComponentTypes));
+
+        if(!empty($missingValidFields)){
+
+            return $this->json([
+                'error' => 'Invalid component values',
+                'fields' => implode(', ', $missingValidFields)
+            ], 400);
+        }
+
+        $bottleneckCalculation = $this->openAIService->calculateBottleneckConfiguration($validBottleneckComponents);
 
         return $this->json($bottleneckCalculation);
     }
@@ -128,12 +165,22 @@ class ConfiguratorController extends AbstractController
     #[Route('/configurator/component/offer/template', name: 'configurator.get_offer_template', methods: ['GET'])]
     public function getComponentOfferTemplate(): Response
     {
-        return $this->render('pages/pages_templates/offer-template.html.twig');
+        return $this->render('pages/pc_configurator_page/pc_config_templates/offer-template.html.twig');
     }
 
     #[Route('/configurator/component/offers/{componentId}', name: 'configurator.get_offers', methods: ['GET'])]
-    public function getComponentOffers(int $componentId): Response
+    public function getComponentOffers($componentId): Response
     {
+
+        if(!ValidatorUtils::validateAsNumber($componentId)){
+
+            return $this->json([
+                'error' => 'Invalid ID. It must be a positive number.',
+            ], 400);
+        }
+
+        $componentId = (int) $componentId;
+
         $cacheKey = CacheConstraints::$OFFERS_COMPONENT_KEY . '_' . $componentId;
 
         if($this->redis->isKeyExist($cacheKey)){
@@ -154,6 +201,13 @@ class ConfiguratorController extends AbstractController
     {
 
         $componentsParams = ObjectMapper::mapJsonToObject($request->getContent());
+
+        if(empty($componentsParams)){
+
+            return $this->json([
+                'error' => 'Invalid or empty payload',
+            ], 400);
+        }
 
         $validComponents = ValidatorUtils::validateAsKey($componentsParams, ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS);
 
@@ -243,12 +297,6 @@ class ConfiguratorController extends AbstractController
         //$this->redis->set($cacheKey, $cachedConfigurations, 3600); // Cache for 1 hour
 
         return $this->json('Configuration saved successfully');
-    }
-
-    #[Route('/test', name: 'configurator.test', methods: ['GET'])]
-    public function getAllTest(): Response
-    {
-        return $this->json( $this->componentService->getAllComponents(), 200, [], ['groups' => 'component_read']);
     }
 
     protected function addNewConfigurationPageCache(array $configuration, int $limit = 8): void

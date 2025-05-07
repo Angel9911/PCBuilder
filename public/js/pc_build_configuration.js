@@ -78,18 +78,22 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch("/configurator/component/offer/template")
             .then(response => response.text())
             .then(html => {
+
                 let tempDiv = document.createElement("div");
+
                 tempDiv.innerHTML = html.trim();
+
                 offerTemplate = tempDiv.querySelector("#offer-template");
+
             })
-            .catch(error => console.error("❌ Failed to load offer template:", error))
+            .catch(error => console.error("❌ Failed to load offer completed_config_templates:", error))
             .finally(() => {
 
                 hideSpinner(); // Hide spinner after request completes
             });
 
     } else {
-        //console.log("✅ Offer template already exists in the DOM.");
+        //console.log("✅ Offer completed_config_templates already exists in the DOM.");
     }
 
 
@@ -143,6 +147,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 fetch(`/configurator/component/offers/${encodeURIComponent(componentValue)}`)
                     .then(response => response.json())
                     .then(data => {
+
                         let offers = data[componentValue] || [];
 
                         if (!Array.isArray(offers)) {
@@ -163,7 +168,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             }
 
                             if (!offerTemplate) {
-                                console.error("Offer template not loaded yet.");
+                                console.error("Offer completed_config_templates not loaded yet.");
                                 return;
                             }
 

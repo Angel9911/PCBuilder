@@ -1,0 +1,15 @@
+{% for filter_name, filter_values in filters %}
+    <div class="filter">
+        <h3>{{ filter_name|title }}</h3>
+        <ul>
+            {% for value in filter_values %}
+                <li>
+                    <label>
+                        <input type="checkbox" name="filters[{{ filter_name }}][]" value="{{ value }}">
+                        {{ value }}
+                    </label>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endfor %}

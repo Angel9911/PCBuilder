@@ -1,0 +1,111 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}PC Configuration{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8 flex items-center">
+        <button class="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="lucide lucide-arrow-left h-5 w-5 mr-2">
+                <path d="m12 19-7-7 7-7"></path>
+                <path d="M19 12H5"></path>
+            </svg>
+            Back to Configurator
+        </button>
+    </div>
+    <div class="md:flex md:gap-8">
+        <div class="md:w-1/4">
+            <div class="bg-white rounded-lg shadow-sm p-6 space-y-6 sticky top-8">
+                <div class="flex items-center justify-between mb-6"><h2 class="text-lg font-semibold text-gray-900">
+                        Filters</h2>
+                    <button class="text-sm text-blue-600 hover:text-blue-800 transition-colors">Clear all</button>
+                </div>
+                {% for filter in filters %}
+                    <div class="border-b border-gray-200 pb-4 last:border-0">
+                        <button class="w-full flex items-center justify-between py-2 text-left focus:outline-none group"
+                                onclick="toggleFilter(this)">
+                            <h3 class="text-sm font-medium text-gray-900 group-hover:text-blue-600">
+                                {{ filter.label }}
+                            </h3>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                 class="lucide lucide-chevron-down h-5 w-5 text-gray-400 group-hover:text-blue-600">
+                                <path d="m6 9 6 6 6-6"></path>
+                            </svg>
+                        </button>
+                        <div class="space-y-2 mt-2 hidden">
+                            {% for value in filter.values %}
+                                <label class="flex items-center space-x-2 cursor-pointer group">
+                                    <input type="checkbox" name="{{ filter.key }}[]" value="{{ value }}" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <span class="text-sm text-gray-600 group-hover:text-gray-900">{{ value }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="md:w-3/4 mt-6 md:mt-0">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for component in components %}
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden transition-shadow duration-300 hover:shadow-lg">
+                        <div class="relative overflow-hidden">
+                            <img src="https://images.pexels.com/photos/1432675/pexels-photo-1432675.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1260&amp;h=750&amp;dpr=1"
+                                 alt="{{ component.name }}" class="w-full h-48 object-cover transition-transform duration-300 hover:scale-110">
+                            <div class="absolute top-2 right-2 flex space-x-2">
+                                <div class="bg-white rounded-full p-1.5 shadow-sm">
+                                    <svg class="lucide lucide-star h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg"
+                                         width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2 hover:text-blue-600 transition-colors">
+                                {{ component.name }}
+                            </h3>
+                            <div class="space-y-2 mb-4">
+                                {% for key, value in component %}
+                                    {% if key not in ['id', 'component_id', 'name'] %}
+                                        <div class="flex items-center text-sm text-gray-600">
+                                            <span class="capitalize min-w-[140px]">{{ key|replace({'_': ' '})|capitalize }}:</span>
+                                            <span class="ml-1 font-medium">{{ value }}</span>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="space-y-2">
+                                <button class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                    <svg class="lucide lucide-plus-circle h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg"
+                                         width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path d="M8 12h8"></path>
+                                        <path d="M12 8v8"></path>
+                                    </svg>
+                                    Add to Configuration
+                                </button>
+                                <button class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                    <svg class="lucide lucide-info h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg"
+                                         width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path d="M12 16v-4"></path>
+                                        <path d="M12 8h.01"></path>
+                                    </svg>
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

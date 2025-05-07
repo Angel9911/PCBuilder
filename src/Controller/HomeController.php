@@ -30,7 +30,14 @@ class HomeController extends AbstractController
     #[Route('/forum', name: 'forum' , methods: ['GET'])]
     public function forum(): Response
     {
-        return $this->render('pages/forum_page.html.twig', [
+        return $this->render('pages/forum_page/forum_page.html.twig', [
+            'sections' => $this->forumSectionService->getAllForumSectionsAndSubsections()
+        ]);
+    }
+    #[Route('/test', name: 'test' , methods: ['GET'])]
+    public function test(): Response
+    {
+        return $this->render('pages/test.html.twig', [
             'sections' => $this->forumSectionService->getAllForumSectionsAndSubsections()
         ]);
     }

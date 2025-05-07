@@ -187,7 +187,7 @@ class OpenAIServiceImpl implements OpenAIService
             ];
 
         } catch(Exception $e){
-
+            //TODO: HANDLE WITH THIS<!-- Failed to generate bottleneck between cpu and gpu: Invalid AI response format. (500 Internal Server Error) -->
             throw new Exception("Failed to generate bottleneck between cpu and gpu: " . $e->getMessage());
         }
     }

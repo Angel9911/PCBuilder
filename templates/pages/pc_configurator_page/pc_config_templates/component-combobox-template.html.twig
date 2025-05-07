@@ -1,0 +1,68 @@
+<div class="px-4 py-4 sm:px-6">
+    <!-- Component Header -->
+    <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center">
+            <!-- CPU Icon -->
+            <div class="flex-shrink-0 bg-blue-100 rounded-md p-2">
+                <img src="{{ asset(icon_path) }}" alt="{{ label }}" class="w-9 h-9">
+            </div>
+            <div class="ml-4">
+                <h4 class="text-lg font-medium text-gray-900">{{ label }}</h4>
+            </div>
+        </div>
+        <button class="ml-2 inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+                onclick="navigateToFilter('{{ path('component.filter', { 'component': id }) }}')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="lucide lucide-filter h-4 w-4 mr-1">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            Advanced Filter
+        </button>
+    </div>
+    <div class="flex items-center space -x-4">
+        <div class="relative flex-1">
+            <div class="custom-select"
+                 data-component-id="{{ id }}"
+                 data-default-text="{{ default_option }}"
+                 data-selected-value="">
+                <div class="select-selected">{{ default_option }}</div>
+                <div class="select-items select-hide">
+                    {% for option in options %}
+                        <div class="select-item" data-value="{{ option.id ?? option }}">{{ option.name ?? option }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Spinner -->
+            <div data-spinner-for="{{ id }}" class="loading-spinner hidden"></div>
+
+        </div>
+
+        <!-- Hide Offers Button -->
+        <!-- Include the Hide Offers button -->
+        {% include 'pages/pc_configurator_page/pc_config_templates/hide-offer-template.html.twig' with { component_id: id } %}
+
+    </div>
+
+    <!-- Offers Section -->
+    <!-- Hidden completed_config_templates for vendor offers -->
+    <div class="mt-4 space-y-3 vendor-offers hidden" data-offers-for="{{ id }}"></div>
+
+    <!-- if the combobox is monitor or pc case -->
+    {% if id == 'pc_case' or id == 'monitor'%}
+        <button
+                id="{{ id }}-view-image"
+                type="button"
+                class="ml-2 text-blue-600 hover:text-blue-800 text-sm font-medium transition duration-150 ease-in-out"
+        >
+            View Image
+        </button>
+    {% endif %}
+    <!-- JavaScript for Navigation -->
+    <script>
+        function navigateToFilter(url) {
+            window.location.href = url;
+        }
+    </script>
+</div>

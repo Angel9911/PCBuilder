@@ -18,9 +18,9 @@
         </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Include the Hide Offers button -->
-        {% include 'pages/pages_templates/bottleneck_configuration-template.html.twig' %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Include the Hide Offers button -->
+            {% include 'pages/pc_configurator_page/pc_config_templates/bottleneck_configuration-template.html.twig' %}
         <div class="md:flex md:items-center md:justify-between">
             <div class="flex-1 min-w-0">
                 <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">PC Configuration</h2>
@@ -38,7 +38,7 @@
 
                         <li class="group hover:bg-gray-50 transition-colors duration-150">
 
-                            {% include 'pages/pages_templates/component-combobox-template.html.twig' with {
+                            {% include 'pages/pc_configurator_page/pc_config_templates/component-combobox-template.html.twig' with {
                                 id: 'cpu',
                                 label: 'Processor (CPU)',
                                 icon_path: '/assets/images/icons8-processor-50.png',
@@ -51,7 +51,7 @@
 
                         <li class="group hover:bg-gray-50 transition-colors duration-150">
 
-                            {% include 'pages/pages_templates/component-combobox-template.html.twig' with {
+                            {% include 'pages/pc_configurator_page/pc_config_templates/component-combobox-template.html.twig' with {
                                 id: 'cpu_cooling',
                                 label: 'CPU Cooling',
                                 icon_path: '/assets/images/icons8-burn-cd-50.png',
@@ -64,7 +64,7 @@
 
                         <li class="group hover:bg-gray-50 transition-colors duration-150">
 
-                            {% include 'pages/pages_templates/component-combobox-template.html.twig' with {
+                            {% include 'pages/pc_configurator_page/pc_config_templates/component-combobox-template.html.twig' with {
                                 id: 'motherboard',
                                 label: 'Motherboard',
                                 icon_path: '/assets/images/icons8-motherboard-50.png',
@@ -77,7 +77,7 @@
 
                         <li class="group hover:bg-gray-50 transition-colors duration-150">
 
-                            {% include 'pages/pages_templates/component-combobox-template.html.twig' with {
+                            {% include 'pages/pc_configurator_page/pc_config_templates/component-combobox-template.html.twig' with {
                                 id: 'ram',
                                 label: 'Memory (RAM)',
                                 icon_path: '/assets/images/icons8-memory-slot-50.png',
@@ -90,7 +90,7 @@
 
                         <li class="group hover:bg-gray-50 transition-colors duration-150">
 
-                            {% include 'pages/pages_templates/component-combobox-template.html.twig' with {
+                            {% include 'pages/pc_configurator_page/pc_config_templates/component-combobox-template.html.twig' with {
                                 id: 'gpu',
                                 label: 'Video Card',
                                 icon_path: '/assets/images/icons8-video-card-50.png',
@@ -103,7 +103,7 @@
 
                         <li class="group hover:bg-gray-50 transition-colors duration-150">
 
-                            {% include 'pages/pages_templates/component-combobox-template.html.twig' with {
+                            {% include 'pages/pc_configurator_page/pc_config_templates/component-combobox-template.html.twig' with {
                                 id: 'storage',
                                 label: 'Storage',
                                 icon_path: '/assets/images/icons8-ssd-50.png',
@@ -116,7 +116,7 @@
 
                         <li class="group hover:bg-gray-50 transition-colors duration-150">
 
-                            {% include 'pages/pages_templates/component-combobox-template.html.twig' with {
+                            {% include 'pages/pc_configurator_page/pc_config_templates/component-combobox-template.html.twig' with {
                                 id: 'monitor',
                                 label: 'Monitor',
                                 icon_path: '/assets/images/icons8-server-50.png',
@@ -138,7 +138,7 @@
 
                         <li class="group hover:bg-gray-50 transition-colors duration-150">
 
-                            {% include 'pages/pages_templates/component-combobox-template.html.twig' with {
+                            {% include 'pages/pc_configurator_page/pc_config_templates/component-combobox-template.html.twig' with {
                                 id: 'pc_case',
                                 label: 'PC Case',
                                 icon_path: '/assets/images/icons8-server-50.png',
@@ -160,7 +160,7 @@
 
                         <li class="group hover:bg-gray-50 transition-colors duration-150">
 
-                            {% include 'pages/pages_templates/component-combobox-template.html.twig' with {
+                            {% include 'pages/pc_configurator_page/pc_config_templates/component-combobox-template.html.twig' with {
                                 id: 'psu',
                                 label: 'Power Supply',
                                 icon_path: '/assets/images/icons8-power-over-ethernet-50.png',

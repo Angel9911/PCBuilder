@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <div class="controls">
+        <label for="cpu-select">CPU:</label>
+        <select id="cpu-select">
+            <option value="">Select CPU</option>
+            <option value="intel">Intel i9</option>
+            <option value="amd">AMD Ryzen 9</option>
+        </select>
+
+        <label for="gpu-select">GPU:</label>
+        <select id="gpu-select">
+            <option value="">Select GPU</option>
+            <option value="nvidia">NVIDIA RTX 3080</option>
+            <option value="amd">AMD Radeon RX 6800</option>
+        </select>
+
+        <label for="motherboard-select">Motherboard:</label>
+        <select id="motherboard-select">
+            <option value="">Select Motherboard</option>
+            <option value="asus">ASUS ROG</option>
+            <option value="msi">MSI MPG</option>
+        </select>
+
+        <label for="ram-select">RAM:</label>
+        <select id="ram-select">
+            <option value="">Select RAM</option>
+            <option value="corsair">Corsair 16GB</option>
+            <option value="gskill">G.Skill 32GB</option>
+        </select>
+    </div>
+
+    <div class="pc-case-container">
+        <img src="/assets/images/icons8-memory-slot-50.png" alt="Open PC Case" class="pc-case" />
+        <img src="/assets/images/icons8-memory-slot-50.png" alt="CPU" class="component cpu" />
+        <img src="/assets/images/icons8-memory-slot-50.png" alt="GPU" class="component gpu" />
+        <img src="/assets/images/icons8-memory-slot-50.png" alt="Motherboard" class="component motherboard" />
+        <img src="/assets/images/icons8-memory-slot-50.png" alt="RAM" class="component ram" />
+    </div>
+
+    <script>
+        function updateComponentHighlight(selectId, componentClass) {
+            const select = document.getElementById(selectId);
+            const component = document.querySelector(`.${componentClass}`);
+
+            select.addEventListener('change', () => {
+                if (select.value) {
+                    component.classList.add('highlighted');
+                } else {
+                    component.classList.remove('highlighted');
+                }
+            });
+        }
+
+        updateComponentHighlight('cpu-select', 'cpu');
+        updateComponentHighlight('gpu-select', 'gpu');
+        updateComponentHighlight('motherboard-select', 'motherboard');
+        updateComponentHighlight('ram-select', 'ram');
+    </script>
+{% endblock %}

@@ -9,8 +9,8 @@ interface ComponentService
     public function getAllComponents(): array;
 
     public function getCompatibleComponents(array $filterParams): array;
-    public function getComponentByName(string $name): Component;
 
+    public function getComponentsDetailsByType(string $componentType): array;
     public function getComponentsByType(string $type): array;
 
 }
