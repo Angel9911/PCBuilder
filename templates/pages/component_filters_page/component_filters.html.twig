@@ -69,13 +69,11 @@
                                 {{ component.name }}
                             </h3>
                             <div class="space-y-2 mb-4">
-                                {% for key, value in component %}
-                                    {% if key not in ['id', 'component_id', 'name'] %}
-                                        <div class="flex items-center text-sm text-gray-600">
-                                            <span class="capitalize min-w-[140px]">{{ key|replace({'_': ' '})|capitalize }}:</span>
-                                            <span class="ml-1 font-medium">{{ value }}</span>
-                                        </div>
-                                    {% endif %}
+                                {% for label, value in component.specifications %}
+                                    <div class="flex items-center text-sm text-gray-600">
+                                        <span class="capitalize min-w-[140px]">{{ label }}:</span>
+                                        <span class="ml-1 font-medium">{{ value }}</span>
+                                    </div>
                                 {% endfor %}
                             </div>
                             <div class="space-y-2">
@@ -105,6 +103,14 @@
                 {% endfor %}
             </div>
         </div>
+    </div>
+    <div class="mt-8 flex justify-center space-x-2">
+        {% for i in 1..totalPages %}
+            <a href="{{ path('component.filter', {'component': componentType}) }}?page={{ i }}"
+               class="px-4 py-2 border {{ i == currentPage ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 hover:bg-blue-100' }} rounded shadow">
+                {{ i }}
+            </a>
+        {% endfor %}
     </div>
 </div>
 

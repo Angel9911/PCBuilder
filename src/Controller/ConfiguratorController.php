@@ -68,7 +68,7 @@ class ConfiguratorController extends AbstractController
             'pcConfiguration' => $pcConfiguration,
             'isAiConfiguration' => $isAiConfiguration,
             'explanation' => $explanation,
-            'selected_components_count' => empty($pcConfiguration) ? 0 : count($pcConfiguration), // TODO maybe should get the count of $pcConfiguration
+            'selected_components_count' => empty($pcConfiguration) ? 0 : count($pcConfiguration),
             'max_components_count' => 9,
             'cpus' => $componentsData['cpus'],
             'motherboards' => $componentsData['motherboards'],

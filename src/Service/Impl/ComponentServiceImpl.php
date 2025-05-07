@@ -60,9 +60,9 @@ class ComponentServiceImpl implements ComponentService
     /**
      * @throws Exception
      */
-    public function getComponentsDetailsByType(string $componentType): array
+    public function getComponentsDetailsByType(string $componentType, int $limit = 12, int $offset = 0): array
     {
-        $components = $this->componentRepository->getComponentSpecs($componentType);
+        $components = $this->componentRepository->getComponentSpecs($componentType, $limit, $offset);
 
         $responseComponentsFilters = [
             'components' => [],
@@ -76,8 +76,6 @@ class ComponentServiceImpl implements ComponentService
             $rawFilters = [];
 
             foreach ($components as $component) {
-
-                // TODO: Formats the key nicely (replaces _ with space, capitalizes). HERE NOT IN TEMPLATE FILE
 
                 // Add the component to response
                 $componentFitlers = $this->getComponentTypesFilter();
@@ -96,11 +94,32 @@ class ComponentServiceImpl implements ComponentService
                     }
                 }
 
-                $responseComponentsFilters['components'][] = $filteredData;
+                // Format specifications (keys prettified, with optional units)
+                $specs = [];
+                foreach ($filteredData as $key => $value) {
+                    if (in_array($key, ['id', 'component_id', 'name'])) {
+                        continue;
+                    }
+
+                    $label = ucwords(str_replace('_', ' ', $key));
+                    if (isset(self::$UNITS[$key])) {
+                        $value .= self::$UNITS[$key];
+                    }
+
+                    $specs[$label] = $value;
+                }
+                // Append to response (component_type not included)
+                $responseComponentsFilters['components'][] = [
+                    'id' => $component['id'],
+                    'component_id' => $component['component_id'],
+                    'name' => $component['name'],
+                    'specifications' => $specs
+                ];
+                //$responseComponentsFilters['components'][] = $filteredData;
 
                 // Gather filterable fields
                 foreach ($component as $key => $value) {
-                    if (in_array($key, ['id', 'component_id', 'name'])) {
+                    if (in_array($key, ['id', 'component_id', 'name', 'component_type'])) {
                         continue;
                     }
 
@@ -137,6 +156,12 @@ class ComponentServiceImpl implements ComponentService
 
         return $responseComponentsFilters;
     }
+
+    public function getTotalsCountComponentsByType(string $componentType): int
+    {
+        return $this->componentRepository->getTotalsCountComponent($componentType);
+    }
+
 
     private function getComponentTypesFilter(): array
     {
