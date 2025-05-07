@@ -11,6 +11,8 @@ class ObjectMapper
 
     public static function mapJsonToObject(mixed $array, $associative = true, int $depth = 512, int $flags = 0): array
     {
-        return json_decode($array, $associative, $depth, $flags);
+        $decodedData = json_decode($array, $associative, $depth, $flags);
+
+        return is_array($decodedData) ? $decodedData : [];
     }
 }

@@ -17,6 +17,21 @@ final class ValidatorUtils
     }
 
     /**
+     * TODO: Use this method for validation instead validateAsKey
+     * @param array $input
+     * @param array $allowedKeys
+     * @return array
+     */
+    public static function filterValidKeys(array $input, array $allowedKeys): array
+    {
+        return array_filter(
+            $input,
+            fn($key) => in_array($key, $allowedKeys, true),
+            ARRAY_FILTER_USE_KEY
+        );
+    }
+
+    /**
      * @param mixed $value
      * @return bool
      */
