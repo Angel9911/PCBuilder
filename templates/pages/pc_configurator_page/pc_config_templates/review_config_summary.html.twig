@@ -1,0 +1,121 @@
+<!-- Modal wrapper (initially hidden) -->
+<div id="reviewModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+<div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div class="p-6 border-b border-gray-200">
+        <div class="flex items-center justify-between"><h2 class="text-2xl font-bold text-gray-900">Review Your
+                Build</h2>
+            <button id="closeReviewModal" class="text-gray-400 hover:text-gray-500 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                     class="lucide lucide-x w-6 h-6">
+                    <path d="M18 6 6 18"></path>
+                    <path d="m6 6 12 12"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+    <form class="p-6 space-y-8">
+        <div class="bg-blue-50 rounded-lg p-4">
+            <div class="flex items-center justify-between mb-2"><span class="text-sm font-medium text-blue-700">Selected Components</span><span
+                        class="text-sm font-bold text-blue-700">1/9</span></div>
+            <div class="flex items-center justify-between"><span class="text-sm font-medium text-blue-700">Estimated Price Range</span><span
+                        class="text-sm font-bold text-blue-700">$409.99 - $419.99</span></div>
+        </div>
+        <div class="space-y-4"><label class="block text-lg font-medium text-gray-900">What will you use this PC
+                for?<span
+                        class="text-sm font-normal text-gray-500 block mt-1">Select all that apply</span></label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <button type="button" data-use-case="gaming"
+                        class="p-4 rounded-lg text-left transition-all bg-gray-50 border border-gray-200 hover:bg-gray-100">
+                    <div class="flex items-center">
+                        <div>
+                            <div class="font-medium text-gray-900">Gaming</div>
+                            <div class="text-sm text-gray-500">PC/Console games, VR, Game streaming</div>
+                        </div>
+                    </div>
+                </button>
+                <button type="button" data-use-case="video_editing"
+                        class="p-4 rounded-lg text-left transition-all bg-gray-50 border border-gray-200 hover:bg-gray-100">
+                    <div class="flex items-center">
+                        <div>
+                            <div class="font-medium text-gray-900">Video Editing</div>
+                            <div class="text-sm text-gray-500">Video production, rendering, streaming</div>
+                        </div>
+                    </div>
+                </button>
+                <button type="button" data-use-case="photo_editing"
+                        class="p-4 rounded-lg text-left transition-all bg-gray-50 border border-gray-200 hover:bg-gray-100">
+                    <div class="flex items-center">
+                        <div>
+                            <div class="font-medium text-gray-900">Photo Editing</div>
+                            <div class="text-sm text-gray-500">Photography, graphic design, digital art</div>
+                        </div>
+                    </div>
+                </button>
+                <button type="button" data-use-case="development"
+                        class="p-4 rounded-lg text-left transition-all bg-gray-50 border border-gray-200 hover:bg-gray-100">
+                    <div class="flex items-center">
+                        <div>
+                            <div class="font-medium text-gray-900">Development</div>
+                            <div class="text-sm text-gray-500">Programming, compiling, virtual machines</div>
+                        </div>
+                    </div>
+                </button>
+                <button type="button" data-use-case="3D_modeling"
+                        class="p-4 rounded-lg text-left transition-all bg-gray-50 border border-gray-200 hover:bg-gray-100">
+                    <div class="flex items-center">
+                        <div>
+                            <div class="font-medium text-gray-900">3D Modeling</div>
+                            <div class="text-sm text-gray-500">3D rendering, CAD, animation</div>
+                        </div>
+                    </div>
+                </button>
+                <button type="button" data-use-case="office_work"
+                        class="p-4 rounded-lg text-left transition-all bg-gray-50 border border-gray-200 hover:bg-gray-100">
+                    <div class="flex items-center">
+                        <div>
+                            <div class="font-medium text-gray-900">Office Work</div>
+                            <div class="text-sm text-gray-500">Productivity apps, multitasking, web browsing</div>
+                        </div>
+                    </div>
+                </button>
+            </div>
+        </div>
+        <div class="space-y-4"><label class="block text-lg font-medium text-gray-900">Performance Priority<span
+                        class="text-sm font-normal text-gray-500 block mt-1">Choose your preferred balance of performance and value</span></label>
+            <div class="space-y-3">
+                <button type="button" data-performance="performance"
+                        class="w-full p-4 rounded-lg text-left transition-all bg-gray-50 border border-gray-200 hover:bg-gray-100">
+                    <div class="font-medium text-gray-900">Best Performance</div>
+                    <div class="text-sm text-gray-500">High-end components for maximum performance</div>
+                </button>
+                <button type="button" data-performance="balanced"
+                        class="w-full p-4 rounded-lg text-left transition-all bg-gray-50 border border-gray-200 hover:bg-gray-100">
+                    <div class="font-medium text-gray-900">Balanced</div>
+                    <div class="text-sm text-gray-500">Good performance while maintaining value</div>
+                </button>
+                <button type="button" data-performance="budget"
+                        class="w-full p-4 rounded-lg text-left transition-all bg-gray-50 border border-gray-200 hover:bg-gray-100">
+                    <div class="font-medium text-gray-900">Budget Focused</div>
+                    <div class="text-sm text-gray-500">Best value for money, moderate performance</div>
+                </button>
+            </div>
+        </div>
+        <div class="space-y-4"><label class="block text-lg font-medium text-gray-900">Specific Requirements<span
+                        class="text-sm font-normal text-gray-500 block mt-1">Tell us about your specific needs (e.g., games, software, or special requirements)</span></label><textarea
+                    rows="4"
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Example: I need to run Adobe Premiere Pro and After Effects, play Cyberpunk 2077 at 4K, and handle multiple virtual machines for development work..."></textarea>
+        </div>
+        <div class="flex justify-end space-x-3 pt-4">
+            <button id="cancelReviewModal" type="button"
+                    class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel
+            </button>
+            <button id = "submit-review" type="submit"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    disabled="">Submit Review
+            </button>
+        </div>
+    </form>
+</div>
+</div>

@@ -44,7 +44,6 @@ class CompletedBuildController extends AbstractController
 
         $configurationsPageKey = CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY . "_page_" . $page;
 
-        $this->redis->delete($configurationsPageKey);
         // Check if data exists in Redis cache
         if ($this->redis->isKeyExist($configurationsPageKey)) {
 

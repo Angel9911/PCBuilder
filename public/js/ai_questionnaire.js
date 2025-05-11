@@ -33,10 +33,10 @@ const optionsContainer = document.getElementById("options");
 const prevBtn = document.getElementById("prev-btn");
 const nextBtn = document.getElementById("next-btn");
 
-document.getElementById("start-config").addEventListener("click", function() {
+/*document.getElementById("start-config").addEventListener("click", function() {
     document.getElementById("main-content").classList.add("hidden");
     document.getElementById("questionnaire").classList.remove("hidden");
-});
+});*/
 
 function renderStep() {
     const step = questions[currentStep];

@@ -18,16 +18,23 @@
         </div>
     </div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <!-- Include the Hide Offers button -->
-            {% include 'pages/pc_configurator_page/pc_config_templates/bottleneck_configuration-template.html.twig' %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Bottleneck template -->
+        {% include 'pages/pc_configurator_page/pc_config_templates/bottleneck_configuration-template.html.twig' %}
+
         <div class="md:flex md:items-center md:justify-between">
             <div class="flex-1 min-w-0">
                 <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">PC Configuration</h2>
-                <p class="mt-1 text-sm text-gray-500">Based on your answers, we've pre-selected some components for you.</p>
+                <p class="mt-1 text-sm text-gray-500">Based on your answers, we've pre-selected some components for
+                    you.</p>
             </div>
+
             <div class="mt-4 flex md:mt-0 md:ml-4">
-                <button id = 'start-config' class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Решете отново въпросника</button>
+                <button id='start-config'
+                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Решете отново въпросника
+                </button>
             </div>
         </div>
         <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -173,7 +180,8 @@
 
                     </ul>
                     <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                        <button id="saveConfiguration" class="w-full flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
+                        <button id="saveConfiguration"
+                                class="w-full flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
                             <i data-lucide="Save" class="h-5 w-5 mr-2"></i>
                             Запази Конфигурация
                         </button>
@@ -186,22 +194,23 @@
 
             <!-- Summary and recommendations -->
 
-
             <div id="build-summary" class="lg:col-span-1">
                 <div class="lg:col-span-1">
                     <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
                         <div class="p-6 space-y-6">
                             <div class="flex items-center justify-between"><h3
-                                        class="text-xl font-semibold text-gray-900">Build Summary</h3><span
-                                        class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">In Progress</span>
+                                        class="text-xl font-semibold text-gray-900">Build Summary</h3>
+                                <span id="build-status" class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">In Progress</span>
                             </div>
                             <div class="space-y-2">
                                 <div class="flex justify-between items-center"><span
                                             class="text-sm font-medium text-gray-500">Build Progress</span><span
-                                            class="text-sm font-semibold text-blue-600">11%</span></div>
+                                            class="text-sm font-semibold text-blue-600"
+                                            id="build-progress-text">0%</span></div>
                                 <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-                                    <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-500 ease-out"
-                                         style="width: 11.1111%;"></div>
+                                    <div id="build-progress-bar"
+                                         class="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-500 ease-out"
+                                         style="width: 0%;"></div>
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
@@ -219,7 +228,8 @@
                                             </svg>
                                         </div>
                                         <div><p class="text-sm font-medium text-gray-500">Components</p>
-                                            <p class="text-lg font-semibold text-gray-900">1 of 9</p></div>
+                                            <p class="text-lg font-semibold text-gray-900" id="component-count">0 of
+                                                6</p></div>
                                     </div>
                                 </div>
                                 <div class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
@@ -233,8 +243,13 @@
                                                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                                             </svg>
                                         </div>
-                                        <div><p class="text-sm font-medium text-gray-500">Total</p>
-                                            <p class="text-lg font-semibold text-gray-900">$0.00</p></div>
+                                        <div><p class="text-sm font-medium text-gray-500">Price Range</p>
+                                            <div class="flex flex-col"><span
+                                                        class="text-lg font-semibold text-gray-900" id="lowest-price">$0</span><span
+                                                        class="text-sm text-gray-500">to</span><span
+                                                        class="text-lg font-semibold text-gray-900" id="highest-price">$0</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -264,12 +279,11 @@
                                         <line x1="12" x2="12" y1="8" y2="12"></line>
                                         <line x1="12" x2="12.01" y1="16" y2="16"></line>
                                     </svg>
-                                    <p class="text-sm text-gray-500">Add more components to get AI recommendations</p>
-                                </div>
+                                    <p class="text-sm text-gray-500">Add components to get AI recommendations</p></div>
                             </div>
-                            <button class="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700
-            transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed
-            flex items-center justify-center space-x-2">
+                            <button id="review-build-button" class="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700
+                            transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed
+                            flex items-center justify-center space-x-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round" class="lucide lucide-package h-5 w-5">
@@ -283,60 +297,30 @@
                     </div>
                 </div>
             </div>
-
-            <!--<div class="lg:col-span-1">
-                <div class="bg-white shadow overflow-hidden sm:rounded-lg sticky top-6">
-                    <div class="px-4 py-5 sm:px-6">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900">
-                            Build Summary
-                        </h3>
-                    </div>
-                    <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
-                        <dl class="sm:divide-y sm:divide-gray-200">
-                            <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">
-                                    Selected Components
-                                </dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                    {{ selected_components_count }} of {{ max_components_count }}
-                                </dd>
-                            </div>
-                            <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">
-                                    Estimated Total
-                                </dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                    $0.00
-                                </dd>
-                            </div>
-                        </dl>
-                    </div>
-
-                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">AI Recommendation</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            {% if explanation is not empty %}
-                                {{ explanation }}
-                            {% else %}
-
-                            {% endif %}
-                        </dd>
-                    </div>
-                </div>
-            </div>-->
         </div>
     </div>
+
+    <!-- Review Build Summary Modal -->
+    {% include 'pages/pc_configurator_page/pc_config_templates/review_config_summary.html.twig' %}
+
     <!-- Save Configuration Modal -->
     <div id="saveConfigModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
         <div class="bg-white rounded-lg shadow-lg p-6 w-96">
             <h2 class="text-xl font-semibold text-gray-900 mb-4">Въведете име на конфигурацията</h2>
-            <input type="text" id="configName" class="w-full px-3 py-2 border rounded-md" placeholder="Моята конфигурация">
+            <input type="text" id="configName" class="w-full px-3 py-2 border rounded-md"
+                   placeholder="Моята конфигурация">
             <div class="flex justify-end space-x-2 mt-4">
                 <button id="cancelSave" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">Отказ</button>
-                <button id="confirmSave" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Запази</button>
+                <button id="confirmSave"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Запази
+                </button>
             </div>
         </div>
     </div>
+
+
+
     <script>
 
         var pcConfiguration = {{ pcConfiguration|json_encode|raw }};

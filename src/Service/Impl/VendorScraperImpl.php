@@ -65,6 +65,27 @@ class VendorScraperImpl implements VendorScraperService
                     );
                 }
             }
+
+            // add price range(lowest - highest) of certain component part
+            $offersPrice = [];
+
+            foreach ($productOffersResult as  $offers){
+
+                foreach ($offers as $offer){
+
+                    if(isset($offer['price']) && $offer['price'] > 0){
+
+                            $offersPrice[] = (float)$offer['price'];
+                    }
+                }
+            }
+
+            sort($offersPrice);
+
+            $productOffersResult['offers_price_range'] = [
+                'lowest_price' => number_format(reset($offersPrice),2 , '.', ''),
+                'highest_price' => number_format(end($offersPrice),2 , '.', ''),
+            ];
         }
 
         return $productOffersResult;

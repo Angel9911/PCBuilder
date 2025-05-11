@@ -192,6 +192,12 @@ class OpenAIServiceImpl implements OpenAIService
         }
     }
 
+    public function reviewUserConfiguration(array $userAnswers): array
+    {
+        // TODO: Implement reviewUserConfiguration() method.
+    }
+
+
     public function getHardcodedArray(): array
     {
         $hardcodedResponse = [

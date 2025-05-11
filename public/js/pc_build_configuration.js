@@ -1,4 +1,11 @@
+const selectedSummaryComponents = new Set(); // e.g., 'cpu', 'gpu', etc.
+const componentPriceRanges = new Map(); // key = componentType, value = { lowest, highest }
+
 document.addEventListener("DOMContentLoaded", function () {
+
+    // set up js actions on summary modal dialog
+    setupInitialQuestionListeners();
+
     //setup early
     document.querySelectorAll(".custom-select").forEach(selectBox => {
         let selected = selectBox.querySelector(".select-selected");
@@ -132,6 +139,7 @@ document.addEventListener("DOMContentLoaded", function () {
             hideButton.classList.add("hidden");
 
             selectBox.addEventListener("change", function (e) {
+
                 isCompletedConfiguration = false;
 
                 const componentValue = e.detail?.value || this.dataset.selectedValue || "";
@@ -140,7 +148,31 @@ document.addEventListener("DOMContentLoaded", function () {
                 hideButton.classList.add("hidden");
                 offersContainer.innerHTML = "";
 
-                if (!componentValue) return;
+                if (componentValue) {
+
+                    selectedSummaryComponents.add(componentId);
+
+                    // Update summary - only count of components
+                    updateBuildSummaryState({
+                        selectedCount: selectedSummaryComponents.size
+                    });
+
+                } else {
+
+                    selectedSummaryComponents.delete(componentId);
+
+                    componentPriceRanges.delete(componentId);
+
+                    const { totalLowest, totalHighest } = calculateTotalRangePrices({ componentPriceRanges });
+
+                    updateBuildSummaryState({
+                        selectedCount: selectedSummaryComponents.size,
+                        lowestPrice: totalLowest,
+                        highestPrice: totalHighest
+                    });
+
+                    return;
+                }
 
                 showSpinner(); // Show spinner before fetching offers
 
@@ -151,12 +183,16 @@ document.addEventListener("DOMContentLoaded", function () {
                         let offers = data[componentValue] || [];
 
                         if (!Array.isArray(offers)) {
+
                             console.error("Expected an array but got:", offers);
+
                             return;
                         }
 
                         if (offers.length === 0) {
+
                             offersContainer.innerHTML = "<p class='text-gray-500'>No offers available.</p>";
+
                             return;
                         }
 
@@ -172,11 +208,33 @@ document.addEventListener("DOMContentLoaded", function () {
                                 return;
                             }
 
+                            // Extract price range
+                            const priceRange = data.offers_price_range || {};
+
+                            const lowestPrice = parseFloat(priceRange.lowest_price) || 0;
+
+                            const highestPrice = parseFloat(priceRange.highest_price) || 0;
+
+                            // Add/update price range in map
+                            componentPriceRanges.set(componentId, {
+                                lowest: lowestPrice,
+                                highest: highestPrice
+                            });
+
+                            const { totalLowest, totalHighest } = calculateTotalRangePrices({ componentPriceRanges });
+
+                            // Update summary
+                            updateBuildSummaryState({
+                                selectedCount: selectedSummaryComponents.size,
+                                lowestPrice: totalLowest,
+                                highestPrice: totalHighest
+                            });
+
                             let offerElement = offerTemplate.content.cloneNode(true);
 
                             offerElement.querySelector(".vendor-logo").src = `${offer.logo}`;
                             offerElement.querySelector(".vendor-logo").alt = offer.vendor_name;
-                            console.log(offer.stock_status);
+
                             offerElement.querySelector(".stock-text").textContent = offer.stock_status ? "In Stock" : "Out of Stock";
 
                             let stockStatus = offerElement.querySelector(".stock-status");
@@ -237,11 +295,16 @@ document.addEventListener("DOMContentLoaded", function () {
         let selectedComponents = {};
         // Gather selected components
         componentSelectors.forEach(select => {
+
             let componentType = select.getAttribute("data-component-id");
-            //let selectedValue = select.value;
+
             let selectedValue = select.dataset.selectedValue || "";
+
             if (selectedValue) {
+
                 selectedComponents[componentType + "_id"] = selectedValue;
+                // add the component for summary count
+            } else {
             }
         });
 
