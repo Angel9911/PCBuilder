@@ -62,18 +62,6 @@ class ComponentRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find a component by name
-     */
-    public function findComponentByName(string $name): ?Component
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.name = :name')
-            ->setParameter('name', $name)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
-
-    /**
      * Find components by type (e.g., CPU, GPU, RAM)
      */
     public function findComponentsByType(string $type): array
@@ -200,7 +188,10 @@ class ComponentRepository extends ServiceEntityRepository
             $conditions[] = "m.component_id != :selected_id";
             $params['selected_id'] = $selectedMonitor['component_id'];
 
-            $results[] = ['component_id' => $selectedMonitor['component_id'], 'name' => $selectedMonitor['name'] ?? 'Selected Monitor'];
+            $results[] = ['component_id' => $selectedMonitor['component_id']
+                , 'name' => $selectedMonitor['name'] ?? 'Selected Monitor'
+                , 'power_wattage' => $selectedCpu['power_wattage'] ?? '0'
+            ];
         }
 
         if($psu && $cpu && $gpu){
@@ -226,7 +217,7 @@ class ComponentRepository extends ServiceEntityRepository
             $whereSql = 'WHERE '. implode(" AND ", $conditions);
         }
 
-        $sql = "SELECT m.component_id, comp.name 
+        $sql = "SELECT m.component_id, comp.name, comp.power_wattage 
                 FROM monitor m 
                 JOIN components comp ON comp.id = m.component_id
                  {$whereSql}
@@ -249,7 +240,10 @@ class ComponentRepository extends ServiceEntityRepository
             $conditions[] = "pc.component_id != :selected_id";
             $params['selected_id'] = $selectedCase['component_id'];
 
-            $results[] = ['component_id' => $selectedCase['component_id'], 'name' => $selectedCase['name'] ?? 'Selected Case'];
+            $results[] = ['component_id' => $selectedCase['component_id']
+                , 'name' => $selectedCase['name'] ?? 'Selected Case'
+                , 'power_wattage' => $selectedCpu['power_wattage'] ?? '0'
+            ];
         }
 
         /*if(!$mb && !$gpu) {
@@ -282,7 +276,7 @@ class ComponentRepository extends ServiceEntityRepository
         }
 
         $sql = "
-            SELECT pc.component_id, comp.name
+            SELECT pc.component_id, comp.name, comp.power_wattage
             FROM pc_case pc
             JOIN components comp ON comp.id = pc.component_id
             {$whereSql}
@@ -303,7 +297,7 @@ class ComponentRepository extends ServiceEntityRepository
             ($monitor['power_wattage'] ?? 0) + 100;
 
         $sql = "
-        SELECT psu.component_id, comp.name
+        SELECT psu.component_id, comp.name, comp.power_wattage
         FROM psu
         JOIN components comp ON comp.id = psu.component_id
         WHERE psu.power_wattage >= :required
@@ -324,7 +318,10 @@ class ComponentRepository extends ServiceEntityRepository
             $conditions[] = "s.component_id != :selected_id";
             $params['selected_id'] = $selectedStorage['component_id'];
 
-            $results[] = ['component_id' => $selectedStorage['component_id'], 'name' => $selectedStorage['name'] ?? 'Selected Storage'];
+            $results[] = ['component_id' => $selectedStorage['component_id']
+                , 'name' => $selectedStorage['name'] ?? 'Selected Storage'
+                , 'power_wattage' => $selectedCpu['power_wattage'] ?? '0'
+            ];
         }
 
         if($mb){
@@ -346,7 +343,7 @@ class ComponentRepository extends ServiceEntityRepository
         }
 
         $sql = "
-            SELECT s.component_id, comp.name
+            SELECT s.component_id, comp.name, comp.power_wattage
             FROM storage s
             JOIN components comp ON comp.id = s.component_id
             {$whereSql}
@@ -377,7 +374,10 @@ class ComponentRepository extends ServiceEntityRepository
             $conditions[] = "gpu.component_id != :selected_id";
             $params['selected_id'] = $selectedGpu['component_id'];
 
-            $results[] = ['component_id' => $selectedGpu['component_id'], 'name' => $selectedGpu['name'] ?? 'Selected GPU'];
+            $results[] = ['component_id' => $selectedGpu['component_id']
+                , 'name' => $selectedGpu['name'] ?? 'Selected GPU'
+                , 'power_wattage' => $selectedCpu['power_wattage'] ?? '0'
+            ];
         }
 
         if ($mb) {
@@ -417,7 +417,7 @@ class ComponentRepository extends ServiceEntityRepository
         }
 
         $sql = "
-        SELECT gpu.component_id, comp.name
+        SELECT gpu.component_id, comp.name, comp.power_wattage
         FROM gpu
         JOIN components comp ON comp.id = gpu.component_id
         {$whereSql}
@@ -441,7 +441,10 @@ class ComponentRepository extends ServiceEntityRepository
             $params['selected_id'] = $selectedRam['component_id'];
 
             // if only ram is passed
-            $results[] = ['component_id' => $selectedRam['component_id'], 'name' => $selectedRam['name'] ?? 'Selected RAM'];
+            $results[] = ['component_id' => $selectedRam['component_id']
+                , 'name' => $selectedRam['name'] ?? 'Selected RAM'
+                , 'power_wattage' => $selectedCpu['power_wattage'] ?? '0'
+            ];
         }
 
         /*if(!$cpu && !$mb){
@@ -485,7 +488,7 @@ class ComponentRepository extends ServiceEntityRepository
         }
 
         $sql = "
-        SELECT ram.component_id, comp.name
+        SELECT ram.component_id, comp.name, comp.power_wattage
         FROM ram
         JOIN components comp ON comp.id = ram.component_id
         {$whereSql}
@@ -516,7 +519,10 @@ class ComponentRepository extends ServiceEntityRepository
             $conditions[] = "mb.component_id != :selected_id";
             $params['selected_id'] = $selectedMb['component_id'];
 
-            $results[] = ['component_id' => $selectedMb['component_id'], 'name' => $selectedMb['name'] ?? 'Selected Motherboard'];
+            $results[] = ['component_id' => $selectedMb['component_id']
+                , 'name' => $selectedMb['name'] ?? 'Selected Motherboard'
+                , 'power_wattage' => $selectedCpu['power_wattage'] ?? '0'
+            ];
         }
 
         /*if(!$cpu && !$ram && !$storage && !$pcCase && !$gpu){
@@ -587,7 +593,7 @@ class ComponentRepository extends ServiceEntityRepository
         }
 
         $sql = "
-            SELECT mb.component_id, comp.name
+            SELECT mb.component_id, comp.name, comp.power_wattage
             FROM motherboard mb
             JOIN components comp ON comp.id = mb.component_id
             {$whereSql}
@@ -619,7 +625,10 @@ class ComponentRepository extends ServiceEntityRepository
             $conditions[] = "cpu.component_id != :selected_id";
             $params['selected_id'] = $selectedCpu['component_id'];
 
-            $results[] = ['component_id' => $selectedCpu['component_id'], 'name' => $selectedCpu['name'] ?? 'Selected CPU'];
+            $results[] = ['component_id' => $selectedCpu['component_id']
+                , 'name' => $selectedCpu['name'] ?? 'Selected CPU'
+                , 'power_wattage' => $selectedCpu['power_wattage'] ?? '0'
+            ];
         }
 
         /*if(!$motherboard && !$ram){
@@ -666,7 +675,7 @@ class ComponentRepository extends ServiceEntityRepository
 
         // Build final query
         $sql = "
-        SELECT cpu.component_id, comp.name
+        SELECT cpu.component_id, comp.name,  comp.power_wattage
         FROM cpu
         JOIN components comp ON comp.id = cpu.component_id
         {$whereSql}

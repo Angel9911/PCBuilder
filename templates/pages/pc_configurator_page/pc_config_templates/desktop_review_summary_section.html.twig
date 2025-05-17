@@ -1,0 +1,93 @@
+<!-- Summary and recommendations -->
+
+<div id="build-summary" class="hidden sm:block lg:col-span-1">
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-2xl shadow-md p-6 space-y-6 border border-gray-200">
+            <!-- Header -->
+            <div class="flex items-center justify-between">
+                <h3 class="text-2xl font-bold bg-gradient-to-r from-indigo-700 to-cyan-600 bg-clip-text text-transparent">Build Summary</h3>
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">In Progress</span>
+            </div>
+
+            <!-- Progress -->
+            <div>
+                <div class="flex justify-between items-center text-sm text-gray-600 mb-1">
+                    <span>Build Progress</span>
+                    <span id="build-progress-text" class="font-semibold text-blue-700">0%</span>
+                </div>
+                <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div id="build-progress-bar"
+                         class="h-full bg-blue-500 transition-all duration-700 ease-in-out"
+                         style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <!-- Metrics Cards -->
+            <div class="flex flex-wrap gap-2 md:gap-4">
+                <!-- Component Count Badge -->
+                <div class="flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-2 rounded-full shadow-sm hover:shadow-md transition cursor-default">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-500 animate-chip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="6" y="6" width="12" height="12" rx="2" ry="2" />
+                        <path d="M9 1v2M15 1v2M9 21v2M15 21v2M1 9h2M1 15h2M21 9h2M21 15h2" />
+                    </svg>
+                    <span class="text-sm font-medium">Components: <span id="component-count"
+                                                                        class="font-semibold text-blue-800">0 / 6</span></span>
+                </div>
+
+                <!-- Price Range Badge -->
+                <div class="flex items-center gap-2 bg-green-50 text-green-700 px-3 py-2 rounded-full shadow-sm hover:shadow-md transition cursor-default">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-600 animate-bounce-price" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" x2="12" y1="2" y2="22"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    <span class="text-sm font-medium">
+      Price:
+      <span id="lowest-price" class="font-semibold text-green-800">$0</span> -
+      <span id="highest-price" class="font-semibold text-green-800">$0</span>
+    </span>
+                </div>
+
+                <!-- Power Wattage Badge -->
+                <div class="flex items-center gap-2 bg-yellow-50 text-yellow-700 px-3 py-2 rounded-full shadow-sm hover:shadow-md transition cursor-default">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-500 animate-bolt" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span class="text-sm font-medium">
+      Wattage:
+      <span id="power-wattage" class="font-semibold text-yellow-800">-- W</span>
+    </span>
+                </div>
+            </div>
+
+            <!-- AI Recommendation -->
+            <div>
+                <div class="flex items-center gap-2 text-purple-600 font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-purple-600 animate-ai-cpu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                        <rect x="9" y="9" width="6" height="6"></rect>
+                        <path d="M15 2v2"></path>
+                        <path d="M15 20v2"></path>
+                        <path d="M2 15h2"></path>
+                        <path d="M2 9h2"></path>
+                        <path d="M20 15h2"></path>
+                        <path d="M20 9h2"></path>
+                        <path d="M9 2v2"></path>
+                        <path d="M9 20v2"></path>
+                    </svg>
+                    <h4 class="text-sm text-gray-800">AI Recommendation</h4>
+                </div>
+                <div class="mt-2 flex items-center gap-2 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <svg class="w-5 h-5 text-gray-400" ...>...</svg>
+                    <p class="text-sm text-gray-500">Add components to get AI recommendations</p>
+                </div>
+            </div>
+
+            <!-- CTA Button -->
+            <button id="review-build-button"
+                    class="w-full py-3 px-4 text-white bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 rounded-xl font-medium transition-all flex items-center justify-center space-x-2" disabled>
+                <svg class="w-5 h-5" ...>...</svg>
+                <span>Review Build</span>
+            </button>
+        </div>
+    </div>
+</div>

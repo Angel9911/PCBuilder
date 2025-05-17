@@ -37,6 +37,16 @@
                 </button>
             </div>
         </div>
+
+        <br>
+
+        {% if app.request.headers.get('User-Agent') matches '/Mobile|Android|iPhone/' %}
+
+            {% include 'pages/pc_configurator_page/pc_config_templates/mobile_review_summary_section.html.twig' %}
+
+        {% endif %}
+
+
         <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
             <!-- Component selection -->
             <div class="lg:col-span-2">
@@ -192,111 +202,7 @@
                 </div>
             </div>
 
-            <!-- Summary and recommendations -->
-
-            <div id="build-summary" class="lg:col-span-1">
-                <div class="lg:col-span-1">
-                    <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
-                        <div class="p-6 space-y-6">
-                            <div class="flex items-center justify-between"><h3
-                                        class="text-xl font-semibold text-gray-900">Build Summary</h3>
-                                <span id="build-status" class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">In Progress</span>
-                            </div>
-                            <div class="space-y-2">
-                                <div class="flex justify-between items-center"><span
-                                            class="text-sm font-medium text-gray-500">Build Progress</span><span
-                                            class="text-sm font-semibold text-blue-600"
-                                            id="build-progress-text">0%</span></div>
-                                <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-                                    <div id="build-progress-bar"
-                                         class="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-500 ease-out"
-                                         style="width: 0%;"></div>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="p-2 bg-blue-100 rounded-lg">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                 stroke-linecap="round" stroke-linejoin="round"
-                                                 class="lucide lucide-package h-5 w-5 text-blue-600">
-                                                <path d="m7.5 4.27 9 5.15"></path>
-                                                <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
-                                                <path d="m3.3 7 8.7 5 8.7-5"></path>
-                                                <path d="M12 22V12"></path>
-                                            </svg>
-                                        </div>
-                                        <div><p class="text-sm font-medium text-gray-500">Components</p>
-                                            <p class="text-lg font-semibold text-gray-900" id="component-count">0 of
-                                                6</p></div>
-                                    </div>
-                                </div>
-                                <div class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="p-2 bg-green-100 rounded-lg">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                 stroke-linecap="round" stroke-linejoin="round"
-                                                 class="lucide lucide-dollar-sign h-5 w-5 text-green-600">
-                                                <line x1="12" x2="12" y1="2" y2="22"></line>
-                                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                                            </svg>
-                                        </div>
-                                        <div><p class="text-sm font-medium text-gray-500">Price Range</p>
-                                            <div class="flex flex-col"><span
-                                                        class="text-lg font-semibold text-gray-900" id="lowest-price">$0</span><span
-                                                        class="text-sm text-gray-500">to</span><span
-                                                        class="text-lg font-semibold text-gray-900" id="highest-price">$0</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="space-y-3">
-                                <div class="flex items-center space-x-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                         stroke-linejoin="round" class="lucide lucide-cpu h-5 w-5 text-purple-600">
-                                        <rect x="4" y="4" width="16" height="16" rx="2"></rect>
-                                        <rect x="9" y="9" width="6" height="6"></rect>
-                                        <path d="M15 2v2"></path>
-                                        <path d="M15 20v2"></path>
-                                        <path d="M2 15h2"></path>
-                                        <path d="M2 9h2"></path>
-                                        <path d="M20 15h2"></path>
-                                        <path d="M20 9h2"></path>
-                                        <path d="M9 2v2"></path>
-                                        <path d="M9 20v2"></path>
-                                    </svg>
-                                    <h4 class="text-sm font-medium text-gray-900">AI Recommendation</h4></div>
-                                <div class="flex items-center space-x-2 bg-gray-50 p-4 rounded-lg border border-gray-100">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                         stroke-linejoin="round"
-                                         class="lucide lucide-alert-circle h-5 w-5 text-gray-400">
-                                        <circle cx="12" cy="12" r="10"></circle>
-                                        <line x1="12" x2="12" y1="8" y2="12"></line>
-                                        <line x1="12" x2="12.01" y1="16" y2="16"></line>
-                                    </svg>
-                                    <p class="text-sm text-gray-500">Add components to get AI recommendations</p></div>
-                            </div>
-                            <button id="review-build-button" class="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700
-                            transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed
-                            flex items-center justify-center space-x-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round" class="lucide lucide-package h-5 w-5">
-                                    <path d="m7.5 4.27 9 5.15"></path>
-                                    <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
-                                    <path d="m3.3 7 8.7 5 8.7-5"></path>
-                                    <path d="M12 22V12"></path>
-                                </svg>
-                                <span>Review Build</span></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% include 'pages/pc_configurator_page/pc_config_templates/desktop_review_summary_section.html.twig' %}
         </div>
     </div>
 

@@ -1,29 +1,35 @@
 <div class="px-4 py-4 sm:px-6">
     <!-- Component Header -->
-    <div class="flex items-center justify-between mb-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
+        <!-- Left: Icon + Label -->
         <div class="flex items-center">
-            <!-- CPU Icon -->
-            <div class="flex-shrink-0 bg-blue-100 rounded-md p-2">
-                <img src="{{ asset(icon_path) }}" alt="{{ label }}" class="w-9 h-9">
+            <div class="flex-shrink-0 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-md p-2.5 shadow-sm">
+                <img src="{{ asset(icon_path) }}" alt="{{ label }}" class="w-8 h-8">
             </div>
             <div class="ml-4">
-                <h4 class="text-l font-semibold bg-gradient-to-r from-blue-900 to-blue-700 bg-clip-text text-transparent">{{ label }}</h4><!-- text-sm -->
+                <h3 class="text-lg font-semibold bg-gradient-to-r from-indigo-700 to-cyan-600 bg-clip-text text-transparent tracking-tight">
+                    {{ label }}
+                </h3>
             </div>
         </div>
-        <button class="ml-2 inline-flex items-center px-3 py-1.5 border border-blue-200 text-sm leading-4 font-medium rounded-lg
-                bg-gradient-to-r from-blue-500/10 to-blue-600/10 hover:from-blue-500/20 hover:to-blue-600/20
-                text-blue-700 hover:text-blue-800
-                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
-                transition-all duration-200 shadow-sm hover:shadow group-hover:scale-105"
-                onclick="navigateToFilter('{{ path('component.filter', { 'component': id }) }}')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                 class="lucide lucide-filter h-4 w-4 mr-1.5">
-                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-            </svg>
-            Advanced Filter
-        </button>
+
+        <!-- Right: Button -->
+        <div class="w-full sm:w-auto">
+            <button class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg
+                bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-700 hover:to-cyan-600 text-white
+                shadow-sm hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                group-hover:scale-105"
+                    onclick="navigateToFilter('{{ path('component.filter', { 'component': id }) }}')">
+
+                <svg class="lucide lucide-filter h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                </svg>
+                Advanced Filter
+            </button>
+        </div>
     </div>
+    <!-- DropDown -->
     <div class="flex items-center space -x-4">
         <div class="relative flex-1">
             <div class="custom-select"
@@ -33,7 +39,7 @@
                 <div class="select-selected">{{ default_option }}</div>
                 <div class="select-items select-hide">
                     {% for option in options %}
-                        <div class="select-item" data-value="{{ option.id ?? option }}">{{ option.name ?? option }}</div>
+                        <div class="select-item bg-cyan-50 hover:bg-cyan-100 text-gray-800 cursor-pointer" data-value="{{ option.id ?? option }}">{{ option.name ?? option }}</div>
                     {% endfor %}
                 </div>
             </div>
@@ -49,10 +55,25 @@
 
     </div>
 
+    {#{% if app.request.headers.get('User-Agent') matches '/Mobile|Android|iPhone/' %}
+
+        <!-- Offers Section -->
+        <!-- Hidden completed_config_templates for vendor offers -->
+        <div class="mt-4 space-y-3 vendor-offers hidden" data-offers-for="{{ id }}"></div>
+
+        {% include 'pages/pc_configurator_page/pc_config_templates/mobile_offers_section.html.twig' %}
+
+    {% else %}
+
+        <!-- Offers Section -->
+        <!-- Hidden completed_config_templates for vendor offers -->
+        <div class="mt-4 space-y-3 vendor-offers hidden" data-offers-for="{{ id }}"></div>
+    {% endif %}#}
     <!-- Offers Section -->
     <!-- Hidden completed_config_templates for vendor offers -->
     <div class="mt-4 space-y-3 vendor-offers hidden" data-offers-for="{{ id }}"></div>
 
+    {% include 'pages/pc_configurator_page/pc_config_templates/mobile_offers_section.html.twig' %}
     <!-- if the combobox is monitor or pc case -->
     {% if id == 'pc_case' or id == 'monitor'%}
         <button

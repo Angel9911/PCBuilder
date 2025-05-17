@@ -4,6 +4,7 @@ namespace App\Service\Impl;
 
 use App\Constraints\VendorConstraints;
 use App\Private_lib\vendor\Vendor;
+use App\Repository\ComponentRepository;
 use App\Repository\VendorOfferRepository;
 use App\Service\VendorScraperService;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -17,17 +18,23 @@ class VendorScraperImpl implements VendorScraperService
 
     private VendorOfferRepository $vendorOfferRepository;
 
+    private ComponentRepository $componentRepository;
+
+
     private Vendor $vendor;
 
     /**
      * @param VendorOfferRepository $vendorOfferRepository
      */
     public function __construct(VendorOfferRepository $vendorOfferRepository
+                    , ComponentRepository $componentRepository
                     , Vendor $vendor)
     {
         $this->vendorsStyles = VendorConstraints::$vendorsArray;
 
         $this->vendorOfferRepository = $vendorOfferRepository;
+
+        $this->componentRepository = $componentRepository;
 
         $this->vendor = $vendor;
     }
@@ -45,8 +52,15 @@ class VendorScraperImpl implements VendorScraperService
 
         $componentOffers = $this->vendorOfferRepository->findOffersByComponentId($componentId); // get correctly offers my component id
 
+        $currentComponentObject = $this->componentRepository->findComponentById($componentId);
 
         $productOffersResult = [];
+
+        $productOffersResult['component_specifications'] = [
+            'component_name' => $currentComponentObject->getName(),
+            'power_wattage' => $currentComponentObject->getPowerWattage()
+        ];
+
         foreach ($this->vendorsStyles as $vendorName => $vendorStyleParam) {
 
             foreach ($componentOffers as $componentOffer) {
@@ -108,9 +122,9 @@ class VendorScraperImpl implements VendorScraperService
             }
 
             $vendorComponentType = $vendorComponent->getType()->getName();
-            //var_dump($vendorComponentType);
+
             $vendorComponentId = $vendorComponent->getId();
-            //var_dump($vendorComponentId);
+
             if (!isset($vendorsComponentsResult[$vendorComponentType])) {
 
                 $vendorsComponentsResult[$vendorComponentType] = [];
@@ -121,9 +135,6 @@ class VendorScraperImpl implements VendorScraperService
                 $vendorsComponentsResult[$vendorComponentType][] = $vendorComponentId;
             }
 
-            //echo '<pre>';
-            //print_r($vendorsComponentsResult[$vendorComponentType]);
-            //echo '</pre>';
         }
 
         return $vendorsComponentsResult;

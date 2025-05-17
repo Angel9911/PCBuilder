@@ -1,4 +1,5 @@
 const selectedSummaryComponents = new Set(); // e.g., 'cpu', 'gpu', etc.
+const selectedComponentsPowerWattage = new Map(); // e.g., '120', '150', etc.
 const componentPriceRanges = new Map(); // key = componentType, value = { lowest, highest }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -163,12 +164,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     componentPriceRanges.delete(componentId);
 
+                    selectedComponentsPowerWattage.delete(componentId);
+
                     const { totalLowest, totalHighest } = calculateTotalRangePrices({ componentPriceRanges });
+
+                    const { totalPowerWattage } = calculatePowerWattage({selectedComponentsPowerWattage});
+
+                    console.log(totalPowerWattage);
 
                     updateBuildSummaryState({
                         selectedCount: selectedSummaryComponents.size,
                         lowestPrice: totalLowest,
-                        highestPrice: totalHighest
+                        highestPrice: totalHighest,
+                        powerWattage: totalPowerWattage
                     });
 
                     return;
@@ -211,9 +219,13 @@ document.addEventListener("DOMContentLoaded", function () {
                             // Extract price range
                             const priceRange = data.offers_price_range || {};
 
+                            const componentSpecifications = data.component_specifications;
+
                             const lowestPrice = parseFloat(priceRange.lowest_price) || 0;
 
                             const highestPrice = parseFloat(priceRange.highest_price) || 0;
+
+                            const powerWattage = parseInt(componentSpecifications.power_wattage) || 0;
 
                             // Add/update price range in map
                             componentPriceRanges.set(componentId, {
@@ -221,13 +233,21 @@ document.addEventListener("DOMContentLoaded", function () {
                                 highest: highestPrice
                             });
 
+                            selectedComponentsPowerWattage.set(componentId, {
+                                powerWattage: powerWattage
+                            })
+
+
                             const { totalLowest, totalHighest } = calculateTotalRangePrices({ componentPriceRanges });
+
+                            const { totalPowerWattage } = calculatePowerWattage({selectedComponentsPowerWattage});
 
                             // Update summary
                             updateBuildSummaryState({
                                 selectedCount: selectedSummaryComponents.size,
                                 lowestPrice: totalLowest,
-                                highestPrice: totalHighest
+                                highestPrice: totalHighest,
+                                powerWattage: totalPowerWattage
                             });
 
                             let offerElement = offerTemplate.content.cloneNode(true);
@@ -235,15 +255,17 @@ document.addEventListener("DOMContentLoaded", function () {
                             offerElement.querySelector(".vendor-logo").src = `${offer.logo}`;
                             offerElement.querySelector(".vendor-logo").alt = offer.vendor_name;
 
-                            offerElement.querySelector(".stock-text").textContent = offer.stock_status ? "In Stock" : "Out of Stock";
+                            //offerElement.querySelector(".stock-text").textContent = offer.stock_status ? "In Stock" : "Out of Stock";
 
                             let stockStatus = offerElement.querySelector(".stock-status");
-                            stockStatus.className = "stock-status px-2 py-1 rounded-full text-xs font-medium";
+                            stockStatus.className = "stock-status inline-flex items-center whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-medium";
 
                             if (offer.stock_status === 'In Stock') {
+                                offerElement.querySelector(".stock-text").textContent = "In Stock";
                                 stockStatus.classList.add("bg-green-100", "text-green-800");
                             }
                             if (offer.stock_status === 'Out of Stock') {
+                                offerElement.querySelector(".stock-text").textContent = "Out of Stock";
                                 stockStatus.classList.add("bg-red-100", "text-red-800");
                             }
 
@@ -316,7 +338,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 updateDropdowns(data);
 
-
             })
             .catch(error => console.error("❌ Error fetching compatible components:", error))
             .finally(() => {
@@ -344,6 +365,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const serverKey = `${componentType}_ids`;
             const compatibleItems = (data[serverKey] || []).reduce((acc, item) => {
                 acc[item.component_id] = item.name;
+
                 return acc;
             }, {});
 
@@ -413,6 +435,7 @@ document.addEventListener("DOMContentLoaded", function () {
             window.location.href = "/"; // Redirects to home page
         });
     }
+
 });
 
 

@@ -1,0 +1,50 @@
+<!-- Offers Section -->
+<template id="offer-template">
+    <div class="vendor-offer bg-white border border-slate-200 rounded-lg p-4 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.01]">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+            <!-- Logo, Vendor Name, and Stock Status -->
+            <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0 p-2 bg-gradient-to-br from-white to-slate-50 rounded-md border border-slate-200 shadow-sm">
+                    <img class="vendor-logo h-8 w-8 object-contain" src="" alt="">
+                </div>
+                <div>
+                    <h4 class="vendor_name text-base font-medium bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent"></h4>
+                    <div class="flex items-center mt-1">
+    <span class="stock-status inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <path d="m9 11 3 3L22 4"></path>
+        </svg>
+        <span class="stock-text">In Stock</span>
+    </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Price and Button (on bottom right for mobile, side by side for desktop) -->
+            <div class="flex items-center justify-between sm:justify-end w-full space-x-4 sm:ml-auto">
+                <div class="text-left sm:text-right">
+                    <p class="price text-xl font-bold bg-gradient-to-r from-fuchsia-700 to-purple-600 bg-clip-text text-transparent"></p>
+                    <p class="shipping-cost text-sm text-gray-500"></p>
+                </div>
+                <a href="#" target="_blank" rel="noopener noreferrer"
+                   class="view-offer inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg text-white bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 shadow-md hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200">
+                    View Offer
+                    <svg class="lucide lucide-external-link ml-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14 21 3"></path>
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    </svg>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</template>
+
+<!-- Placeholder for dynamic insertion -->
+<div class="mt-4 space-y-3 vendor-offers" id="vendor-offers"></div>

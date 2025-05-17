@@ -1,7 +1,7 @@
 <!-- Offers Section -->
 <!-- Hidden completed_config_templates for vendor offers -->
 <template id="offer-template">
-    <div class="vendor-offer bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-150">
+    <div class="vendor-offer bg-white border border-slate-200 rounded-lg p-4 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.01]">
         <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <img class="vendor-logo h-8 w-8 rounded" src="" alt="">
@@ -18,13 +18,23 @@
             </div>
             <div class="flex items-center space-x-4">
                 <div class="text-right">
-                    <p class="text-lg font-bold text-gray-900 price"></p>
+                    <p class="text-lg font-bold  text-gray-900 price"></p>
                     <p class="text-sm shipping-cost"></p>
                 </div>
-                <a href="#" target="_blank" rel="noopener noreferrer"
+                {#<a href="#" target="_blank" rel="noopener noreferrer"
                    class="view-offer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     View Offer
                     <i data-lucide="ExternalLink" class="ml-2 h-4 w-4"></i>
+                </a>#}
+                <a href="#" target="_blank" rel="noopener noreferrer"
+                   class="view-offer inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg text-white bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 shadow-md hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200">
+                    View Offer
+                    <svg class="lucide lucide-external-link ml-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14 21 3"></path>
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    </svg>
                 </a>
             </div>
         </div>

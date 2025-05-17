@@ -2,7 +2,8 @@ const buildSummaryState = {
     selectedCount: 0,
     totalCount: 6, // TODO: maybe should be 8 or 9(pc case and monitor)
     lowestPrice: 0,
-    highestPrice: 0
+    highestPrice: 0,
+    powerWattage: 0
 };
 
 // Track use case and performance answers
@@ -55,7 +56,7 @@ function setupInitialQuestionListeners() {
     }
 }
 
-function updateBuildSummaryState({ selectedCount, lowestPrice, highestPrice }) {
+function updateBuildSummaryState({ selectedCount, lowestPrice, highestPrice, powerWattage }) {
 
     buildSummaryState.selectedCount = selectedCount;
 
@@ -67,6 +68,11 @@ function updateBuildSummaryState({ selectedCount, lowestPrice, highestPrice }) {
     if (highestPrice !== undefined) {
 
         buildSummaryState.highestPrice = parseFloat(highestPrice) || 0;
+    }
+
+    if (powerWattage !== undefined) {
+
+        buildSummaryState.powerWattage = parseInt(powerWattage) || 0;
     }
 
 
@@ -88,17 +94,33 @@ function calculateTotalRangePrices({componentPriceRanges}) {
     };
 }
 
+function calculatePowerWattage({selectedComponentsPowerWattage}) {
+
+    let totalPowerWattage = 0;
+
+    selectedComponentsPowerWattage.forEach(({powerWattage}) => {
+
+        totalPowerWattage += powerWattage;
+    })
+
+    return {
+        totalPowerWattage: totalPowerWattage
+    }
+}
+
 function renderBuildSummary() {
     const {
         selectedCount,
         totalCount,
         lowestPrice,
-        highestPrice
+        highestPrice,
+        powerWattage
     } = buildSummaryState;
 
     const countEl = document.getElementById("component-count");
     const lowestPriceEl = document.getElementById("lowest-price");
     const highestPriceEl = document.getElementById("highest-price");
+    const powerWattageEl = document.getElementById("power-wattage");
     const progressText = document.getElementById("build-progress-text");
     const progressBar = document.getElementById("build-progress-bar");
     const statusEl = document.getElementById("build-status");
@@ -113,6 +135,9 @@ function renderBuildSummary() {
     }
     if (highestPriceEl) {
         highestPriceEl.textContent = `$${highestPrice.toFixed(2)}`;
+    }
+    if(powerWattageEl){
+        powerWattageEl.textContent = `${powerWattage}W`
     }
 
     const progressPercent = Math.round((selectedCount / totalCount) * 100);
