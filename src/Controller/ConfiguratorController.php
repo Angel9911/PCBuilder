@@ -120,11 +120,6 @@ class ConfiguratorController extends AbstractController
         $session->set('ai_recommendations', $aiRecommendations);
         $session->set('user_answers', $answers);
 
-        $aiRecommendations = $session->get('ai_recommendations', []);
-
-        $userAnswers = $session->get('user_answers', []);
-
-
         // 🔁 Return JSON redirect
         return new JsonResponse([
             'redirect' => $this->generateUrl('configurator.ai.summary')
@@ -141,6 +136,8 @@ class ConfiguratorController extends AbstractController
 
         $userAnswers = $session->get('user_answers', []);
 
+        $session->set('ai_recommendations', []);
+        $session->set('user_answers', []);
 
         return $this->render('pages/review_ai_summary_page/review_ai_config_summary.html.twig', [
             'useCases' => $userAnswers['useCases'],
