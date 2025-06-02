@@ -12,4 +12,16 @@ final class ComponentConstraints
     public static array $PSU_FILTERS_COMPONENT = ['power_wattage'];
     public static array $STORAGE_FILTERS_COMPONENT = ['type', 'interface', 'capacity_gb'];
     public static array $RAM_FILTERS_COMPONENT = ['type', 'capacity_gb', 'speed_mhz'];
+
+    public static array $COMPONENT_LABELS = [
+        'cpu' => 'Процесор',
+        'gpu' => 'Видео Карта',
+        'motherboard' => 'Дънна Платка',
+        'cpu_cooling' => 'Охлаждане на Процесора',
+        'ram' => 'Рам Памет',
+        'storage' => 'Памет',
+        'monitor' => 'Монитор',
+        'pc_case' => 'PC Кутия',
+        'psu' => 'Захранване',
+    ];
 }

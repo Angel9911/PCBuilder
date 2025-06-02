@@ -4,8 +4,7 @@ function fetchComponentData() {
 
     componentIds.forEach(component => {
         const selectBox = document.querySelector(`.custom-select[data-component-id="${component}"]`);
-        const value = selectBox?.dataset.selectedValue || "";
-        data[component] = value;
+        data[component] = selectBox?.dataset.selectedValue || "";
     });
 
     return data;

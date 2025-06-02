@@ -19,6 +19,7 @@ use App\utils\ObjectMapper;
 use App\utils\ValidatorUtils;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -81,11 +82,6 @@ class ConfiguratorController extends AbstractController
         ]);
     }
 
-    #[Route('/configurator/build/{buildId}', name: 'configurator', methods: ['GET'])]
-    public function configureBuildId(array $pc, Request $request): Response
-    {
-
-    }
 
     #[Route('/configurator/ai', name: 'configurator.ai', methods: ['POST'])]
     public function generateAIRecommendation(Request $request): Response
@@ -102,6 +98,57 @@ class ConfiguratorController extends AbstractController
         $session->set('isAiConfiguration', true);
 
         return $this->redirectToRoute('configurator.build');
+    }
+
+    #[Route('/configurator/ai/build', name: 'configurator.ai.build', methods: ['POST'])]
+    public function generateAIRecommendationByUserConfiguration(Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if ($data === null) {
+            return new JsonResponse(['error' => 'Invalid JSON'], 400);
+        }
+
+        // Access your data like this:
+        $answers = $data['answers'] ?? [];
+        $selectedComponents = $data['selectedComponents'] ?? [];
+
+        $aiRecommendations = $this->openAIService->reviewUserConfiguration($answers, $selectedComponents);
+
+        $session = $request->getSession();
+
+        $session->set('ai_recommendations', $aiRecommendations);
+        $session->set('user_answers', $answers);
+
+        $aiRecommendations = $session->get('ai_recommendations', []);
+
+        $userAnswers = $session->get('user_answers', []);
+
+
+        // 🔁 Return JSON redirect
+        return new JsonResponse([
+            'redirect' => $this->generateUrl('configurator.ai.summary')
+        ]);
+    }
+
+    #[Route('/configurator/ai/summary', name: 'configurator.ai.summary', methods: ['GET'])]
+    public function reviewAiBuildSummary(Request $request): Response
+    {
+
+        $session = $request->getSession();
+
+        $aiRecommendations = $session->get('ai_recommendations', []);
+
+        $userAnswers = $session->get('user_answers', []);
+
+
+        return $this->render('pages/review_ai_summary_page/review_ai_config_summary.html.twig', [
+            'useCases' => $userAnswers['useCases'],
+            'userPerformancePriority' => $userAnswers['performance'],
+            'configurationScore' => $aiRecommendations['performance_score'],
+            'configurationSummary' => $aiRecommendations['ai_summary'],
+            'componentsReplacements' => $aiRecommendations['replacements']
+        ]);
     }
 
     #[Route('/configurator/bottleneck', name: 'configurator.bottleneck', methods: ['POST'])]

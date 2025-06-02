@@ -123,7 +123,7 @@ class OpenAIServiceImpl implements OpenAIService
     {
 
         try {
-            $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/chat/completions', [
+                $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/chat/completions', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->apiKey,
                     'Content-Type' => 'application/json',
@@ -192,9 +192,93 @@ class OpenAIServiceImpl implements OpenAIService
         }
     }
 
-    public function reviewUserConfiguration(array $userAnswers): array
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws Exception
+     */
+    public function reviewUserConfiguration(array $userRequirements, array $selectedComponents): array
     {
-        // TODO: Implement reviewUserConfiguration() method.
+
+        try{
+            $components = $this->componentService->getAllComponents();
+            /*var_dump($components);
+            die();*/
+            $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/chat/completions', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->apiKey,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'model' => 'gpt-3.5-turbo',
+                    'messages' => [
+                        [
+                            'role' => 'system',
+                            'content' => "You are a PC build advisor. Based on the user's specific needs and preferences (such as use cases, performance expectations, and any special requirements) 
+                            and selected components, evaluate a user's selected PC configuration and check if replacements are needed.
+
+                            Suggest better parts only from the provided components list if any are unsuitable.
+
+                            Respond in JSON:
+
+                            {
+                                \"performance_score\": float, // from 1.0 (very poor) to 10.0 (perfect fit)
+                                \"ai_summary\": string, // one-paragraph summary of whether the current build fits the user's goals, and why
+                                \"replacements\": [
+                                    {
+                                        \"type\": string, // e.g. 'cpu', 'gpu' and so on 
+                                        \"current\": string,
+                                        \"replacement\": string,
+                                        \"reason\": string
+                                    }
+                                ]
+                            }
+                            ### Guidelines:
+                            - Only suggest replacements that are compatible with the rest of the build.
+                            - Avoid unnecessary changes. If something is a good match, keep it.
+                            - Be concise but clear. Only use relevant technical reasoning in the 'reason' fields"
+                        ],
+                        [
+                            'role' => 'user',
+                            'content' => json_encode([
+                                'requirements' => $userRequirements,
+                                'selectedComponents' => $selectedComponents,
+                                'availableComponents' => $components
+                            ])
+                        ]
+                    ],
+                    'temperature' => 0.2,
+                ],
+            ]);
+
+            $result = $response->toArray();
+
+            $resultText = $result['choices'][0]['message']['content'] ?? '{}';
+
+            $decodedResult = json_decode($resultText, true);
+
+            if(!isset($decodedResult['performance_score'])
+                || !isset($decodedResult['ai_summary'])
+                || !isset($decodedResult['replacements'])
+            ) {
+
+                throw new Exception("Invalid AI response format.");
+            }
+
+
+            return [
+                'performance_score' => $decodedResult['performance_score'],
+                'ai_summary' => $decodedResult['ai_summary'],
+                'replacements' => $decodedResult['replacements'],
+            ];
+
+        }catch (Exception $exception){
+
+            throw new Exception("Failed to generate user configuration recommendations: " . $exception->getMessage());
+        }
     }
 
 

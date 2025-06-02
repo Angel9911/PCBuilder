@@ -1,0 +1,158 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}PC Configuration{% endblock %}
+
+{% block content %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="mb-6 sm:mb-8">
+            <a href="{{ path('configurator.build') }}">
+                <button class="inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-gradient-to-r from-slate-50 to-white hover:from-indigo-50 hover:to-cyan-50 text-slate-700 hover:text-slate-800 border border-slate-200 hover:border-slate-300 focus:ring-slate-400 shadow-sm hover:shadow px-4 py-2 text-sm flex items-center text-gray-600 hover:text-gray-900">
+                    <svg class="lucide lucide-arrow-left h-5 w-5 mr-2" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m12 19-7-7 7-7"></path>
+                        <path d="M19 12H5"></path>
+                    </svg>
+                    Back to Configurator
+                </button>
+            </a>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg p-4 sm:p-8 border border-slate-200">
+            <h2 class="text-xl sm:text-2xl font-bold text-center mb-6 sm:mb-8 bg-gradient-to-r from-indigo-700 to-cyan-500 bg-clip-text text-transparent">
+                AI Build Analysis
+            </h2>
+
+            <div class="mb-6 sm:mb-8">
+                <div class="bg-gradient-to-r from-indigo-50 to-cyan-50 rounded-xl p-4 sm:p-6 border border-indigo-100">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div>
+                            <h3 class="text-lg font-semibold text-indigo-900">Performance Score</h3>
+                            <p class="text-sm text-indigo-600 mt-1">Based on your requirements</p>
+                        </div>
+                        <div class="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-cyan-500 bg-clip-text text-transparent">
+                            {{ configurationScore }}/10
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                <div class="bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg border border-emerald-200 p-4">
+                    <div class="flex items-center gap-3 mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="lucide lucide-cpu h-5 w-5 text-emerald-600">
+                            <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                            <rect x="9" y="9" width="6" height="6"></rect>
+                            <path d="M15 2v2"></path>
+                            <path d="M15 20v2"></path>
+                            <path d="M2 15h2"></path>
+                            <path d="M2 9h2"></path>
+                            <path d="M20 15h2"></path>
+                            <path d="M20 9h2"></path>
+                            <path d="M9 2v2"></path>
+                            <path d="M9 20v2"></path>
+                        </svg>
+                        <p class="text-sm text-emerald-600 font-medium">Primary Usage</p>
+                    </div>
+                    <p class="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent">
+                        {{ useCases|join(', ') }}
+                    </p>
+                </div>
+
+                <div class="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-lg border border-amber-200 p-4">
+                    <div class="flex items-center gap-3 mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="lucide lucide-power h-5 w-5 text-amber-600">
+                            <path d="M12 2v10"></path>
+                            <path d="M18.4 6.6a9 9 0 1 1-12.77.04"></path>
+                        </svg>
+                        <p class="text-sm text-amber-600 font-medium">Gaming Resolution</p>
+                    </div>
+                    <p class="text-2xl font-bold bg-gradient-to-r from-amber-600 to-yellow-500 bg-clip-text text-transparent">
+                        4K
+                    </p>
+                </div>
+
+                <div class="bg-gradient-to-r from-fuchsia-50 to-purple-50 rounded-lg border border-fuchsia-200 p-4">
+                    <div class="flex items-center gap-3 mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="lucide lucide-monitor-smartphone h-5 w-5 text-fuchsia-600">
+                            <path d="M18 8V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h8"></path>
+                            <path d="M10 19v-3.96 3.15"></path>
+                            <path d="M7 19h5"></path>
+                            <rect width="6" height="10" x="16" y="12" rx="2"></rect>
+                        </svg>
+                        <p class="text-sm text-fuchsia-600 font-medium">Performance Priority</p>
+                    </div>
+                    <p class="text-2xl font-bold bg-gradient-to-r from-fuchsia-700 to-purple-600 bg-clip-text text-transparent">
+                        {{ userPerformancePriority|join(', ') }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="p-4 rounded-lg border bg-yellow-50 border-yellow-200">
+                    <div class="flex items-start gap-3">
+                        <svg class="lucide lucide-alert-circle h-6 w-6 text-yellow-600 flex-shrink-0 mt-0.5" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" x2="12" y1="8" y2="12"/>
+                            <line x1="12" x2="12.01" y1="16" y2="16"/>
+                        </svg>
+                        <div>
+                            <p class="text-base sm:text-lg font-medium text-gray-900 mb-3">
+                                {{ configurationSummary }}
+                            </p>
+                            <div class="pl-4 border-l-2 border-yellow-200">
+                                <p class="text-sm text-gray-600">Based on your requirements:</p>
+                                <ul class="mt-2 space-y-1">
+                                    {% for useCase in useCases %}
+                                        <li class="text-sm text-gray-700">• {{ useCase }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <div class="px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
+                        <h3 class="text-base sm:text-lg font-semibold text-slate-900">Suggested Changes</h3>
+                    </div>
+                    <div class="divide-y divide-slate-200">
+                        {% for replacement in componentsReplacements %}
+                            <div class="p-4 sm:p-6 hover:bg-slate-50 transition-colors">
+                                <div class="flex flex-col sm:flex-row sm:items-start gap-4">
+                                    <div class="flex-1 space-y-3">
+                                        <h4 class="text-base sm:text-lg font-semibold text-slate-900">{{ replacement.type|capitalize }}</h4>
+                                        <div class="space-y-2">
+                                            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                                <p class="text-sm"><span class="text-slate-500">Current: </span><span
+                                                            class="text-slate-700">{{ replacement.current }}</span></p>
+                                                <div class="hidden sm:block text-slate-300">→</div>
+                                                <p class="text-sm"><span class="text-slate-500">Suggested: </span><span
+                                                            class="font-medium text-indigo-600">{{ replacement.replacement }}</span>
+                                                </p>
+                                            </div>
+                                            <p class="text-sm text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100">{{ replacement.reason }}</p>
+                                        </div>
+                                    </div>
+                                    <button class="inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-gradient-to-r from-slate-50 to-white hover:from-indigo-50 hover:to-cyan-50 text-slate-700 hover:text-slate-800 border border-slate-200 hover:border-slate-300 focus:ring-slate-400 shadow-sm hover:shadow px-4 py-2 text-sm w-full sm:w-auto">
+                                        Swap Component
+                                    </button>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="p-6">
+                                <p class="text-slate-600">No changes recommended — your configuration is optimal.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

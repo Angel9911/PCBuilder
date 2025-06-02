@@ -10,6 +10,8 @@ interface ComponentService
 
     public function getCompatibleComponents(array $filterParams): array;
 
+    public function getComponentsByFilters(string $componentType, array $filters): array;
+
     public function getComponentsDetailsByType(string $componentType): array;
 
     public function getTotalsCountComponentsByType(string $componentType): int;

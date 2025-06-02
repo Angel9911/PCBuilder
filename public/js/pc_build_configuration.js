@@ -1,6 +1,7 @@
-const selectedSummaryComponents = new Set(); // e.g., 'cpu', 'gpu', etc.
+const selectedSummaryComponents = new Set(); // e.g., 'cpu', 'gpu', etc. // TODO: use the array below
 const selectedComponentsPowerWattage = new Map(); // e.g., '120', '150', etc.
 const componentPriceRanges = new Map(); // key = componentType, value = { lowest, highest }
+const selectedComponentsSummary = {};
 
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -10,6 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
     //setup early
     document.querySelectorAll(".custom-select").forEach(selectBox => {
         let selected = selectBox.querySelector(".select-selected");
+
         let items = selectBox.querySelectorAll(".select-item");
 
         selected.addEventListener("click", () => {
@@ -20,6 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
         items.forEach(item => {
             item.addEventListener("click", () => {
                 selected.textContent = item.textContent;
+
                 selectBox.dataset.selectedValue = item.dataset.value;
 
                 selectBox.querySelector(".select-items").classList.add("select-hide");
@@ -61,6 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (componentOption) {
                     selectBox.querySelector(".select-selected").textContent = componentOption.textContent;
+
                     selectBox.dataset.selectedValue = componentOption.dataset.value;
 
                     // Trigger custom change event
@@ -110,9 +114,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     attachComponentOffersEvent(componentSelectors);
 
-
         componentSelectors.forEach(select => {
             select.addEventListener("change", function () {
+
                     updateCompatibleComponents();
             });
         });
@@ -324,9 +328,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (selectedValue) {
 
+                const getCurrentComponentDropdown = document.querySelector(`.custom-select[data-component-id="${componentType}"]`);
+
+                selectedComponentsSummary[componentType] = getCurrentComponentDropdown.querySelector('.select-selected').textContent.trim();
+
                 selectedComponents[componentType + "_id"] = selectedValue;
                 // add the component for summary count
-            } else {
             }
         });
 
@@ -353,9 +360,9 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!selectBox) return;
 
             const selectedDiv = selectBox.querySelector(".select-selected");
+
             const itemsContainer = selectBox.querySelector(".select-items");
             const currentSelectedValue = selectBox.dataset.selectedValue;
-
             // ✅ Use the currently shown value as the real default
             const defaultText = selectBox.dataset.defaultText || "Select an option";//selectedDiv.textContent.trim();
 
@@ -374,8 +381,10 @@ document.addEventListener("DOMContentLoaded", function () {
             defaultItem.className = "select-item";
             defaultItem.dataset.value = "";
             defaultItem.textContent = defaultText;
+
             defaultItem.addEventListener("click", () => {
                 selectedDiv.textContent = defaultText;
+
                 selectBox.dataset.selectedValue = "";
                 itemsContainer.classList.add("select-hide");
 
@@ -396,6 +405,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (isCompatible) {
                     item.addEventListener("click", () => {
                         selectedDiv.textContent = name;
+
                         selectBox.dataset.selectedValue = id;
                         itemsContainer.classList.add("select-hide");
 
@@ -437,5 +447,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 });
+window.selectedComponents = selectedComponentsSummary;
 
 

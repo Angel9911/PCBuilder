@@ -58,6 +58,55 @@ class ComponentServiceImpl implements ComponentService
     /**
      * @throws Exception
      */
+    public function getComponentsByFilters(string $componentType, array $filters, int $limit = 12, int $offset = 0): array
+    {
+        $components = $this->componentRepository->getComponentSpecs($componentType, $limit, $offset, $filters);
+
+        $result = [];
+
+        if (!empty($components)) {
+
+            $componentSpecifications = []; // Used for cardbox specifications
+
+            foreach ($components as $component) {
+
+                // Add the component to response
+                $componentFitlers = $this->getComponentTypesFilter();
+
+                $filters = $componentFitlers[$component['component_type']] ?? [];
+
+                $filteredData = [
+                    'id' => $component['id'],
+                    'component_id' => $component['component_id'],
+                    'name' => $component['name'],
+                ];
+
+                foreach ($filters as $filter) {
+
+                    if (isset($component[$filter])) {
+
+                        $filteredData[$filter] = $component[$filter];
+                    }
+                }
+
+                $componentSpecifications = $this->formatComponentSpecifications($filteredData);
+
+                // Append to response (component_type not included)
+                $result['components'][] = [
+                    'id' => $component['id'],
+                    'component_id' => $component['component_id'],
+                    'name' => $component['name'],
+                    'specifications' => $componentSpecifications
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @throws Exception
+     */
     public function getComponentsDetailsByType(string $componentType, int $limit = 12, int $offset = 0): array
     {
         $components = $this->componentRepository->getComponentSpecs($componentType, $limit, $offset);
@@ -69,13 +118,14 @@ class ComponentServiceImpl implements ComponentService
 
         if (!empty($components)) {
 
-            $specs = []; // Used for cardbox specifications
+            $componentSpecifications = []; // Used for cardbox specifications
 
             $rawFilters = [];
 
             foreach ($components as $component) {
 
                 // Add the component to response
+                // TODO: from here to formating specification response could be extract in another method
                 $componentFitlers = $this->getComponentTypesFilter();
 
                 $filters = $componentFitlers[$component['component_type']] ?? [];
@@ -92,26 +142,15 @@ class ComponentServiceImpl implements ComponentService
                     }
                 }
 
-                // Format specifications (keys prettified, with optional units)
-                $specs = [];
-                foreach ($filteredData as $key => $value) {
-                    if (in_array($key, ['id', 'component_id', 'name'])) {
-                        continue;
-                    }
 
-                    $label = ucwords(str_replace('_', ' ', $key));
-                    if (isset(self::$UNITS[$key])) {
-                        $value .= self::$UNITS[$key];
-                    }
+                $componentSpecifications = $this->formatComponentSpecifications($filteredData);
 
-                    $specs[$label] = $value;
-                }
                 // Append to response (component_type not included)
                 $responseComponentsFilters['components'][] = [
                     'id' => $component['id'],
                     'component_id' => $component['component_id'],
                     'name' => $component['name'],
-                    'specifications' => $specs
+                    'specifications' => $componentSpecifications
                 ];
                 //$responseComponentsFilters['components'][] = $filteredData;
 
@@ -155,6 +194,9 @@ class ComponentServiceImpl implements ComponentService
         return $responseComponentsFilters;
     }
 
+    /**
+     * @throws Exception
+     */
     public function getTotalsCountComponentsByType(string $componentType): int
     {
         return $this->componentRepository->getTotalsCountComponent($componentType);
@@ -173,4 +215,28 @@ class ComponentServiceImpl implements ComponentService
         'ram' => ComponentConstraints::$RAM_FILTERS_COMPONENT,
         ];
     }
+
+    /**
+     * @param array $components
+     * @return array
+     */
+    public function formatComponentSpecifications(array $components): array
+    {
+        // Format specifications (keys prettified, with optional units)
+        $specs = [];
+        foreach ($components as $key => $value) {
+            if (in_array($key, ['id', 'component_id', 'name'])) {
+                continue;
+            }
+
+            $label = ucwords(str_replace('_', ' ', $key));
+            if (isset(self::$UNITS[$key])) {
+                $value .= self::$UNITS[$key];
+            }
+
+            $specs[$label] = $value;
+        }
+        return $specs;
+    }
+
 }

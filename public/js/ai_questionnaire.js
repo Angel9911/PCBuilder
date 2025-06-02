@@ -103,7 +103,7 @@ function sendAnswersToBackend() {
 
             if (response.ok) {
                 // Redirect to PC build configuration page
-                window.location.href = '/configurator/build';
+                window.location.href = response.redirect;
             } else {
                 console.error('Error processing request');
             }

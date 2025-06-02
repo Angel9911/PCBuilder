@@ -16,6 +16,8 @@ class ComponentRepository extends ServiceEntityRepository
     private static int $PAGE = 0;
     private static int $OFFSET = 0;
 
+    private static array $COMPONENT_FILTERS = [];
+
     public function __construct(ManagerRegistry $registry, EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, Component::class);
@@ -88,14 +90,14 @@ class ComponentRepository extends ServiceEntityRepository
         $connection = $this->entityManager->getConnection();
 
         // Get selected specs
-        $cpu = isset($selected['cpu_id']) ? $this->getComponentSpecs('cpu', self::$PAGE, self::$OFFSET, $connection, $selected['cpu_id']) : null;
-        $gpu = isset($selected['gpu_id']) ? $this->getComponentSpecs('gpu', self::$PAGE, self::$OFFSET, $connection, $selected['gpu_id']) : null;
-        $monitor = isset($selected['monitor_id']) ? $this->getComponentSpecs('monitor', self::$PAGE, self::$OFFSET, $connection, $selected['monitor_id']) : null;
-        $motherboard = isset($selected['motherboard_id']) ? $this->getComponentSpecs('motherboard', self::$PAGE, self::$OFFSET,$connection, $selected['motherboard_id']) : null;
-        $case = isset($selected['pc_case_id']) ? $this->getComponentSpecs('pc_case', self::$PAGE, self::$OFFSET, $connection, $selected['pc_case_id']) : null;
-        $ram = isset($selected['ram_id']) ? $this->getComponentSpecs('ram', self::$PAGE, self::$OFFSET, $connection, $selected['ram_id']) : null;
-        $storage = isset($selected['storage_id']) ? $this->getComponentSpecs('storage', self::$PAGE, self::$OFFSET, $connection, $selected['storage_id']) : null;
-        $psu = isset($selected['psu_id']) ? $this->getComponentSpecs('psu', self::$PAGE, self::$OFFSET, $connection, $selected['psu_id']) : null;
+        $cpu = isset($selected['cpu_id']) ? $this->getComponentSpecs('cpu', self::$PAGE, self::$OFFSET, self::$COMPONENT_FILTERS, $connection, $selected['cpu_id']) : null;
+        $gpu = isset($selected['gpu_id']) ? $this->getComponentSpecs('gpu', self::$PAGE, self::$OFFSET, self::$COMPONENT_FILTERS,$connection, $selected['gpu_id']) : null;
+        $monitor = isset($selected['monitor_id']) ? $this->getComponentSpecs('monitor', self::$PAGE, self::$OFFSET, self::$COMPONENT_FILTERS,$connection, $selected['monitor_id']) : null;
+        $motherboard = isset($selected['motherboard_id']) ? $this->getComponentSpecs('motherboard', self::$PAGE, self::$OFFSET,self::$COMPONENT_FILTERS,$connection, $selected['motherboard_id']) : null;
+        $case = isset($selected['pc_case_id']) ? $this->getComponentSpecs('pc_case', self::$PAGE, self::$OFFSET, self::$COMPONENT_FILTERS,$connection, $selected['pc_case_id']) : null;
+        $ram = isset($selected['ram_id']) ? $this->getComponentSpecs('ram', self::$PAGE, self::$OFFSET, self::$COMPONENT_FILTERS,$connection, $selected['ram_id']) : null;
+        $storage = isset($selected['storage_id']) ? $this->getComponentSpecs('storage', self::$PAGE, self::$OFFSET, self::$COMPONENT_FILTERS,$connection, $selected['storage_id']) : null;
+        $psu = isset($selected['psu_id']) ? $this->getComponentSpecs('psu', self::$PAGE, self::$OFFSET, self::$COMPONENT_FILTERS,$connection, $selected['psu_id']) : null;
         //TODO: if choose first psu and then other component with power_wattage(cpu,gpu,monitor) it will not calculate the required power_wattage
 
         // Get compatible parts
@@ -114,7 +116,7 @@ class ComponentRepository extends ServiceEntityRepository
     /**
      * @throws Exception
      */
-    function getComponentSpecs(string $type, int $limit = 0, int $offset = 0, Connection $conn = null, int $id = 0): ?array
+    function getComponentSpecs(string $type, int $limit = 0, int $offset = 0, array $filters=[], Connection $conn = null, int $id = 0): ?array
     {
 
         // If no connection is passed, use default from service container
@@ -123,24 +125,61 @@ class ComponentRepository extends ServiceEntityRepository
             $conn = $this->entityManager->getConnection(); // Make sure this is injected in your service constructor
         }
 
+
+        // Add WHERE clause only if ID is passed
+        $params = [];
+        $conditions = [];
+
+        if ($id > 0) {
+
+            $conditions[] = "t.component_id = :id";
+            $params['id'] = $id;
+
+            /*$sql .= " WHERE t.component_id = :id";
+            $params['id'] = $id;*/
+        }
+
+        if(!empty($filters)) {
+
+            foreach ($filters as $field => $fieldValues) {
+
+                $placeholders = [];
+
+                if ($field === 'page') {
+                    continue;
+                }
+
+                // Make sure we work with an array
+                $fieldValues = is_array($fieldValues) ? $fieldValues : [$fieldValues];
+
+                foreach ($fieldValues as $i => $value) {
+
+                    $key = "{$field}_{$i}";
+
+                    $placeholders[] = ":$key";
+
+                    $params[$key] = $value;
+                }
+
+                $conditions[] = "t.{$field} IN (" . implode(',', $placeholders) . ")";
+            }
+        }
+
+        $whereSql = '';
+
+        if(!empty($conditions)){
+
+            $whereSql = 'WHERE '. implode(" AND ", $conditions);
+        }
+
         $sql = "
             SELECT t.*, comp.name, ct.name AS component_type
             FROM {$type} t
             JOIN components comp ON comp.id = t.component_id
             JOIN component_types ct ON ct.id = comp.type_id
+            {$whereSql}
         ";
 
-        // Add WHERE clause only if ID is passed
-        $params = [];
-
-        if ($id > 0) {
-
-            $sql .= " WHERE t.component_id = :id";
-            $params['id'] = $id;
-        }
-
-        //var_dump($limit);
-        //var_dump($offset);
 
         if($limit > 0) {
 
@@ -150,6 +189,7 @@ class ComponentRepository extends ServiceEntityRepository
         $stmt = $conn->prepare($sql);
 
         $result = $stmt->executeQuery($params);
+
         return $id > 0 ? ($result->fetchAssociative() ?: []) : $result->fetchAllAssociative();
 
     }

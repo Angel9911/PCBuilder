@@ -9,8 +9,47 @@ const buildSummaryState = {
 // Track use case and performance answers
 const initialAnswers = {
     useCases: new Set(),
-    performance: null
+    performance: null,
+    specific_requirements: null
 };
+
+// Classes for use-case buttons (multi-select)
+const useCaseActive = ['bg-gradient-to-r', 'from-indigo-500', 'to-cyan-500', 'text-white'];
+const useCaseInactive = ['bg-gray-100', 'text-gray-700', 'hover:bg-gray-200'];
+
+// Classes for performance buttons (radio group)
+const perfActive = ['bg-gradient-to-r', 'from-indigo-500', 'to-cyan-500', 'text-white'];
+const perfInactive = ['bg-gray-100', 'text-gray-700', 'hover:bg-gray-200'];
+
+// Multi-select logic (checkbox-style)
+document.querySelectorAll('.use-case-btn').forEach(button => {
+    button.addEventListener('click', () => {
+        const isActive = button.classList.contains('bg-gradient-to-r');
+
+        if (isActive) {
+            button.classList.remove(...useCaseActive);
+            button.classList.add(...useCaseInactive);
+        } else {
+            button.classList.remove(...useCaseInactive);
+            button.classList.add(...useCaseActive);
+        }
+    });
+});
+
+// Radio-style logic (single select for performance)
+const perfButtons = document.querySelectorAll('.performance-btn');
+
+perfButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        perfButtons.forEach(b => {
+            b.classList.remove(...perfActive);
+            b.classList.add(...perfInactive);
+        });
+
+        button.classList.remove(...perfInactive);
+        button.classList.add(...perfActive);
+    });
+});
 
 function setupInitialQuestionListeners() {
     const reviewBtn = document.getElementById("submit-review");
@@ -55,6 +94,55 @@ function setupInitialQuestionListeners() {
         }
     }
 }
+
+document.getElementById("submit-review").addEventListener("click", async () => {
+    const useCases = Array.from(initialAnswers.useCases);
+    const performance = initialAnswers.performance;
+    const specificRequirements = document.getElementById("specific-requirements").value.trim();
+
+    // You should already have this from your global scope or inject it dynamically
+    const selectedComponents = window.selectedComponents || [];
+
+    const payload = {
+        answers: {
+            useCases: useCases,
+            performance: performance,
+            specifications: specificRequirements
+        },
+        selectedComponents: selectedComponents
+    };
+    const test = JSON.stringify(payload);
+    debugger; // ← Execution pauses here if DevTools is open
+    try {
+        showSpinner();
+        //console.log(userAnswers)
+        fetch("/configurator/ai/build", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        })
+            .then(response => {
+
+                if (response.ok) {
+                    // Redirect to PC build configuration page
+                    window.location.href = '/configurator/ai/summary';
+                } else {
+                    console.error('Error processing request');
+                }
+            })
+            .catch(error => console.error("Error:", error))
+            .finally(() => {
+
+                hideSpinner()// hide spinner
+            });
+
+    } catch (error) {
+        console.error("Network or server error:", error);
+        alert("Network error. Please try again.");
+    }
+});
 
 function updateBuildSummaryState({ selectedCount, lowestPrice, highestPrice, powerWattage }) {
 

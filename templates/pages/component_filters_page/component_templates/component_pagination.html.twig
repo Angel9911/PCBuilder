@@ -1,0 +1,13 @@
+<div class="mt-8 flex justify-center space-x-2">
+    {% for i in 1..totalPages %}
+        <a href="{{ path('component.filter', {'component': componentType}) }}?page={{ i }}"
+           data-page="{{ i }}"
+           class="pagination-link inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
+           px-4 py-2 text-sm
+           {{ i == currentPage
+           ? 'bg-gradient-to-r from-indigo-600 to-cyan-500 text-white shadow-md hover:shadow-lg focus:ring-indigo-500'
+           : 'bg-gradient-to-r from-slate-50 to-white hover:from-indigo-50 hover:to-cyan-50 text-slate-700 hover:text-slate-800 border border-slate-200 hover:border-slate-300 focus:ring-slate-400 shadow-sm hover:shadow' }}">
+            {{ i }}
+        </a>
+    {% endfor %}
+</div>

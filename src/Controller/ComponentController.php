@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Constraints\CacheConstraints;
+use App\Constraints\ComponentConstraints;
 use App\Private_lib\redis\RedisWrapper;
 use App\Service\ComponentService;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,11 +26,79 @@ class ComponentController extends AbstractController
         $this->redis = $redis;
     }
 
-    #[Route('/component/{component}', name: 'component.filter', methods: ['GET'])]
+    #[Route('/component/{component}', name: 'component.filter', methods: ['GET', 'POST'])]
     public function getComponentsDetails($component, Request $request): Response
     {
+        $component = (string) $component;
 
         $page = max(1, (int) $request->get('page', 1));
+        $limit = 12;
+        $offset = ($page - 1) * $limit;
+
+        // Determine if it's an AJAX request
+        $isAjax = $request->isXmlHttpRequest();
+
+        // Merge filters from GET or POST
+        $filters = $request->isMethod('POST') ? $request->request->all() : $request->query->all();
+
+        // Determine if any filters are set (excluding 'page' param)
+        $hasFilters = array_filter(array_keys($filters), fn($key) => $key !== 'page');
+
+        if ($hasFilters) {
+            //var_dump('test');
+            // Fetch filtered components
+            $result = $this->componentService->getComponentsByFilters($component, $filters, $limit, $offset);
+
+            $totalCount = count($result); // Count of filtered components
+        } else {
+            //var_dump('test2');
+            // Use Redis cache for non-filtered result
+            $componentTypeFilterKey = CacheConstraints::$COMPONENT_TYPE_FILTER_KEY . '_' . $component;
+            $this->redis->delete($componentTypeFilterKey);
+            if (!$this->redis->isKeyExist($componentTypeFilterKey)) {
+                $result = $this->componentService->getComponentsDetailsByType($component, $limit, $offset);
+                $this->redis->set($componentTypeFilterKey, $result, 3600);
+            } else {
+                $result = $this->redis->get($componentTypeFilterKey);
+            }
+
+            $totalCount = $this->componentService->getTotalsCountComponentsByType($component);
+        }
+
+        $totalPages = ceil($totalCount / $limit);
+
+        if ($isAjax) {
+            //var_dump('test');
+            // Return JSON for AJAX (used in filtering and pagination)
+            $componentsHtml = $this->renderView('pages/component_filters_page/component_templates/component_list.html.twig', [
+                'components' => $result['components'],
+            ]);
+
+            $paginationHtml = $this->renderView('pages/component_filters_page/component_templates/component_pagination.html.twig', [
+                'totalPages' => $totalPages,
+                'currentPage' => $page,
+                'componentType' => $component,
+            ]);
+
+            return $this->json([
+                'components' => $componentsHtml,
+                'pagination' => $paginationHtml,
+            ]);
+        }
+
+        // Render full page
+        $componentLabel = ComponentConstraints::$COMPONENT_LABELS[$component] ?? '';
+        //var_dump('test2');
+        return $this->render('pages/component_filters_page/component_filters.html.twig', [
+            'components' => $result['components'],
+            'filters' => $result['filters'] ?? [],
+            'componentType' => $component,
+            'componentLabel' => $componentLabel,
+            'totalPages' => $totalPages,
+            'currentPage' => $page,
+        ]);
+
+/*        $page = max(1, (int) $request->get('page', 1));
 
         $limit = 12;
 
@@ -39,6 +108,14 @@ class ComponentController extends AbstractController
 
         $componentTypeFilterKey = CacheConstraints::$COMPONENT_TYPE_FILTER_KEY . '_' . $component;
 
+        $componentLabel = '';
+
+        if(array_key_exists($component, ComponentConstraints::$COMPONENT_LABELS)){
+
+            $componentLabel = ComponentConstraints::$COMPONENT_LABELS[$component];
+        }
+
+        $this->redis->delete($componentTypeFilterKey);
         // Check if data exists in Redis cache
         if ($this->redis->isKeyExist($componentTypeFilterKey)) {
 
@@ -56,22 +133,57 @@ class ComponentController extends AbstractController
 
         $totalPages = ceil($totalsCount / $limit);
 
-        //return $this->json($components);
+        //return $this->json($result['components']);
         return $this->render('pages/component_filters_page/component_filters.html.twig', [
             'components' => $result['components'],
             'filters' => $result['filters'],
             'componentType' => $component,
+            'componentLabel' => $componentLabel,
             'totalPages' => $totalPages,
             'currentPage' => $page,
-        ]);
+        ]);*/
     }
 
-    #[Route('/component/{component}', name: 'component.filter.by', methods: ['GET'])]
+    #[Route('/component/filter/{component}', name: 'component.filter.by', methods: ['GET'])]
     public function getComponentFiltersDetails($component, Request $request): Response
     {
 
         $component = (string) $component;
 
-        $filters = (int) $request->get('filter');
+        $filters = $request->query->all();
+
+        $page = max(1, (int) $request->get('page', 1));
+
+        $limit = 12;
+
+        $offset = ($page - 1) * $limit;
+
+        // Fetch from database and cache the result
+        $result = $this->componentService->getComponentsByFilters($component, $filters, $limit, $offset);
+
+        $totalsCount = count($result);
+
+        $totalPages = ceil($totalsCount / $limit);
+
+        //return $this->json($result['components']);
+
+        $componentsHtml = $this->renderView('pages/component_filters_page/component_templates/component_list.html.twig', [
+            'components' => $result['components'],
+        ]);
+
+        $paginationHtml = $this->renderView('pages/component_filters_page/component_templates/pagination.html.twig', [
+            'totalPages' => $totalPages,
+            'currentPage' => $page,
+            'componentType' => $component,
+        ]);
+
+        return $this->json([
+            'components' => $componentsHtml,
+            'pagination' => $paginationHtml,
+        ]);
+
+        /*return $this->render('pages/component_filters_page/component_templates/component_list.html.twig', [
+            'components' => $result['components'],
+        ]);*/
     }
 }
