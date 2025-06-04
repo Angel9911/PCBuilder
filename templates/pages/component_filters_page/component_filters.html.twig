@@ -75,7 +75,10 @@
         </div>
         <div class="md:w-3/4 mt-6 md:mt-0">
             <div id="component-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {% include 'pages/component_filters_page/component_templates/component_list.html.twig' with {'components': components} %}
+                {% include 'pages/component_filters_page/component_templates/component_list.html.twig' with {
+                    'components': components,
+                    'componentType': componentType
+                } %}
             </div>
         </div>
     </div>

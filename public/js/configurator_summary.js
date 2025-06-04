@@ -111,8 +111,7 @@ document.getElementById("submit-review").addEventListener("click", async () => {
         },
         selectedComponents: selectedComponents
     };
-    const test = JSON.stringify(payload);
-    debugger; // ← Execution pauses here if DevTools is open
+
     try {
         showSpinner();
         //console.log(userAnswers)

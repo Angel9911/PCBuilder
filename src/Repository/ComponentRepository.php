@@ -54,6 +54,18 @@ class ComponentRepository extends ServiceEntityRepository
         return $result;
     }
 
+    public function updateComponentName(string $existingName, string $slugifyName): void
+    {
+        $this->createQueryBuilder('c')
+            ->update(Component::class, 'c')
+            ->set('c.slugify_name', ':slugifyName')
+            ->where('c.name = :existingName')
+            ->setParameter('existingName', $existingName)
+            ->setParameter('slugifyName', $slugifyName)
+            ->getQuery()
+            ->execute();
+    }
+
     public function findComponentById(int $id): Component
     {
         return $this->createQueryBuilder('c')
@@ -74,6 +86,46 @@ class ComponentRepository extends ServiceEntityRepository
             ->setParameter('type', $type)
             ->getQuery()
             ->getArrayResult();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function findComponentSpecificationsByNameAndType(string $componentName, string $componentType): array
+    {
+        $connection = $this->entityManager->getConnection();
+
+        if(empty($componentName) || empty($componentType)) {
+
+            return [];
+        }
+
+        // Add WHERE clause only if name and type is passed
+        $params = [];
+        $conditions = [];
+
+        $conditions[] = 'comp.slugify_name = :slugify_name';
+        $params['slugify_name'] = $componentName;
+
+        $whereSql = '';
+
+        if(!empty($conditions)){
+
+            $whereSql = 'WHERE '. implode(" AND ", $conditions);
+        }
+
+        $sql = "
+            SELECT t.*, comp.name, ct.name AS component_type
+            FROM {$componentType} t
+            JOIN components comp ON comp.id = t.component_id
+            JOIN component_types ct ON ct.id = comp.type_id
+            {$whereSql}";
+
+        $stmt = $connection->prepare($sql);
+
+        $result = $stmt->executeQuery($params);
+
+        return $result->fetchAllAssociative();
     }
 
     /**
@@ -173,7 +225,7 @@ class ComponentRepository extends ServiceEntityRepository
         }
 
         $sql = "
-            SELECT t.*, comp.name, ct.name AS component_type
+            SELECT t.*, comp.name, comp.slugify_name, ct.name AS component_type
             FROM {$type} t
             JOIN components comp ON comp.id = t.component_id
             JOIN component_types ct ON ct.id = comp.type_id

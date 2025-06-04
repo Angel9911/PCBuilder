@@ -107,7 +107,7 @@ class ComponentServiceImpl implements ComponentService
     /**
      * @throws Exception
      */
-    public function getComponentsDetailsByType(string $componentType, int $limit = 12, int $offset = 0): array
+    public function getAdvanceFilterComponentsByType(string $componentType, int $limit = 12, int $offset = 0): array
     {
         $components = $this->componentRepository->getComponentSpecs($componentType, $limit, $offset);
 
@@ -134,6 +134,7 @@ class ComponentServiceImpl implements ComponentService
                     'id' => $component['id'],
                     'component_id' => $component['component_id'],
                     'name' => $component['name'],
+                    'slugify_name' => $component['slugify_name']
                 ];
 
                 foreach ($filters as $filter) {
@@ -145,18 +146,21 @@ class ComponentServiceImpl implements ComponentService
 
                 $componentSpecifications = $this->formatComponentSpecifications($filteredData);
 
+                //var_dump($component['component_type']);
+
                 // Append to response (component_type not included)
                 $responseComponentsFilters['components'][] = [
                     'id' => $component['id'],
                     'component_id' => $component['component_id'],
                     'name' => $component['name'],
+                    'slugify_name' => $component['slugify_name'],
                     'specifications' => $componentSpecifications
                 ];
                 //$responseComponentsFilters['components'][] = $filteredData;
 
                 // Gather filterable fields
                 foreach ($component as $key => $value) {
-                    if (in_array($key, ['id', 'component_id', 'name', 'component_type'])) {
+                    if (in_array($key, ['id', 'component_id', 'name', 'slugify_name', 'component_type'])) {
                         continue;
                     }
 
@@ -225,7 +229,7 @@ class ComponentServiceImpl implements ComponentService
         // Format specifications (keys prettified, with optional units)
         $specs = [];
         foreach ($components as $key => $value) {
-            if (in_array($key, ['id', 'component_id', 'name'])) {
+            if (in_array($key, ['id', 'component_id', 'name', 'slugify_name'])) {
                 continue;
             }
 
@@ -239,4 +243,17 @@ class ComponentServiceImpl implements ComponentService
         return $specs;
     }
 
+    /**
+     * @throws Exception
+     */
+    public function getComponentDetailsByComponentName(string $componentName, string $componentType): array
+    {
+
+        return $this->componentRepository->findComponentSpecificationsByNameAndType($componentName, $componentType);
+    }
+
+    public function updateComponentName(string $existingName, string $slugifyName): void
+    {
+        $this->componentRepository->updateComponentName($existingName, $slugifyName);
+    }
 }
