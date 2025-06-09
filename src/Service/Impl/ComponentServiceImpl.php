@@ -79,6 +79,7 @@ class ComponentServiceImpl implements ComponentService
                     'id' => $component['id'],
                     'component_id' => $component['component_id'],
                     'name' => $component['name'],
+                    'slugify_name' => $component['slugify_name']
                 ];
 
                 foreach ($filters as $filter) {
@@ -96,7 +97,8 @@ class ComponentServiceImpl implements ComponentService
                     'id' => $component['id'],
                     'component_id' => $component['component_id'],
                     'name' => $component['name'],
-                    'specifications' => $componentSpecifications
+                    'specifications' => $componentSpecifications,
+                    'slugify_name' => $component['slugify_name']
                 ];
             }
         }
@@ -143,10 +145,8 @@ class ComponentServiceImpl implements ComponentService
                     }
                 }
 
-
+                //var_dump($filteredData);
                 $componentSpecifications = $this->formatComponentSpecifications($filteredData);
-
-                //var_dump($component['component_type']);
 
                 // Append to response (component_type not included)
                 $responseComponentsFilters['components'][] = [
@@ -248,12 +248,23 @@ class ComponentServiceImpl implements ComponentService
      */
     public function getComponentDetailsByComponentName(string $componentName, string $componentType): array
     {
+        $componentDetails = $this->componentRepository->findComponentSpecificationsByNameAndType($componentName, $componentType);
 
-        return $this->componentRepository->findComponentSpecificationsByNameAndType($componentName, $componentType);
+        return [
+            'id' => $componentDetails[0]['id'],
+            'component_id' => $componentDetails[0]['component_id'],
+            'name' => $componentDetails[0]['name'],
+            'specifications' => $this->formatComponentSpecifications($componentDetails[0])
+        ];
     }
 
     public function updateComponentName(string $existingName, string $slugifyName): void
     {
         $this->componentRepository->updateComponentName($existingName, $slugifyName);
+    }
+
+    public function getComponentIdBySlugifyName(string $slugifyName): int
+    {
+        //$this->componentRepository->
     }
 }

@@ -115,7 +115,7 @@ class ComponentRepository extends ServiceEntityRepository
         }
 
         $sql = "
-            SELECT t.*, comp.name, ct.name AS component_type
+            SELECT t.*, comp.name
             FROM {$componentType} t
             JOIN components comp ON comp.id = t.component_id
             JOIN component_types ct ON ct.id = comp.type_id

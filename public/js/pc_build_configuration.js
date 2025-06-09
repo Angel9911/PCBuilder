@@ -114,12 +114,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     attachComponentOffersEvent(componentSelectors);
 
-        componentSelectors.forEach(select => {
-            select.addEventListener("change", function () {
+    componentSelectors.forEach(select => {
+        select.addEventListener("change", function () {
 
-                    updateCompatibleComponents();
-            });
+            updateCompatibleComponents();
         });
+    });
 
     savePcConfiguration();
 
@@ -170,9 +170,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     selectedComponentsPowerWattage.delete(componentId);
 
-                    const { totalLowest, totalHighest } = calculateTotalRangePrices({ componentPriceRanges });
+                    const {totalLowest, totalHighest} = calculateTotalRangePrices({componentPriceRanges});
 
-                    const { totalPowerWattage } = calculatePowerWattage({selectedComponentsPowerWattage});
+                    const {totalPowerWattage} = calculatePowerWattage({selectedComponentsPowerWattage});
 
                     console.log(totalPowerWattage);
 
@@ -208,6 +208,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             return;
                         }
 
+                        renderOffers(offers, offerTemplate, offersContainer);
+
                         offers.forEach(offer => {
 
                             if (Object.keys(offer).length === 0) {
@@ -242,9 +244,9 @@ document.addEventListener("DOMContentLoaded", function () {
                             })
 
 
-                            const { totalLowest, totalHighest } = calculateTotalRangePrices({ componentPriceRanges });
+                            const {totalLowest, totalHighest} = calculateTotalRangePrices({componentPriceRanges});
 
-                            const { totalPowerWattage } = calculatePowerWattage({selectedComponentsPowerWattage});
+                            const {totalPowerWattage} = calculatePowerWattage({selectedComponentsPowerWattage});
 
                             // Update summary
                             updateBuildSummaryState({
@@ -253,46 +255,6 @@ document.addEventListener("DOMContentLoaded", function () {
                                 highestPrice: totalHighest,
                                 powerWattage: totalPowerWattage
                             });
-
-                            let offerElement = offerTemplate.content.cloneNode(true);
-
-                            offerElement.querySelector(".vendor-logo").src = `${offer.logo}`;
-                            offerElement.querySelector(".vendor-logo").alt = offer.vendor_name;
-
-                            //offerElement.querySelector(".stock-text").textContent = offer.stock_status ? "In Stock" : "Out of Stock";
-
-                            let stockStatus = offerElement.querySelector(".stock-status");
-                            stockStatus.className = "stock-status inline-flex items-center whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-medium";
-
-                            if (offer.stock_status === 'In Stock') {
-                                offerElement.querySelector(".stock-text").textContent = "In Stock";
-                                stockStatus.classList.add("bg-green-100", "text-green-800");
-                            }
-                            if (offer.stock_status === 'Out of Stock') {
-                                offerElement.querySelector(".stock-text").textContent = "Out of Stock";
-                                stockStatus.classList.add("bg-red-100", "text-red-800");
-                            }
-
-                            offerElement.querySelector(".vendor_name").textContent = offer.vendor_name;
-                            offerElement.querySelector(".price").textContent = offer.price;
-                            offerElement.querySelector(".shipping-cost").textContent = offer.shipping_cost;
-
-                            let linkElement = offerElement.querySelector(".view-offer");
-
-                            if (offer.stock_status === "Out of Stock") {
-                                // Replace link with a disabled button
-                                let button = document.createElement("button");
-                                button.className = "inline-flex items-center px-4 py-2 border border-gray-200 text-sm font-medium rounded-md text-gray-400 bg-gray-50 cursor-not-allowed";
-                                button.innerHTML = 'Out of Stock <i data-lucide="alert-circle" class="ml-2 h-4 w-4"></i>';
-
-                                linkElement.parentNode.replaceChild(button, linkElement);
-                            } else {
-                                // Set the href only for in-stock items
-                                linkElement.href = offer.link;
-                                linkElement.classList.remove("cursor-not-allowed", "text-gray-400", "bg-gray-50");
-                            }
-
-                            offersContainer.appendChild(offerElement);
                         });
 
                         offersContainer.classList.remove("hidden");

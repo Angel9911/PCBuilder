@@ -6,6 +6,7 @@ use App\Constraints\CacheConstraints;
 use App\Constraints\ComponentConstraints;
 use App\Private_lib\redis\RedisWrapper;
 use App\Service\ComponentService;
+use App\Service\VendorScraperService;
 use App\utils\ValidatorUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,14 +18,19 @@ class ComponentController extends AbstractController
 
     private ComponentService $componentService;
 
+    private VendorScraperService $vendorScraperService;
+
     private RedisWrapper $redis;
 
     public function __construct(ComponentService $componentService
-                                , RedisWrapper $redis)
+                                , RedisWrapper $redis
+                                , VendorScraperService $vendorScraperService)
     {
         $this->componentService = $componentService;
 
         $this->redis = $redis;
+
+        $this->vendorScraperService = $vendorScraperService;
     }
 
     #[Route('/component/{component}', name: 'component.filter', methods: ['GET', 'POST'])]
@@ -56,8 +62,6 @@ class ComponentController extends AbstractController
             // Use Redis cache for non-filtered result
             $componentTypeFilterKey = CacheConstraints::$COMPONENT_TYPE_FILTER_KEY . '_' . $component;
 
-            //$this->redis->delete($componentTypeFilterKey);
-
             if (!$this->redis->isKeyExist($componentTypeFilterKey)) {
 
                 $result = $this->componentService->getAdvanceFilterComponentsByType($component, $limit, $offset);
@@ -76,6 +80,7 @@ class ComponentController extends AbstractController
             // Return JSON for AJAX (used in filtering and pagination)
             $componentsHtml = $this->renderView('pages/component_filters_page/component_templates/component_list.html.twig', [
                 'components' => $result['components'],
+                'componentType' => $component
             ]);
 
             $paginationHtml = $this->renderView('pages/component_filters_page/component_templates/component_pagination.html.twig', [
@@ -134,10 +139,14 @@ class ComponentController extends AbstractController
 
         $componentName = (string) $component;
 
-        $componentSpecifications = $this->componentService->getComponentDetailsByComponentName($component, $componentType);
+        $componentSpecifications = $this->componentService->getComponentDetailsByComponentName($componentName, $componentType);
 
-        //return $this->json($componentSpecifications);
+        $componentOffers = $this->vendorScraperService->getVendorOffersByComponent($componentSpecifications['component_id']);
 
-        return $this->render('pages/component_filters_page/component_specifications.html.twig');
+        return $this->render('pages/component_filters_page/component_specifications.html.twig',[
+            'componentSpecifications' => $componentSpecifications,
+            'componentOffers' => $componentOffers[$componentSpecifications['component_id']],
+            'offers_price_range' => $componentOffers['offers_price_range'],
+        ]);
     }
 }

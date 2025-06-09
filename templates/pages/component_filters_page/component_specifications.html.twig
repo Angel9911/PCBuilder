@@ -1,12 +1,17 @@
-{% extends 'base.html.twig' %}
+    {% extends 'base.html.twig' %}
 
-{% block title %}PC Configuration{% endblock %}
+    {% block title %}PC Configuration{% endblock %}
 
-{% block content %}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200">
-            <div class="block lg:hidden p-6 border-b border-slate-200"><h1
-                        class="text-2xl font-bold bg-gradient-to-r from-indigo-700 to-cyan-500 bg-clip-text text-transparent mb-4">
+    {% block content %}
+        <script src="https://unpkg.com/lucide@latest"></script>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200">
+            <div class="block lg:hidden p-6 border-b border-slate-200">
+                <div class="flex items-center gap-2 mb-2"><span
+                            class="px-2 py-1 text-xs font-medium bg-gradient-to-r from-indigo-100 to-cyan-100 text-indigo-700 rounded-full">Processor</span>
+                </div>
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-700 to-cyan-500 bg-clip-text text-transparent mb-4">
                     Intel Core i9-14900K</h1>
                 <div class="flex items-center gap-2 mb-4">
                     <div class="flex items-center">
@@ -21,20 +26,22 @@
             </div>
             <div class="flex flex-col lg:flex-row">
                 <div class="lg:w-1/2 p-6 lg:border-r border-slate-200">
-                    <div class="aspect-square rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100">
-                        <img
-                                src="https://images.pexels.com/photos/1432675/pexels-photo-1432675.jpeg"
-                                alt="Intel Core i9-14900K" class="w-full h-full object-cover"></div>
+                    <div class="aspect-square rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 shadow-inner">
+                        <img src="https://images.pexels.com/photos/1432675/pexels-photo-1432675.jpeg"
+                             alt="Intel Core i9-14900K"
+                             class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"></div>
                 </div>
                 <div class="lg:w-1/2 p-6">
-                    <div class="hidden lg:block mb-6"><h1
-                                class="text-3xl font-bold bg-gradient-to-r from-indigo-700 to-cyan-500 bg-clip-text text-transparent mb-4">
-                            Intel Core i9-14900K</h1>
+                    <div class="hidden lg:block mb-6">
+                        <div class="flex items-center gap-2 mb-2"><span
+                                    class="px-3 py-1 text-sm font-medium bg-gradient-to-r from-indigo-100 to-cyan-100 text-indigo-700 rounded-full">Processor</span>
+                        </div>
+                        <h1 class="text-3xl font-bold bg-gradient-to-r from-indigo-700 to-cyan-500 bg-clip-text text-transparent mb-4">
+                            {{ componentSpecifications.name }}</h1>
                         <div class="flex items-center gap-2">
                             <div class="flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                     fill="none"
-                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round"
                                      class="lucide lucide-star h-5 w-5 text-yellow-400 fill-current">
                                     <polygon
@@ -45,204 +52,119 @@
                     </div>
                     <div class="mb-8">
                         <div class="flex items-baseline gap-2"><span
-                                    class="text-3xl font-bold text-slate-900">$589.99</span><span
-                                    class="text-lg text-slate-500 line-through">$649.99</span></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 mb-8">
-                        <div class="p-4 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200">
-                            <div class="flex items-center gap-3 mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                     fill="none"
-                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round"
-                                     class="lucide lucide-trending-up h-5 w-5 text-indigo-600">
-                                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
-                                    <polyline points="16 7 22 7 22 13"></polyline>
-                                </svg>
-                                <span class="text-sm font-medium text-slate-700">24 Cores</span></div>
-                            <p class="text-lg font-semibold text-slate-900">8 P-cores + 16 E-cores</p></div>
-                        <div class="p-4 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200">
-                            <div class="flex items-center gap-3 mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                     fill="none"
-                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round"
-                                     class="lucide lucide-clock h-5 w-5 text-indigo-600">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg>
-                                <span class="text-sm font-medium text-slate-700">Max Frequency</span></div>
-                            <p class="text-lg font-semibold text-slate-900">5.8 GHz</p></div>
-                        <div class="p-4 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200">
-                            <div class="flex items-center gap-3 mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                     fill="none"
-                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round"
-                                     class="lucide lucide-thermometer h-5 w-5 text-indigo-600">
-                                    <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path>
-                                </svg>
-                                <span class="text-sm font-medium text-slate-700">TDP</span></div>
-                            <p class="text-lg font-semibold text-slate-900">125W</p></div>
-                        <div class="p-4 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200">
-                            <div class="flex items-center gap-3 mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                     fill="none"
-                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round"
-                                     class="lucide lucide-zap h-5 w-5 text-indigo-600">
-                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                                </svg>
-                                <span class="text-sm font-medium text-slate-700">Socket</span></div>
-                            <p class="text-lg font-semibold text-slate-900">LGA 1700</p></div>
-                    </div>
-                    <div class="space-y-4"><h3 class="text-lg font-semibold text-slate-900 mb-4">Available From</h3>
-                        <div class="vendor-offer bg-gradient-to-r from-slate-50 to-white border border-slate-200 rounded-lg p-4 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.01] hover:from-indigo-50/30 hover:to-cyan-50/30">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div class="flex items-center space-x-4">
-                                    <div class="flex-shrink-0 p-2 bg-gradient-to-br from-white to-slate-50 rounded-md border border-slate-200 hover:border-slate-300 transition-colors duration-150 shadow-sm">
-                                        <img class="h-8 w-8 object-contain" src="https://ardes.bg/images/new-logo.svg"
-                                             alt="Ardes logo"></div>
-                                    <div>
-                                        <h4 class="text-base font-medium bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                                            Ardes</h4>
-                                        <div class="flex items-center mt-1"><span
-                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800"><svg
-                                                        xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2"
-                                                        stroke-linecap="round" stroke-linejoin="round"
-                                                        class="lucide lucide-check-circle h-3 w-3 mr-1"><path
-                                                            d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><path
-                                                            d="m9 11 3 3L22 4"></path></svg>In Stock</span></div>
-                                    </div>
-                                </div>
-                                <div class="flex items-center space-x-5 sm:ml-auto">
-                                    <div class="text-right"><p
-                                                class="text-xl font-bold bg-gradient-to-r from-indigo-700 to-cyan-600 bg-clip-text text-transparent">
-                                            $589.99</p></div>
-                                    <a href="https://ardes.bg" target="_blank" rel="noopener noreferrer"
-                                       class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg text-white bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 shadow-md hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">View
-                                        Offer
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                             viewBox="0 0 24 24"
-                                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                             stroke-linejoin="round" class="lucide lucide-external-link ml-2 h-4 w-4">
-                                            <path d="M15 3h6v6"></path>
-                                            <path d="M10 14 21 3"></path>
-                                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                                        </svg>
-                                    </a></div>
-                            </div>
-                        </div>
-                        <div class="vendor-offer bg-gradient-to-r from-slate-50 to-white border border-slate-200 rounded-lg p-4 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.01] hover:from-indigo-50/30 hover:to-cyan-50/30">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div class="flex items-center space-x-4">
-                                    <div class="flex-shrink-0 p-2 bg-gradient-to-br from-white to-slate-50 rounded-md border border-slate-200 hover:border-slate-300 transition-colors duration-150 shadow-sm">
-                                        <img class="h-8 w-8 object-contain"
-                                             src="https://desktop.bg/assets/desktop/logo-f56e138baaea7d3943bdc2cfb68c4707fe3a75536737d9579502565df95f7b70.svg"
-                                             alt="Desktop.bg logo"></div>
-                                    <div>
-                                        <h4 class="text-base font-medium bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                                            Desktop.bg</h4>
-                                        <div class="flex items-center mt-1"><span
-                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800"><svg
-                                                        xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2"
-                                                        stroke-linecap="round" stroke-linejoin="round"
-                                                        class="lucide lucide-check-circle h-3 w-3 mr-1"><path
-                                                            d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><path
-                                                            d="m9 11 3 3L22 4"></path></svg>In Stock</span></div>
-                                    </div>
-                                </div>
-                                <div class="flex items-center space-x-5 sm:ml-auto">
-                                    <div class="text-right"><p
-                                                class="text-xl font-bold bg-gradient-to-r from-indigo-700 to-cyan-600 bg-clip-text text-transparent">
-                                            $599.99</p></div>
-                                    <a href="https://desktop.bg" target="_blank" rel="noopener noreferrer"
-                                       class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg text-white bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 shadow-md hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">View
-                                        Offer
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                             viewBox="0 0 24 24"
-                                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                             stroke-linejoin="round" class="lucide lucide-external-link ml-2 h-4 w-4">
-                                            <path d="M15 3h6v6"></path>
-                                            <path d="M10 14 21 3"></path>
-                                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                                        </svg>
-                                    </a></div>
-                            </div>
+                                    class="text-3xl font-bold text-slate-900">{{ offers_price_range.lowest_price}} - {{ offers_price_range.highest_price }}лв</span></div>
+                        <div class="mt-1"><span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800">Save $60.00</span>
                         </div>
                     </div>
+                    <div id="specifications-container" class="grid grid-cols-2 gap-4 mb-8">
+
+                        {% for label, value in componentSpecifications.specifications%}
+                            <div class="spec-box p-4 rounded-lg border border-slate-200 transition-all duration-300 cursor-pointer transform hover:scale-102 hover:shadow-md"
+                                 style="background: linear-gradient(135deg, rgb(248, 250, 252), rgb(241, 245, 249));"
+                                 data-spec-label="{{ label }}">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="p-2 rounded-lg bg-white shadow-sm transition-all duration-300">
+                                        <i data-lucide="circle" class="h-5 w-5 text-slate-600 transition-colors duration-300"></i>
+                                    </div>
+                                    <span class="text-sm font-medium text-slate-700 transition-colors duration-300">{{ label }}</span>
+                                </div>
+                                <p class="text-lg font-semibold text-slate-900 transition-colors duration-300">{{ value }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="space-y-4" id="vendor-offers-container">
+                        <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-external-link h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path d="M15 3h6v6"></path>
+                                <path d="M10 14 21 3"></path>
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            </svg>
+                            Available From
+                        </h3>
+
+                        {# JS will render offers here #}
+                        <div id="vendor-offers" class="space-y-3">
+                            {% include 'pages/pc_configurator_page/pc_config_templates/mobile_offers_section.html.twig' %}
+                        </div>
+                    </div>
+
                 </div>
             </div>
             <div class="border-t border-slate-200">
-                <div class="flex border-b border-slate-200">
-                    <button class="px-6 py-3 text-sm font-medium transition-colors relative text-indigo-600 border-b-2 border-indigo-600">
+                <div class="flex border-b border-slate-200 overflow-x-auto">
+                    <button class="px-6 py-3 text-sm font-medium transition-all duration-200 relative whitespace-nowrap text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50">
                         Specifications
                     </button>
-                    <button class="px-6 py-3 text-sm font-medium transition-colors relative text-slate-600 hover:text-slate-900">
+                    <button class="px-6 py-3 text-sm font-medium transition-all duration-200 relative whitespace-nowrap text-slate-600 hover:text-slate-900 hover:bg-slate-50">
                         Benchmarks
                     </button>
-                    <button class="px-6 py-3 text-sm font-medium transition-colors relative text-slate-600 hover:text-slate-900">
+                    <button class="px-6 py-3 text-sm font-medium transition-all duration-200 relative whitespace-nowrap text-slate-600 hover:text-slate-900 hover:bg-slate-50">
                         Reviews
                     </button>
                 </div>
                 <div class="p-6">
                     <div class="space-y-6">
-                        <div class="border border-slate-200 rounded-lg overflow-hidden">
-                            <button class="w-full px-6 py-4 flex items-center justify-between bg-gradient-to-r from-slate-50 to-slate-100 hover:from-slate-100 hover:to-slate-200 transition-colors">
+                        <div class="border border-slate-200 rounded-lg overflow-hidden transition-all duration-200 hover:shadow-md">
+                            <button class="w-full px-6 py-4 flex items-center justify-between bg-gradient-to-r from-slate-50 to-slate-100 hover:from-slate-100 hover:to-slate-200 transition-all duration-200">
                                 <span class="font-medium text-slate-900">Performance</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                     fill="none"
-                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round"
-                                     class="lucide lucide-chevron-up h-5 w-5 text-slate-400">
-                                    <path d="m18 15-6-6-6 6"></path>
-                                </svg>
+                                <div class="flex items-center gap-2"><span
+                                            class="text-xs text-slate-500 bg-slate-200 px-2 py-1 rounded-full">5 specs</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round"
+                                         class="lucide lucide-chevron-up h-5 w-5 text-slate-400 transition-transform duration-200">
+                                        <path d="m18 15-6-6-6 6"></path>
+                                    </svg>
+                                </div>
                             </button>
-                            <div class="px-6 py-4 space-y-3 animate-fadeIn">
-                                <div class="flex justify-between text-sm"><span
-                                            class="text-slate-600">Total Cores</span><span
-                                            class="text-slate-900 font-medium">24 (8P + 16E)</span></div>
-                                <div class="flex justify-between text-sm"><span class="text-slate-600">Performance-cores Base Frequency</span><span
-                                            class="text-slate-900 font-medium">3.2 GHz</span></div>
-                                <div class="flex justify-between text-sm"><span class="text-slate-600">Performance-cores Max Turbo Frequency</span><span
-                                            class="text-slate-900 font-medium">5.8 GHz</span></div>
-                                <div class="flex justify-between text-sm"><span class="text-slate-600">Cache</span><span
-                                            class="text-slate-900 font-medium">36MB Intel® Smart Cache</span></div>
-                                <div class="flex justify-between text-sm"><span
-                                            class="text-slate-600">Total L2 Cache</span><span
-                                            class="text-slate-900 font-medium">32 MB</span></div>
+                            <div class="px-6 py-4 space-y-3 animate-fadeIn bg-white">
+                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
+                                    <span class="text-slate-600 font-medium">Total Cores</span><span
+                                            class="text-slate-900 font-semibold">24 (8P + 16E)</span></div>
+                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
+                                    <span class="text-slate-600 font-medium">Performance-cores Base Frequency</span><span
+                                            class="text-slate-900 font-semibold">3.2 GHz</span></div>
+                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
+                                    <span class="text-slate-600 font-medium">Performance-cores Max Turbo Frequency</span><span
+                                            class="text-slate-900 font-semibold">5.8 GHz</span></div>
+                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
+                                    <span class="text-slate-600 font-medium">Cache</span><span
+                                            class="text-slate-900 font-semibold">36MB Intel® Smart Cache</span></div>
+                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
+                                    <span class="text-slate-600 font-medium">Total L2 Cache</span><span
+                                            class="text-slate-900 font-semibold">32 MB</span></div>
                             </div>
                         </div>
-                        <div class="border border-slate-200 rounded-lg overflow-hidden">
-                            <button class="w-full px-6 py-4 flex items-center justify-between bg-gradient-to-r from-slate-50 to-slate-100 hover:from-slate-100 hover:to-slate-200 transition-colors">
+                        <div class="border border-slate-200 rounded-lg overflow-hidden transition-all duration-200 hover:shadow-md">
+                            <button class="w-full px-6 py-4 flex items-center justify-between bg-gradient-to-r from-slate-50 to-slate-100 hover:from-slate-100 hover:to-slate-200 transition-all duration-200">
                                 <span class="font-medium text-slate-900">General</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                     fill="none"
-                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round"
-                                     class="lucide lucide-chevron-up h-5 w-5 text-slate-400">
-                                    <path d="m18 15-6-6-6 6"></path>
-                                </svg>
+                                <div class="flex items-center gap-2"><span
+                                            class="text-xs text-slate-500 bg-slate-200 px-2 py-1 rounded-full">5 specs</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round"
+                                         class="lucide lucide-chevron-up h-5 w-5 text-slate-400 transition-transform duration-200">
+                                        <path d="m18 15-6-6-6 6"></path>
+                                    </svg>
+                                </div>
                             </button>
-                            <div class="px-6 py-4 space-y-3 animate-fadeIn">
-                                <div class="flex justify-between text-sm"><span
-                                            class="text-slate-600">Processor Technology</span><span
-                                            class="text-slate-900 font-medium">Intel 7</span></div>
-                                <div class="flex justify-between text-sm"><span
-                                            class="text-slate-600">Socket</span><span
-                                            class="text-slate-900 font-medium">LGA 1700</span></div>
-                                <div class="flex justify-between text-sm"><span
-                                            class="text-slate-600">Lithography</span><span
-                                            class="text-slate-900 font-medium">10nm</span></div>
-                                <div class="flex justify-between text-sm"><span class="text-slate-600">TDP</span><span
-                                            class="text-slate-900 font-medium">125W</span></div>
-                                <div class="flex justify-between text-sm"><span
-                                            class="text-slate-600">Max Memory Size</span><span
-                                            class="text-slate-900 font-medium">192 GB</span></div>
+                            <div class="px-6 py-4 space-y-3 animate-fadeIn bg-white">
+                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
+                                    <span class="text-slate-600 font-medium">Socket</span><span
+                                            class="text-slate-900 font-semibold">LGA 1700</span></div>
+                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
+                                    <span class="text-slate-600 font-medium">Memory Type</span><span
+                                            class="text-slate-900 font-semibold">DDR5-5600, DDR4-3200</span></div>
+                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
+                                    <span class="text-slate-600 font-medium">TDP</span><span
+                                            class="text-slate-900 font-semibold">125W</span></div>
+                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
+                                    <span class="text-slate-600 font-medium">Max Memory Size</span><span
+                                            class="text-slate-900 font-semibold">192 GB</span></div>
+                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
+                                    <span class="text-slate-600 font-medium">Lithography</span><span
+                                            class="text-slate-900 font-semibold">10nm</span></div>
                             </div>
                         </div>
                     </div>
@@ -250,4 +172,8 @@
             </div>
         </div>
     </div>
-{% endblock %}
+        <script>
+            var componentOffers = {{ componentOffers|json_encode|raw }};
+</script>
+
+    {% endblock %}

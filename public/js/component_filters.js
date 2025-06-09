@@ -3,14 +3,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const componentType = document.getElementById('component-data').dataset.type;
     const clearAllBtn = document.getElementById('clearFilters');
 
+    const detailLinks = document.querySelectorAll('a[href^="/component/"]');
+
+    detailLinks.forEach(link => {
+        handleViewDetailsButton(link);
+    });
+
     checkboxes.forEach(cb => cb.addEventListener('change', () => handleFilterChange(1)));
 
     clearAllBtn.addEventListener('click', () => {
         clearAllFilters();
         handleFilterChange(1); // Reset to first page
     });
-
-    //clearAllBtn.addEventListener('click', clearAllFilters);
 
     function handleFilterChange(page = 1) {
         const urlParams = new URLSearchParams();
@@ -42,6 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 });
+window.addEventListener('pageshow', (event) => {
+
+    hideSpinner();
+});
+
+
 function clearAllFilters() {
     document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
     // Optional: trigger a re-fetch here
@@ -52,6 +62,12 @@ function toggleFilter(button) {
 
     const icon = button.querySelector('svg');
     if (icon) icon.classList.toggle('rotate-180');
+}
+function handleViewDetailsButton(button){
+
+    button.addEventListener('click', (e) => {
+        showSpinner();
+    });
 }
 
 window.toggleFilter = toggleFilter;
