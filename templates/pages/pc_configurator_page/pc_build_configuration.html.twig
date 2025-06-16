@@ -19,24 +19,24 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
         <!-- Bottleneck template -->
         {% include 'pages/pc_configurator_page/pc_config_templates/bottleneck_configuration-template.html.twig' %}
 
         <div class="md:flex md:items-center md:justify-between">
             <div class="flex-1 min-w-0">
-                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">PC Configuration</h2>
-                <p class="mt-1 text-sm text-gray-500">Based on your answers, we've pre-selected some components for
-                    you.</p>
+                <h1 class="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-indigo-700 to-cyan-500 bg-clip-text text-transparent">PC Builder Configuration</h1>
             </div>
 
-            <div class="mt-4 flex md:mt-0 md:ml-4">
+            {#<div class="mt-4 flex md:mt-0 md:ml-4">
                 <button id='start-config'
                         class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     Решете отново въпросника
                 </button>
-            </div>
+            </div>#}
         </div>
+
+        <!-- Bottleneck template -->
+        {% include 'pages/pc_configurator_page/pc_config_templates/performance_analysis-template.html.twig' %}
 
         <br>
 
@@ -131,7 +131,7 @@
 
                         </li>
 
-                        {#<li class="group hover:bg-gray-50 transition-colors duration-150">
+                      {#  <li class="group hover:bg-gray-50 transition-colors duration-150">
 
                             {% include 'pages/pc_configurator_page/pc_config_templates/component-combobox-template.html.twig' with {
                                 id: 'monitor',
@@ -231,6 +231,8 @@
 
         var pcConfiguration = {{ pcConfiguration|json_encode|raw }};
         var isAiConfiguration = {{ isAiConfiguration|json_encode|raw }};
+        var psCases = {{ pc_cases|json_encode|raw }}
+        var monitors = {{ monitors|json_encode|raw }}
 
         const allOptions = {
             cpu: {
@@ -273,6 +275,7 @@
                 "{{ monitor.id }}": "{{ monitor.name }}"{% if not loop.last %},{% endif %}
                 {% endfor %}
             }
+
         };
 
     </script>

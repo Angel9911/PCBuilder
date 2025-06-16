@@ -1,71 +1,110 @@
 function updateBottleneckDisplay({ status, percentage }) {
-    const container = document.getElementById("bottleneck-analysis");
+    const section = document.getElementById("section-bottleneck");
     const box = document.getElementById("bottleneck-box");
-    const bg = document.getElementById("bottleneck-bg");
-    const heading = document.getElementById("bottleneck-heading");
-    const label = document.getElementById("bottleneck-status-label");
-    const statusText = document.getElementById("bottleneck-status");
+    const label = document.getElementById("bottleneck-label");
+    const percentWrapper = document.getElementById("bottleneck-percent-wrapper");
+    const percentInline = document.getElementById("bottleneck-percent-inline");
+    const bottleneckLevel = document.getElementById("bottleneck-level");
     const bar = document.getElementById("bottleneck-bar");
-    const percent = document.getElementById("bottleneck-percent");
+    const iconContainer = document.getElementById("bottleneck-icon");
     const message = document.getElementById("bottleneck-message");
+
+    const cpuLabel = document.getElementById("bottleneck-cpu");
+    const gpuLabel = document.getElementById("bottleneck-gpu");
 
     const styles = {
         well_matched: {
-            border: "border-emerald-200",
-            bg: "bg-emerald-100 bg-gradient-to-r from-emerald-200 to-emerald-100",
-            text: "text-emerald-700",
-            bar: "bg-emerald-500",
-            label: "Well Matched",
-            message: "These components work well together. You'll get optimal performance from this combination."
+            border: "border-emerald-300/50",
+            bg: "bg-gradient-to-br from-emerald-500/20 via-green-500/10 to-emerald-500/20",
+            text: "text-emerald-800",
+            bar: "bg-gradient-to-r from-emerald-400 to-green-500",
+            label: "Excellent Match",
+            message: "Perfect match! These components work excellently together with minimal bottlenecking.",
+            bgBadge: "bg-emerald-100/80",
+            textBadge: "text-emerald-800",
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-check-circle h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>`
         },
         minor_bottleneck: {
             border: "border-amber-200",
-            bg: "bg-amber-100 bg-gradient-to-r from-amber-200 to-amber-100",
+            bg: "bg-gradient-to-br from-amber-100 to-yellow-100",
             text: "text-amber-700",
-            bar: "bg-amber-500",
+            bar: "bg-gradient-to-r from-amber-400 to-yellow-500",
             label: "Minor Bottleneck",
-            message: "There's a slight performance limitation. You may want to consider upgrading either the CPU or GPU for better balance."
+            bgBadge: "bg-amber-100/80",
+            textBadge: "text-amber-800",
+            message: "There's a slight performance limitation. You may want to consider upgrading either the CPU or GPU for better balance.",
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-alert-circle h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`
         },
         significant_bottleneck: {
-            border: "border-red-200",
-            bg: "bg-red-100 bg-gradient-to-r from-red-200 to-red-100",
+            border: "border-red-300/50",
+            bg: "bg-gradient-to-br from-red-100 to-red-200",
             text: "text-red-700",
-            bar: "bg-red-500",
+            bar: "bg-gradient-to-r from-red-400 to-red-600",
             label: "Significant Bottleneck",
-            message: "There's a significant bottleneck. One component will limit the performance of the other considerably. Consider a more balanced combination."
+            bgBadge: "bg-red-100/80",
+            textBadge: "text-red-800",
+            message: "There's a significant bottleneck. One component will limit the performance of the other considerably. Consider a more balanced combination.",
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-alert-octagon h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`
         }
     };
 
     const s = styles[status];
     if (!s) {
-        console.warn("Invalid status received:", status);
+        console.warn("Invalid bottleneck status:", status);
+        section.classList.add("hidden");
         return;
     }
 
-    // Reset all dynamic classes first
-    box.className = `bg-white shadow overflow-hidden sm:rounded-lg border-l-4 transition-colors duration-500 ${s.border}`;
-    bg.className = `p-6 transition-colors duration-500 ${s.bg}`;
-    heading.className = `text-lg font-semibold transition-colors duration-500 ${s.text}`;
-    label.className = `text-sm font-medium transition-colors duration-500 ${s.text}`;
-    statusText.className = `text-sm font-bold transition-colors duration-500 ${s.text}`;
-    bar.className = `h-full transition-all duration-1000 ease-out ${s.bar}`;
-    percent.className = `text-xs font-semibold transition-colors duration-500 ${s.text}`;
+    // Apply dynamic classes
+    box.className = `relative rounded-xl border p-4 sm:p-6 shadow-lg backdrop-blur-sm transition-all duration-500 ${s.border} ${s.bg}`;
+    label.className = `text-sm sm:text-lg font-bold ${s.text}`;
+    label.textContent = s.label;
 
-    // Set values
-    statusText.textContent = s.label;
-    percent.textContent = `${percentage}% bottleneck`;
-    message.textContent = s.message;
+    bottleneckLevel.className = `text-sm sm:text-lg font-bold ${s.text}`;
+
+    if (percentInline && percentWrapper) {
+        percentInline.textContent = `${percentage}%`;
+
+        // Reset old classes
+        percentWrapper.className = "px-2 sm:px-4 py-1 sm:py-2 rounded-full backdrop-blur-sm";
+        percentInline.className = "text-sm sm:text-lg font-bold";
+
+        // Apply new colors
+        percentWrapper.classList.add(s.bgBadge);
+        percentInline.classList.add(s.textBadge);
+    }
+
+    bar.className = `h-full bg-gradient-to-r from-emerald-400 to-green-500 transition-all duration-1000 ${s.bar}`;
+
     bar.style.width = `${percentage}%`;
 
-    container.classList.remove("hidden");
+    iconContainer.innerHTML = s.icon;
+    iconContainer.className = `p-1.5 sm:p-2.5 rounded-xl bg-white/20 backdrop-blur-sm ring-1 sm:ring-2 ${s.text}`;
+
+    message.textContent = s.message;
+
+    // Inject selected CPU and GPU names
+    const cpuId = document.querySelector('.custom-select[data-component-id="cpu"]')?.dataset.selectedValue;
+    const gpuId = document.querySelector('.custom-select[data-component-id="gpu"]')?.dataset.selectedValue;
+    const cpuName = allOptions["cpu"][cpuId];
+    const gpuName = allOptions["gpu"][gpuId];
+
+    cpuLabel.textContent = cpuName || "Unknown CPU";
+    gpuLabel.textContent = gpuName || "Unknown GPU";
+
+    section.classList.remove("hidden"); // Make sure it's visible FIRST
 }
 
 function triggerBottleneckAICheck() {
     const cpuSelect = document.querySelector('.custom-select[data-component-id="cpu"]');
     const gpuSelect = document.querySelector('.custom-select[data-component-id="gpu"]');
+    const ramSelect = document.querySelector('.custom-select[data-component-id="ram"]');
+
 
     const cpuId = cpuSelect?.dataset.selectedValue;
     const gpuId = gpuSelect?.dataset.selectedValue;
+    const ramId = ramSelect?.dataset.selectedValue;
+
 
     // Only trigger if both are selected
     if (!cpuId || !gpuId) {
@@ -90,11 +129,6 @@ function triggerBottleneckAICheck() {
     })
         .then(res => res.json())
         .then(data => {
-            /*const translatedStatus = {
-                "well-matched": "well_matched",
-                "minor-bottleneck": "minor-bottleneck",
-                "significant-bottleneck": "significant-bottleneck"
-            }[data.bottleneck_status];*/
             const normalizeStatus = (status) => {
                 return String(status)
                     .toLowerCase()
@@ -113,6 +147,9 @@ function triggerBottleneckAICheck() {
                 status: normalizedStatus,
                 percentage: data.bottleneck_percentage
             });
+
+            updateSectionView(cpuId, gpuId, ramId);
+
         })
         .catch(err => {
             console.error("❌ Bottleneck API error:", err);
@@ -120,5 +157,19 @@ function triggerBottleneckAICheck() {
         });
 }
 
+function triggerFpsCalculation(){
+    const cpuSelect = document.querySelector('.custom-select[data-component-id="cpu"]');
+    const gpuSelect = document.querySelector('.custom-select[data-component-id="gpu"]');
+    const ramSelect = document.querySelector('.custom-select[data-component-id="ram"]');
+
+    const cpuId = cpuSelect?.dataset.selectedValue;
+    const gpuId = gpuSelect?.dataset.selectedValue;
+    const ramId = ramSelect?.dataset.selectedValue;
+
+
+    updateSectionView(cpuId, gpuId, ramId);
+}
+
 window.updateBottleneckDisplay = updateBottleneckDisplay;
+window.triggerFpsCalculation = triggerFpsCalculation;
 window.triggerBottleneckAICheck = triggerBottleneckAICheck;

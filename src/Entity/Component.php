@@ -28,6 +28,9 @@ class Component
     #[Groups(["component_read"])]
     private ComponentType $type;
 
+    #[ORM\OneToMany(targetEntity: ComponentImage::class, mappedBy: 'component', fetch: "EAGER")]
+    private $images;
+
     #[ORM\Column(type: "integer", options: ["default" => 0])]
     #[Groups(["component_read"])]
     private int $powerWattage = 0;
@@ -96,6 +99,22 @@ class Component
     public function setPowerWattage(int $powerWattage): void
     {
         $this->powerWattage = $powerWattage;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getImages()
+    {
+        return $this->images;
+    }
+
+    /**
+     * @param mixed $images
+     */
+    public function setImages($images): void
+    {
+        $this->images = $images;
     }
 
     public function toArray(): array

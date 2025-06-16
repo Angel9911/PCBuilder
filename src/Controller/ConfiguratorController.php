@@ -64,6 +64,7 @@ class ConfiguratorController extends AbstractController
 
         $componentsData = $this->populateComponentsFields();
 
+        //return$this->json($componentsData['pc_cases']);
 
         return $this->render('pages/pc_configurator_page/pc_build_configuration.html.twig', [
             'pcConfiguration' => $pcConfiguration,

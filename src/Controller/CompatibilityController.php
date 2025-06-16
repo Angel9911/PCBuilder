@@ -82,18 +82,4 @@ class CompatibilityController extends AbstractController
         return $this->json($compatiblePcComponents);
     }
 
-    protected function populateComponentsFields(): array
-    {
-
-        return [
-            'cpus' => $this->componentService->getComponentsByType('cpu'),
-            'motherboards' => $this->componentService->getComponentsByType('motherboard'),
-            'psus' => $this->componentService->getComponentsByType('psu'),
-            'gpus' => $this->componentService->getComponentsByType('gpu'),
-            'rams' => $this->componentService->getComponentsByType('ram'),
-            'storages' => $this->componentService->getComponentsByType('storage'),
-            'pc_cases' => $this->componentService->getComponentsByType('pc_case')
-        ];
-    }
-
 }

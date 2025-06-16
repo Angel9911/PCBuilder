@@ -125,8 +125,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     resetAiQuestionnaire();
     // Handles image toggle per component (monitor, pc_case)
-    setupImageToggle('monitor');
-    setupImageToggle('pc_case');
+
+    setupImageToggle('monitor', monitors);
+    setupImageToggle('pc_case', psCases);
 
     function attachComponentOffersEvent(componentSelectors) {
         componentSelectors.forEach(selectBox => {
@@ -298,6 +299,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 // add the component for summary count
             }
         });
+        const cpuSelect = document.querySelector('.custom-select[data-component-id="cpu"]');
+        const gpuSelect = document.querySelector('.custom-select[data-component-id="gpu"]');
+        const ramSelect = document.querySelector('.custom-select[data-component-id="ram"]');
+
+        const cpuId = cpuSelect?.dataset.selectedValue;
+        const gpuId = gpuSelect?.dataset.selectedValue;
+        const ramId = ramSelect?.dataset.selectedValue;
+
+        updateBottleneckSummaryState(cpuId, gpuId, ramId);
+        // Trigger bottleneck analysis after component selection
+        triggerBottleneckAICheck();
+
+        // Trigger bottleneck analysis after component selection
+        triggerFpsCalculation();
 
         showSpinner(); // show spinner
         // Make AJAX request to fetch compatible components
@@ -364,7 +379,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 item.dataset.value = id;
                 item.textContent = name;
 
+                // TODO: Why this part of code is executed 122 times?
+
                 if (isCompatible) {
+
                     item.addEventListener("click", () => {
                         selectedDiv.textContent = name;
 
@@ -381,8 +399,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         selectBox.dispatchEvent(new CustomEvent("change", {
                             detail: {value: id, name}
                         }));
-                        // Trigger bottleneck analysis after component selection
-                        triggerBottleneckAICheck();
+
                     });
                 }
 

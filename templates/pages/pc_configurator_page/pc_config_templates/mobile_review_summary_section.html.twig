@@ -90,6 +90,60 @@ if (!summary.classList.contains('hidden')) {
             </div>
         </div>
 
+        <!-- Compatibility Analysis (Mobile Friendly) -->
+        <div class="space-y-2">
+            <h4 class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                    <polyline points="16 7 22 7 22 13"></polyline>
+                </svg>
+                Compatibility Analysis
+            </h4>
+
+            <div class="bg-white border border-gray-200 rounded-xl px-3 py-3 space-y-2">
+                <div class="flex items-start gap-2">
+                    <div class="p-1.5 bg-gray-50 rounded-lg shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                            <polyline points="16 7 22 7 22 13"></polyline>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-800 mb-0.5">Component Compatibility</p>
+                        <p class="text-xs text-gray-500">Select CPU and GPU to analyze performance match.</p>
+                        <div id="selection-status" class="flex gap-2 mt-2 flex-wrap">
+                            <!-- CPU Status Pill -->
+                            <div id="cpu-selected-pill" class="flex items-center gap-1.5 px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="4" y="4" width="16" height="16" rx="2" />
+                                    <rect x="9" y="9" width="6" height="6" />
+                                    <path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2" />
+                                </svg>
+                                <span id="cpu-selected-text">CPU</span>
+                            </div>
+
+                            <!-- GPU Status Pill -->
+                            <div id="gpu-selected-pill" class="flex items-center gap-1.5 px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 8V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h8" />
+                                    <path d="M10 19v-3.96 3.15" />
+                                    <path d="M7 19h5" />
+                                    <rect width="6" height="10" x="16" y="12" rx="2" />
+                                </svg>
+                                <span id="gpu-selected-text">GPU</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottleneck Result -->
+                <div id="bottleneck-result" class="flex items-center gap-2 text-sm text-gray-600 hidden">
+                    <svg id="bottleneck-icon" class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"></svg>
+                    <span id="bottleneck-text" class="font-medium"></span>
+                </div>
+            </div>
+        </div>
+
         <!-- Review Build Button -->
         <div class="pt-2">
             <button id="review-build-button"

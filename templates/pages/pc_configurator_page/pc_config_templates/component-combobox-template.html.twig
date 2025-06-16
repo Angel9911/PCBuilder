@@ -55,20 +55,6 @@
 
     </div>
 
-    {#{% if app.request.headers.get('User-Agent') matches '/Mobile|Android|iPhone/' %}
-
-        <!-- Offers Section -->
-        <!-- Hidden completed_config_templates for vendor offers -->
-        <div class="mt-4 space-y-3 vendor-offers hidden" data-offers-for="{{ id }}"></div>
-
-        {% include 'pages/pc_configurator_page/pc_config_templates/mobile_offers_section.html.twig' %}
-
-    {% else %}
-
-        <!-- Offers Section -->
-        <!-- Hidden completed_config_templates for vendor offers -->
-        <div class="mt-4 space-y-3 vendor-offers hidden" data-offers-for="{{ id }}"></div>
-    {% endif %}#}
     <!-- Offers Section -->
     <!-- Hidden completed_config_templates for vendor offers -->
     <div class="mt-4 space-y-3 vendor-offers hidden" data-offers-for="{{ id }}"></div>

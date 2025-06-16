@@ -80,12 +80,19 @@ class ComponentRepository extends ServiceEntityRepository
      */
     public function findComponentsByType(string $type): array
     {
-        return $this->createQueryBuilder('c')
+
+        $query = $this->createQueryBuilder('c')
             ->innerJoin('c.type', 'ct') // Assuming Component has a relation to ComponentType
             ->andWhere('ct.name = :type')
-            ->setParameter('type', $type)
-            ->getQuery()
-            ->getArrayResult();
+            ->setParameter('type', $type);
+
+        if(in_array($type,['pc_case', 'monitor'])) {
+
+            $query->leftJoin('c.images', 'img')
+                ->addSelect('img');
+        }
+
+        return $query->getQuery()->getArrayResult();
     }
 
     /**
