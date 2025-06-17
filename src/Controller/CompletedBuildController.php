@@ -44,6 +44,7 @@ class CompletedBuildController extends AbstractController
 
         $configurationsPageKey = CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY . "_page_" . $page;
 
+        
         // Check if data exists in Redis cache
         if ($this->redis->isKeyExist($configurationsPageKey)) {
 
@@ -105,10 +106,26 @@ class CompletedBuildController extends AbstractController
             $pcConfigurationCreatedAt = $pcConfiguration->getCreatedAt();
         }
 
+        if($pcConfiguration->getLowestPrice() !== null && $pcConfiguration->getLowestPrice() > 0
+            && $pcConfiguration->getHighestPrice()!== null && $pcConfiguration->getHighestPrice() > 0){
+
+            $pcConfigurationLowestPrice = $pcConfiguration->getLowestPrice();
+
+            $pcConfigurationHighestPrice = $pcConfiguration->getHighestPrice();
+        }
+
+        if($pcConfiguration->getTotalWattage() !== null && $pcConfiguration->getTotalWattage() > 0){
+
+            $pcConfigurationTotalWattage = $pcConfiguration->getTotalWattage();
+        }
+
         return $this->render('pages/completed_configuration_page/completed_configuration_info.html.twig', [
             'configuration_id' => $pcConfiguration->getId(),
             'configuration_name' => $pcConfigurationName ?? '',
             'configuration_date' => isset($pcConfigurationCreatedAt) ? $pcConfigurationCreatedAt->format('Y-m-d') : '',
+            'configuration_lowest_price' => $pcConfigurationLowestPrice ?? 0,
+            'configuration_highest_price' => $pcConfigurationHighestPrice ?? 0,
+            'configuration_total_wattage' => $pcConfigurationTotalWattage ?? 0,
             'cpu' => $result['cpu']['name'],
             'motherboard' => $result['motherboard']['name'],
             'psu' => $result['psu']['name'],

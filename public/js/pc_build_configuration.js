@@ -2,6 +2,9 @@ const selectedSummaryComponents = new Set(); // e.g., 'cpu', 'gpu', etc. // TODO
 const selectedComponentsPowerWattage = new Map(); // e.g., '120', '150', etc.
 const componentPriceRanges = new Map(); // key = componentType, value = { lowest, highest }
 const selectedComponentsSummary = {};
+let totalLowestPrice = 0.0;
+let totalHighestPrice = 0.0;
+let totalConfigPowerWattage = 0.0;
 
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -175,8 +178,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     const {totalPowerWattage} = calculatePowerWattage({selectedComponentsPowerWattage});
 
-                    console.log(totalPowerWattage);
-
                     updateBuildSummaryState({
                         selectedCount: selectedSummaryComponents.size,
                         lowestPrice: totalLowest,
@@ -242,10 +243,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
                             selectedComponentsPowerWattage.set(componentId, {
                                 powerWattage: powerWattage
-                            })
+                            });
 
 
-                            const {totalLowest, totalHighest} = calculateTotalRangePrices({componentPriceRanges});
+                            const { totalLowest, totalHighest } = calculateTotalRangePrices({ componentPriceRanges });
 
                             const {totalPowerWattage} = calculatePowerWattage({selectedComponentsPowerWattage});
 
@@ -256,6 +257,11 @@ document.addEventListener("DOMContentLoaded", function () {
                                 highestPrice: totalHighest,
                                 powerWattage: totalPowerWattage
                             });
+
+                            totalLowestPrice = totalLowest;
+                            totalHighestPrice = totalHighest;
+                            totalConfigPowerWattage = totalPowerWattage;
+
                         });
 
                         offersContainer.classList.remove("hidden");

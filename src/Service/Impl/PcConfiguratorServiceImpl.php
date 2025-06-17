@@ -41,36 +41,16 @@ class PcConfiguratorServiceImpl implements PCConfiguratorService
 
         $userPcConfiguration->setCreatedAt($currentDate);
 
-        $cpuComponent = $this->componentRepository->findComponentById((int)$componentsValues['cpu']);
-        $gpuComponent = $this->componentRepository->findComponentById((int)$componentsValues['gpu']);
+        $userPcConfiguration->setTotalWattage($componentsValues['power_wattage']);
 
-        $cpuWattage = (int)$cpuComponent->getPowerWattage();
-        $gpuWattage = (int)$gpuComponent->getPowerWattage();
+        $userPcConfiguration->setLowestPrice((int)$componentsValues['lowest_price']);
 
-        $totalWattage = $cpuWattage + $gpuWattage;
-
-        $userPcConfiguration->setTotalWattage($totalWattage);
+        $userPcConfiguration->setHighestPrice((int)$componentsValues['highest_price']);
 
         $this->entityManager->persist($userPcConfiguration);
         $this->entityManager->flush();
 
-        $componentTypes = ['ram', 'motherboard', 'storage', 'psu'];
-
-        // insert the component which already get
-        $configComponent = new PCConfigComponent();
-        //insertion for cpu
-        $configComponent->setConfiguration($userPcConfiguration);
-        $configComponent->setComponent($cpuComponent);
-
-        $this->entityManager->persist($configComponent);
-
-        //insertion for gpu
-        $configComponent = new PCConfigComponent();
-
-        $configComponent->setConfiguration($userPcConfiguration);
-        $configComponent->setComponent($gpuComponent);
-
-        $this->entityManager->persist($configComponent);
+        $componentTypes = ['cpu', 'gpu', 'ram', 'motherboard', 'storage', 'psu'];
 
         // store left components
         foreach ($componentTypes as $componentType) {

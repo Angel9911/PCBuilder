@@ -285,6 +285,19 @@ class ConfiguratorController extends AbstractController
             ], 400);
         }
 
+        if(isset($componentsParams['configuration_lowest_price']) && isset($componentsParams['configuration_highest_price'])){
+
+            // TODO: Validate the prices
+            $isConfigurationLowestPrice =$componentsParams['configuration_lowest_price'];
+            $isConfigurationHighestPrice = $componentsParams['configuration_highest_price'];
+        }
+
+        if(isset($componentsParams['configuration_power_wattage'])){
+
+            // TODO: Validate power wattage
+            $isConfigurationPowerWattage =$componentsParams['configuration_power_wattage'];
+        }
+
         $isComponentValsValid = ValidatorUtils::validateAsFieldType(
             $validComponents
             , ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS
@@ -298,6 +311,7 @@ class ConfiguratorController extends AbstractController
                 'fields' => implode(', ', $isComponentValsValid),
             ], 400);
         }
+
 
         $limit = 8;
         $offset = 0;
@@ -317,9 +331,15 @@ class ConfiguratorController extends AbstractController
             $cachedConfigurations = $this->configuratorService->getPcConfigurations($limit, $offset);
         }
 
+        $configurationData = [
+            'name' => $componentsParams['name'],
+            'lowest_price' => $componentsParams['configuration_lowest_price'],
+            'highest_price' => $componentsParams['configuration_highest_price'],
+            'power_wattage' => $componentsParams['configuration_power_wattage'],
+        ];
         // merge name of configuration which components after make validation
         $validComponents = array_merge(
-            ['name' => $componentsParams['name']],
+            $configurationData,
             $validComponents
         );
 
@@ -331,6 +351,8 @@ class ConfiguratorController extends AbstractController
             'id' => $newConfiguration->getId(),
             'name' => $newConfiguration->getName(),
             'totalWattage' => $newConfiguration->getTotalWattage(),
+            'lowest_price' => $newConfiguration->getLowestPrice(),
+            'highest_price' => $newConfiguration->getHighestPrice()
         ];
 
         // Добави и компонентите

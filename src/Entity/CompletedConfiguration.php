@@ -22,6 +22,12 @@ class CompletedConfiguration
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
     private int $totalWattage = 0;
 
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private int $lowestPrice;
+
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private int $highestPrice;
+
     #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private \DateTimeInterface $createdAt;
 
@@ -68,6 +74,27 @@ class CompletedConfiguration
     {
         $this->totalWattage = $totalWattage;
         return $this;
+    }
+
+    public function getLowestPrice(): int
+    {
+        return $this->lowestPrice;
+    }
+
+    public function setLowestPrice(int $lowestPrice): self
+    {
+        $this->lowestPrice = $lowestPrice;
+        return $this;
+    }
+
+    public function getHighestPrice(): int
+    {
+        return $this->highestPrice;
+    }
+
+    public function setHighestPrice(int $highestPrice): void
+    {
+        $this->highestPrice = $highestPrice;
     }
 
     public function getCreatedAt(): \DateTimeInterface

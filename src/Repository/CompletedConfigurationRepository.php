@@ -80,7 +80,7 @@ class CompletedConfigurationRepository extends ServiceEntityRepository
     private function findPcConfigurations(int $limit = 8, int $offset = 0): array
     {
         $resultArray = $this->createQueryBuilder('config')
-            ->select('config.id', 'config.name', 'config.totalWattage', 'config.createdAt')
+            ->select('config.id', 'config.name', 'config.totalWattage', 'config.createdAt', 'config.lowestPrice', 'config.highestPrice')
             ->orderBy('config.createdAt', 'DESC')
             ->setMaxResults($limit)
             ->setFirstResult($offset)

@@ -39,6 +39,7 @@ function saveConfiguration(requestData) {
 }
 
 function savePcConfiguration() {
+
     const requiredComponents = ['cpu', 'gpu', 'motherboard', 'ram', 'psu', 'storage'];
 
 
@@ -81,6 +82,9 @@ function savePcConfiguration() {
         const requestData = fetchComponentData();
 
         requestData.name = configName;
+        requestData.configuration_power_wattage = totalConfigPowerWattage;
+        requestData.configuration_lowest_price = totalLowestPrice;
+        requestData.configuration_highest_price = totalHighestPrice;
         // Proceed to save the configuration
         saveConfiguration(requestData);
 
