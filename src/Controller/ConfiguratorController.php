@@ -312,7 +312,6 @@ class ConfiguratorController extends AbstractController
             ], 400);
         }
 
-
         $limit = 8;
         $offset = 0;
 
@@ -370,8 +369,7 @@ class ConfiguratorController extends AbstractController
     {
         $page = 1;
 
-        $exceedConfiguration = [$configuration];
-
+        $exceedConfiguration = array_values($configuration);
 
         while (!empty($exceedConfiguration)) {
 

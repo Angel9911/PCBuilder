@@ -44,7 +44,6 @@ class CompletedBuildController extends AbstractController
 
         $configurationsPageKey = CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY . "_page_" . $page;
 
-        
         // Check if data exists in Redis cache
         if ($this->redis->isKeyExist($configurationsPageKey)) {
 
@@ -162,7 +161,6 @@ class CompletedBuildController extends AbstractController
 
             $this->redis->set($cacheKey, $result, 3600); // Cache for 1 hour
         }
-
 
 
         $session->set('pc_configuration', $result);
