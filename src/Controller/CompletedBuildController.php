@@ -44,6 +44,8 @@ class CompletedBuildController extends AbstractController
 
         $configurationsPageKey = CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY . "_page_" . $page;
 
+        $this->redis->delete($configurationsPageKey);
+
         // Check if data exists in Redis cache
         if ($this->redis->isKeyExist($configurationsPageKey)) {
 
@@ -56,6 +58,10 @@ class CompletedBuildController extends AbstractController
 
             $this->redis->set($configurationsPageKey, $result, 3600); // Cache for 1 hour
         }
+
+/*        echo '<pre>';
+        print_r($result);
+        echo '</pre>';*/
 
         $totalCount = $this->configuratorService->getTotalsCountConfigurations(); // create this method
 
@@ -125,12 +131,12 @@ class CompletedBuildController extends AbstractController
             'configuration_lowest_price' => $pcConfigurationLowestPrice ?? 0,
             'configuration_highest_price' => $pcConfigurationHighestPrice ?? 0,
             'configuration_total_wattage' => $pcConfigurationTotalWattage ?? 0,
-            'cpu' => $result['cpu']['name'],
-            'motherboard' => $result['motherboard']['name'],
-            'psu' => $result['psu']['name'],
-            'gpu' => $result['gpu']['name'],
-            'ram' => $result['ram']['name'],
-            'storage' => $result['storage']['name'],
+            'cpu' => $result['cpu']['component_name'],
+            'motherboard' => $result['motherboard']['component_name'],
+            'psu' => $result['psu']['component_name'],
+            'gpu' => $result['gpu']['component_name'],
+            'ram' => $result['ram']['component_name'],
+            'storage' => $result['storage']['component_name'],
         ]);
     }
 

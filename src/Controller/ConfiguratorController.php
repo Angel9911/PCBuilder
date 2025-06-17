@@ -346,21 +346,34 @@ class ConfiguratorController extends AbstractController
 
         $newConfigurationComponents = $this->configuratorService->getPcConfigurationById($newConfiguration->getId());
 
-        $cachedConfigurations[$newConfiguration->getId()] = [
+        $newConfigArray[$newConfiguration->getId()] = [
             'id' => $newConfiguration->getId(),
             'name' => $newConfiguration->getName(),
             'totalWattage' => $newConfiguration->getTotalWattage(),
+            'createdAt' => $newConfiguration->getCreatedAt(),
             'lowest_price' => $newConfiguration->getLowestPrice(),
-            'highest_price' => $newConfiguration->getHighestPrice()
+            'highest_price' => $newConfiguration->getHighestPrice(),
+            'components' => [], // placeholder
         ];
 
         // Добави и компонентите
         foreach ($newConfigurationComponents as $type => $data) {
-            $cachedConfigurations[$newConfiguration->getId()][$type] = $data;
+
+            $newConfigArray[$newConfiguration->getId()]['components'][$type][] = $data;
         }
+
+        // Step 3: Prepend new config to the beginning of the cache list
+        $cachedConfigurations = array_merge(
+            $newConfigArray,
+            $cachedConfigurations
+        );
+
+/*        echo '<pre>';
+        print_r($cachedConfigurations);
+        echo '</pre>';*/
+
         // Save the updated array back to Redis
         $this->addNewConfigurationPageCache($cachedConfigurations);
-        //$this->redis->set($cacheKey, $cachedConfigurations, 3600); // Cache for 1 hour
 
         return $this->json('Configuration saved successfully');
     }

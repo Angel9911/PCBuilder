@@ -69,7 +69,8 @@ class CompletedConfigurationRepository extends ServiceEntityRepository
             if(!isset($result[$item['component_type']])){
 
                 $result[$item['component_type']] = [
-                    'name' => $item['component_name']
+                    'component_id'   => $item['component_id'],
+                    'component_name' => $item['component_name']
                 ];
             }
         }

@@ -1,6 +1,5 @@
 {% for configuration in configurations %}
     <!-- Configuration Card (Clickable) -->
-    <!-- Configuration Card (Clickable) -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group flex flex-col justify-between"
          onclick="navigateToBuild('{{ path('completed.build.details', { 'buildId': configuration.id }) }}')">
 
