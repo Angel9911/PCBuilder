@@ -43,9 +43,7 @@ class CompletedBuildController extends AbstractController
         $offset = ($page - 1) * $limit;
 
         $configurationsPageKey = CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY . "_page_" . $page;
-
-        $this->redis->delete($configurationsPageKey);
-
+        
         // Check if data exists in Redis cache
         if ($this->redis->isKeyExist($configurationsPageKey)) {
 
@@ -59,7 +57,7 @@ class CompletedBuildController extends AbstractController
             $this->redis->set($configurationsPageKey, $result, 3600); // Cache for 1 hour
         }
 
-/*        echo '<pre>';
+        /*echo '<pre>';
         print_r($result);
         echo '</pre>';*/
 
@@ -137,6 +135,7 @@ class CompletedBuildController extends AbstractController
             'gpu' => $result['gpu']['component_name'],
             'ram' => $result['ram']['component_name'],
             'storage' => $result['storage']['component_name'],
+            'pc_case' => $result['pc_case'],
         ]);
     }
 

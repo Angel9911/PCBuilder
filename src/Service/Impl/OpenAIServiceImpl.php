@@ -103,7 +103,7 @@ class OpenAIServiceImpl implements OpenAIService
                     "name" => $value
                 ];
             }
-            //$hardcoeed = $this->getHardcodedArray();
+
             return [
                 'components' => $formatAiResult['Component Selection'],  // Returns an associative array
                 'explanation' => $decodedResponse['Explanation']

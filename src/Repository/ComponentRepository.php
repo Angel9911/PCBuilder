@@ -121,18 +121,36 @@ class ComponentRepository extends ServiceEntityRepository
             $whereSql = 'WHERE '. implode(" AND ", $conditions);
         }
 
-        $sql = "
+        $componentSql = "
             SELECT t.*, comp.name
             FROM {$componentType} t
             JOIN components comp ON comp.id = t.component_id
             JOIN component_types ct ON ct.id = comp.type_id
             {$whereSql}";
 
-        $stmt = $connection->prepare($sql);
+        $componentImageSql = "
+            SELECT ci.image_url AS component_image_url, ci.is_primary
+            FROM component_images ci
+            JOIN components comp ON comp.id = ci.component_id
+            {$whereSql}";
 
-        $result = $stmt->executeQuery($params);
+        $componentDetailsStmt = $connection->prepare($componentSql);
 
-        return $result->fetchAllAssociative();
+        $componentImageStmt = $connection->prepare($componentImageSql);
+
+        $componentDetailsResult = $componentDetailsStmt->executeQuery($params)->fetchAllAssociative();
+
+        $componentImagesResult = $componentImageStmt->executeQuery($params)->fetchAllAssociative();
+
+        foreach($componentImagesResult as $componentImage) {
+
+            $componentDetailsResult[0]['images'][] = [
+                'component_image_url' => $componentImage['component_image_url'],
+                'is_main' => ($componentImage['is_primary'] === true) ? 'true' : 'false'
+            ];
+        }
+
+        return $componentDetailsResult;
     }
 
     /**
@@ -232,7 +250,7 @@ class ComponentRepository extends ServiceEntityRepository
         }
 
         $sql = "
-            SELECT t.*, comp.name, comp.slugify_name, ct.name AS component_type
+            SELECT t.*, comp.name, comp.slugify_name, ct.name AS component_type 
             FROM {$type} t
             JOIN components comp ON comp.id = t.component_id
             JOIN component_types ct ON ct.id = comp.type_id

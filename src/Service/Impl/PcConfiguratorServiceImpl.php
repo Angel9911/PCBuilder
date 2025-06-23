@@ -5,6 +5,7 @@ namespace App\Service\Impl;
 use App\Entity\CompletedConfiguration;
 use App\Entity\PCConfigComponent;
 use App\Repository\CompletedConfigurationRepository;
+use App\Repository\ComponentImageRepository;
 use App\Repository\ComponentRepository;
 use App\Service\PCConfiguratorService;
 use DateTime;
@@ -16,6 +17,8 @@ class PcConfiguratorServiceImpl implements PCConfiguratorService
 
     private ComponentRepository $componentRepository;
 
+    private ComponentImageRepository $componentImageRepository;
+
     private EntityManagerInterface $entityManager;
 
     /**
@@ -23,10 +26,12 @@ class PcConfiguratorServiceImpl implements PCConfiguratorService
      */
     public function __construct(CompletedConfigurationRepository $completedConfigurationRepository
                                 , ComponentRepository $componentRepository
+                                , ComponentImageRepository $componentImageRepository
                                 , EntityManagerInterface $entityManager)
     {
         $this->completedConfigurationRepository = $completedConfigurationRepository;
         $this->componentRepository = $componentRepository;
+        $this->componentImageRepository = $componentImageRepository;
         $this->entityManager = $entityManager;
     }
 
@@ -50,7 +55,7 @@ class PcConfiguratorServiceImpl implements PCConfiguratorService
         $this->entityManager->persist($userPcConfiguration);
         $this->entityManager->flush();
 
-        $componentTypes = ['cpu', 'gpu', 'ram', 'motherboard', 'storage', 'psu'];
+        $componentTypes = ['cpu', 'gpu', 'ram', 'motherboard', 'storage', 'psu', 'pc_case'];
 
         // store left components
         foreach ($componentTypes as $componentType) {
@@ -80,7 +85,39 @@ class PcConfiguratorServiceImpl implements PCConfiguratorService
 
     public function getPcConfigurationById(int $configurationId): array
     {
-        return $this->completedConfigurationRepository->getPcConfigurationById($configurationId);
+        $resultArray = $this->completedConfigurationRepository->getPcConfigurationById($configurationId);
+
+        $filteredResultArray = array_filter($resultArray, function ($item) {
+
+            return !is_null($item['component_id']);
+        });
+
+        $result = [];
+
+       // var_dump($filteredResultArray);
+
+        foreach ($filteredResultArray as $item) {
+
+            $componentData = [
+                'component_id'   => $item['component_id'],
+                'component_name' => $item['component_name']
+            ];
+
+            if($item['component_type'] === 'pc_case'){
+
+                $imageUrl = $this->componentImageRepository->getImageUrlByComponentId($item['component_id']);
+
+                $componentData['image_url'] = $imageUrl;
+            }
+
+            if(!isset($result[$item['component_type']])){
+
+                $result[$item['component_type']] = $componentData;
+            }
+        }
+
+        return $result;
+
     }
 
     public function getPcConfigurationDetails(int $configurationId): CompletedConfiguration

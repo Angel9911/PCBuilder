@@ -16,6 +16,7 @@ use App\Service\OpenAIService;
 use App\Service\PCConfiguratorService;
 use App\Service\VendorScraperService;
 use App\utils\ObjectMapper;
+use App\utils\SlugifyClass;
 use App\utils\ValidatorUtils;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -191,7 +192,19 @@ class ConfiguratorController extends AbstractController
             ], 400);
         }
 
-        $bottleneckCalculation = $this->openAIService->calculateBottleneckConfiguration($validBottleneckComponents);
+        $bottleneckCalculationCacheKey = CacheConstraints::$BOTTLENECK_CALCULATION
+            . '_' . SlugifyClass::slugify($validBottleneckComponents['cpu'])
+            . '_' . SlugifyClass::slugify($validBottleneckComponents['gpu']);
+
+        if(!$this->redis->isKeyExist($bottleneckCalculationCacheKey)){
+
+            $bottleneckCalculation = $this->openAIService->calculateBottleneckConfiguration($validBottleneckComponents);
+
+            $this->redis->set($bottleneckCalculationCacheKey, $bottleneckCalculation, 3600);
+        } else {
+
+            $bottleneckCalculation = $this->redis->get($bottleneckCalculationCacheKey);
+        }
 
         return $this->json($bottleneckCalculation);
     }
@@ -285,17 +298,38 @@ class ConfiguratorController extends AbstractController
             ], 400);
         }
 
-        if(isset($componentsParams['configuration_lowest_price']) && isset($componentsParams['configuration_highest_price'])){
+        if(!isset($componentsParams['configuration_lowest_price']) || !isset($componentsParams['configuration_highest_price'])){
 
-            // TODO: Validate the prices
-            $isConfigurationLowestPrice =$componentsParams['configuration_lowest_price'];
-            $isConfigurationHighestPrice = $componentsParams['configuration_highest_price'];
+            return $this->json([
+                'error' => 'Configuration prices are missing',
+            ], 400);
         }
 
-        if(isset($componentsParams['configuration_power_wattage'])){
+        $configurationLowestPrice = (float)$componentsParams['configuration_lowest_price'];
 
-            // TODO: Validate power wattage
-            $isConfigurationPowerWattage =$componentsParams['configuration_power_wattage'];
+        $configurationHighestPrice = (float) $componentsParams['configuration_highest_price'];
+
+        if($configurationLowestPrice <= 0 || $configurationHighestPrice <= 0){
+
+            return $this->json([
+                'error' => 'Configuration prices must be positive numbers',
+            ], 400);
+        }
+
+        if(!isset($componentsParams['configuration_power_wattage'])){
+
+            return $this->json([
+                'error' => 'Configuration wattage is missing',
+            ], 400);
+        }
+
+        $configurationPowerWattage = (int)$componentsParams['configuration_power_wattage'];
+
+        if($configurationPowerWattage <= 0){
+
+            return $this->json([
+                'error' => 'Configuration must be positive number',
+            ], 400);
         }
 
         $isComponentValsValid = ValidatorUtils::validateAsFieldType(
@@ -332,9 +366,9 @@ class ConfiguratorController extends AbstractController
 
         $configurationData = [
             'name' => $componentsParams['name'],
-            'lowest_price' => $componentsParams['configuration_lowest_price'],
-            'highest_price' => $componentsParams['configuration_highest_price'],
-            'power_wattage' => $componentsParams['configuration_power_wattage'],
+            'lowest_price' => $configurationLowestPrice,
+            'highest_price' => $configurationHighestPrice,
+            'power_wattage' => $configurationPowerWattage,
         ];
         // merge name of configuration which components after make validation
         $validComponents = array_merge(
@@ -356,7 +390,7 @@ class ConfiguratorController extends AbstractController
             'components' => [], // placeholder
         ];
 
-        // Добави и компонентите
+        // Add pc components
         foreach ($newConfigurationComponents as $type => $data) {
 
             $newConfigArray[$newConfiguration->getId()]['components'][$type][] = $data;
@@ -368,9 +402,6 @@ class ConfiguratorController extends AbstractController
             $cachedConfigurations
         );
 
-/*        echo '<pre>';
-        print_r($cachedConfigurations);
-        echo '</pre>';*/
 
         // Save the updated array back to Redis
         $this->addNewConfigurationPageCache($cachedConfigurations);

@@ -57,25 +57,7 @@ class CompletedConfigurationRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
 
-        $filteredResultArray = array_filter($resultArray, function ($item) {
-
-            return !is_null($item['component_id']);
-        });
-
-        $result = [];
-
-        foreach ($filteredResultArray as $item) {
-
-            if(!isset($result[$item['component_type']])){
-
-                $result[$item['component_type']] = [
-                    'component_id'   => $item['component_id'],
-                    'component_name' => $item['component_name']
-                ];
-            }
-        }
-
-        return $result;
+        return $resultArray;
     }
 
     private function findPcConfigurations(int $limit = 8, int $offset = 0): array
@@ -97,12 +79,13 @@ class CompletedConfigurationRepository extends ServiceEntityRepository
             ->leftJoin('config.components', 'pcComp')
             ->leftJoin('pcComp.component', 'component')
             ->leftJoin('component.type', 'ct')
-            ->select('config.id AS config_id', 'component.id AS component_id', 'component.name AS component_name','ct.name AS component_type')
+            ->leftJoin('component.images', 'ci', 'WITH', 'ci.isPrimary = true')
+            ->select('config.id AS config_id', 'component.id AS component_id', 'component.name AS component_name','ct.name AS component_type', 'ci.imageUrl AS image_url')
             ->where('config.id IN (:ids)')
             ->setParameter('ids', $pcIds)
             ->getQuery()
             ->getArrayResult();
-
+        //var_dump($resultArray);
         return $resultArray;
     }
 
@@ -123,10 +106,18 @@ class CompletedConfigurationRepository extends ServiceEntityRepository
         // Merge components into corresponding config
         foreach ($components as $comp) {
 
-            $final[$comp['config_id']]['components'][$comp['component_type']][] = [
+            $componentData = [
                 'component_id' => $comp['component_id'],
-                'component_name' => $comp['component_name'],
+                'component_name' => $comp['component_name']
             ];
+
+
+            if($comp['component_type'] === 'pc_case' && !empty($comp['image_url'])){
+
+                $componentData['image_url'] = $comp['image_url'];
+            }
+
+            $final[$comp['config_id']]['components'][$comp['component_type']][] = $componentData;
         }
 
         return array_values($final);

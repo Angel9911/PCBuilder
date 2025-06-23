@@ -1,5 +1,5 @@
 function fetchComponentData() {
-    const componentIds = ['cpu', 'motherboard', 'ram', 'gpu', 'storage', 'psu'];
+    const componentIds = ['cpu', 'motherboard', 'ram', 'gpu', 'storage', 'psu', 'pc_case'];
     const data = {};
 
     componentIds.forEach(component => {
@@ -40,7 +40,7 @@ function saveConfiguration(requestData) {
 
 function savePcConfiguration() {
 
-    const requiredComponents = ['cpu', 'gpu', 'motherboard', 'ram', 'psu', 'storage'];
+    const requiredComponents = ['cpu', 'gpu', 'motherboard', 'ram', 'psu', 'storage', 'pc_case'];
 
 
     let saveButton = document.getElementById('saveConfiguration');

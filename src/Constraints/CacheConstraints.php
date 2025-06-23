@@ -8,5 +8,5 @@ final class CacheConstraints
     public static string $PC_CONFIGURATION_KEY = 'pc_configurations';
     public static string $OFFERS_COMPONENT_KEY = 'vendors_offers_component';
     public static string $COMPONENT_TYPE_FILTER_KEY = 'component_type_filter';
-
+    public static string $BOTTLENECK_CALCULATION = 'bottleneck_calculation';
 }

@@ -4,9 +4,11 @@ namespace App\Controller;
 
 use App\Constraints\CacheConstraints;
 use App\Constraints\ComponentConstraints;
+use App\Constraints\ConfigurationConstraint;
 use App\Private_lib\redis\RedisWrapper;
 use App\Service\ComponentService;
 use App\Service\VendorScraperService;
+use App\utils\SlugifyClass;
 use App\utils\ValidatorUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -36,7 +38,25 @@ class ComponentController extends AbstractController
     #[Route('/component/{component}', name: 'component.filter', methods: ['GET', 'POST'])]
     public function getComponentsDetails($component, Request $request): Response
     {
-        $component = (string) $component;
+        $componentType = (string) $component;
+
+        $isValidComponentType = ValidatorUtils::validateAsString($componentType);
+
+        if(!$isValidComponentType){
+
+            return $this->json([
+                'error' => 'Invalid component type',
+                'field' =>  $componentType
+            ]);
+        }
+
+        if(!in_array($component, ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS)){
+
+            return $this->json([
+                'error' => 'Component type not found',
+                'field' =>  $componentType
+            ]);
+        }
 
         $page = max(1, (int) $request->get('page', 1));
         $limit = 12;
@@ -65,8 +85,11 @@ class ComponentController extends AbstractController
             if (!$this->redis->isKeyExist($componentTypeFilterKey)) {
 
                 $result = $this->componentService->getAdvanceFilterComponentsByType($component, $limit, $offset);
+
                 $this->redis->set($componentTypeFilterKey, $result, 3600);
+
             } else {
+
                 $result = $this->redis->get($componentTypeFilterKey);
             }
 
@@ -139,13 +162,35 @@ class ComponentController extends AbstractController
 
         $componentName = (string) $component;
 
-        $componentSpecifications = $this->componentService->getComponentDetailsByComponentName($componentName, $componentType);
+        $componentCacheKey = CacheConstraints::$COMPONENT_TYPE_FILTER_KEY . '_' . $componentType . '_' . $componentName;
 
-        $componentOffers = $this->vendorScraperService->getVendorOffersByComponent($componentSpecifications['component_id']);
+        if(!$this->redis->isKeyExist($componentCacheKey)) {
+
+            $componentSpecifications = $this->componentService->getComponentDetailsByComponentName($componentName, $componentType);
+
+            $this->redis->set($componentCacheKey, $componentSpecifications, 10800);
+        } else{
+
+            $componentSpecifications = $this->redis->get($componentCacheKey);
+        }
+
+        $componentOffersCacheKey = CacheConstraints::$OFFERS_COMPONENT_KEY . '_' . $componentSpecifications['component_id'];
+
+        if(!$this->redis->isKeyExist($componentOffersCacheKey)) {
+
+            $componentOffers = $this->vendorScraperService->getVendorOffersByComponent($componentSpecifications['component_id']);
+
+            $this->redis->set($componentOffersCacheKey, $componentOffers, 10800);
+        } else{
+
+            $componentOffers = $this->redis->get($componentOffersCacheKey);
+        }
+
+        //return $this->json($componentSpecifications);
 
         return $this->render('pages/component_filters_page/component_specifications.html.twig',[
             'componentSpecifications' => $componentSpecifications,
-            'componentOffers' => $componentOffers[$componentSpecifications['component_id']],
+            'componentOffers' => $componentOffers[$componentSpecifications['component_id']] ?? [],
             'offers_price_range' => $componentOffers['offers_price_range'],
         ]);
     }

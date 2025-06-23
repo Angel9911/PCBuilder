@@ -23,13 +23,28 @@
                         </svg>
                         <span class="ml-1 text-slate-700 font-medium">4.8</span></div>
                     <span class="text-slate-400">•</span><span class="text-slate-600">245 reviews</span></div>
-            </div>
+                 </div>
             <div class="flex flex-col lg:flex-row">
                 <div class="lg:w-1/2 p-6 lg:border-r border-slate-200">
                     <div class="aspect-square rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 shadow-inner">
-                        <img src="https://images.pexels.com/photos/1432675/pexels-photo-1432675.jpeg"
-                             alt="Intel Core i9-14900K"
-                             class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"></div>
+                        <img id="mainImage"
+                             src="{{ componentSpecifications.component_images.main_image_url }}"
+                             alt="{{ componentSpecifications.name }}"
+                             class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105 cursor-pointer"
+                             onclick="openImageModal(selectedImage)">
+                    </div>
+
+                    {% if componentSpecifications.component_images.all_image_urls is defined and componentSpecifications.component_images.all_image_urls|length > 1 %}
+                        <div class="mt-4 flex justify-center gap-3">
+                            {% for image in componentSpecifications.component_images.all_image_urls %}
+                                <img src="{{ image.url }}"
+                                     alt="Thumbnail"
+                                     class="w-20 h-20 object-cover rounded-md border-2 cursor-pointer transition-transform hover:scale-105"
+                                     onclick="changeMainImage('{{ image.url }}')">
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
                 </div>
                 <div class="lg:w-1/2 p-6">
                     <div class="hidden lg:block mb-6">
@@ -172,7 +187,22 @@
             </div>
         </div>
     </div>
+
+        <!-- Modal -->
+        <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+            <div class="bg-white p-4 rounded-lg shadow-xl max-w-lg w-full relative">
+                <button onclick="closeImageModal()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+                <img id="modalImage" src="" alt="Preview" class="w-full h-auto rounded-lg">
+            </div>
+        </div>
+
         <script>
+            let selectedImage = "{{ componentSpecifications.component_images.main_image_url|e('js') }}";
+
             var componentOffers = {{ componentOffers|json_encode|raw }};
 </script>
 

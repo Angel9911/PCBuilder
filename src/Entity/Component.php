@@ -28,7 +28,7 @@ class Component
     #[Groups(["component_read"])]
     private ComponentType $type;
 
-    #[ORM\OneToMany(targetEntity: ComponentImage::class, mappedBy: 'component', fetch: "EAGER")]
+    #[ORM\OneToMany(targetEntity: ComponentImage::class, mappedBy: 'component', fetch: "LAZY")]
     private $images;
 
     #[ORM\Column(type: "integer", options: ["default" => 0])]

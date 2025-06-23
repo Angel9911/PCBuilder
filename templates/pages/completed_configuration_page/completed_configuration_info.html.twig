@@ -33,7 +33,7 @@
             <div class="lg:col-span-1">
                 <!-- Image -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                    <img src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&q=80&w=800&h=600" alt="PC Build" class="w-full h-64 object-cover">
+                    <img src="{{ pc_case.image_url }}" alt="{{ pc_case.component_name }}" class="max-h-full max-w-full object-contain p-2">
                 </div>
 
                 <!-- Power Usage -->
@@ -89,7 +89,7 @@
                         {% include 'pages/completed_configuration_page/completed_config_templates/component_specification_card-template.html.twig' with { icon: 'hard-drive', label: 'Storage', value: storage } %}
                         {% include 'pages/completed_configuration_page/completed_config_templates/component_specification_card-template.html.twig' with { icon: 'power', label: 'Power Supply', value: psu } %}
                         {% include 'pages/completed_configuration_page/completed_config_templates/component_specification_card-template.html.twig' with { icon: 'fan', label: 'CPU Cooler', value: 'Noctua NH-D15 Chromax Black' } %}
-                        {% include 'pages/completed_configuration_page/completed_config_templates/component_specification_card-template.html.twig' with { icon: 'box', label: 'PC Case', value: 'Corsair 4000D Airflow' } %}
+                        {% include 'pages/completed_configuration_page/completed_config_templates/component_specification_card-template.html.twig' with { icon: 'box', label: 'PC Case', value: pc_case.component_name } %}
                     </div>
                 </div>
             </div>

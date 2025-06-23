@@ -17,7 +17,7 @@ class ComponentImage
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Component $component;
 
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(name: "image_url", type: "string", length: 255)]
     private string $imageUrl;
 
     #[ORM\Column(type: 'boolean')]

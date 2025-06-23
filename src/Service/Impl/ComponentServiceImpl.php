@@ -136,7 +136,7 @@ class ComponentServiceImpl implements ComponentService
                     'id' => $component['id'],
                     'component_id' => $component['component_id'],
                     'name' => $component['name'],
-                    'slugify_name' => $component['slugify_name']
+                    'slugify_name' => $component['slugify_name'],
                 ];
 
                 foreach ($filters as $filter) {
@@ -229,7 +229,8 @@ class ComponentServiceImpl implements ComponentService
         // Format specifications (keys prettified, with optional units)
         $specs = [];
         foreach ($components as $key => $value) {
-            if (in_array($key, ['id', 'component_id', 'name', 'slugify_name'])) {
+            // TODO CHECK WHY WHEN WE LOAD SPECIFIC COMPONENT WE RECEIVE HERE images key?
+            if (in_array($key, ['id', 'component_id', 'name', 'slugify_name', 'images'])) {
                 continue;
             }
 
@@ -250,10 +251,16 @@ class ComponentServiceImpl implements ComponentService
     {
         $componentDetails = $this->componentRepository->findComponentSpecificationsByNameAndType($componentName, $componentType);
 
+        $componentImages = $this->getImagesByComponent($componentDetails);
+
         return [
             'id' => $componentDetails[0]['id'],
             'component_id' => $componentDetails[0]['component_id'],
             'name' => $componentDetails[0]['name'],
+            'component_images' => [
+                'main_image_url' => $componentImages['main_image_url'],
+                'all_image_urls' => $componentImages['all_image_urls'],
+            ],
             'specifications' => $this->formatComponentSpecifications($componentDetails[0])
         ];
     }
@@ -261,6 +268,43 @@ class ComponentServiceImpl implements ComponentService
     public function updateComponentName(string $existingName, string $slugifyName): void
     {
         $this->componentRepository->updateComponentName($existingName, $slugifyName);
+    }
+
+    private function getImagesByComponent(array $component): array
+    {
+        // Normalize image field (can be array or single object)
+       /* echo '<pre>';
+        print_r($component);
+        echo '</pre>';*/
+        $imagesRaw = $component[0]['images'];
+        //var_dump($component[0]['images']);
+        $images = [];
+
+        if (isset($imagesRaw[0])) {
+            // If already an array of images
+            $images = $imagesRaw;
+        } else {
+            // Single image case
+            $images = [$imagesRaw];
+        }
+
+        // Get main image (fallback to first)
+        $mainImage = array_filter($images, function ($img) {
+            return isset($img['is_main']) && ($img['is_main'] === true || $img['is_main'] === 'true');
+        });
+        $mainImageUrl = count($mainImage) > 0
+            ? array_values($mainImage)[0]['component_image_url']
+            : $images[0]['component_image_url'] ?? null;
+
+        // Create array of thumbnail-friendly objects
+        $allImageUrls = array_map(function ($img) {
+            return ['url' => $img['component_image_url']];
+        }, $images);
+
+        return [
+            'main_image_url' => $mainImageUrl,
+            'all_image_urls' => $allImageUrls
+        ];
     }
 
     public function getComponentIdBySlugifyName(string $slugifyName): int

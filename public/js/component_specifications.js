@@ -11,6 +11,8 @@ const iconMap = {
         // Fallback will be 'circle'
 };
 
+//let selectedImage = "{{ componentSpecifications.component_images.main_image_url|e('js') }}";
+
 document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll('.spec-box').forEach(box => {
@@ -36,3 +38,18 @@ document.addEventListener("DOMContentLoaded", () => {
         renderOffers(componentOffers, offerTemplate, offersContainer);
     }
 });
+
+
+function changeMainImage(url) {
+    selectedImage = url;
+    document.getElementById('mainImage').src = url;
+}
+
+function openImageModal(url) {
+    document.getElementById('modalImage').src = url;
+    document.getElementById('imageModal').classList.remove('hidden');
+}
+
+function closeImageModal() {
+    document.getElementById('imageModal').classList.add('hidden');
+}
