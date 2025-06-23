@@ -1,6 +1,6 @@
 const buildSummaryState = {
     selectedCount: 0,
-    totalCount: 6, // TODO: maybe should be 8 or 9(pc case and monitor)
+    totalCount: 7, // TODO: maybe should be 8 or 9(pc case and monitor)
     lowestPrice: 0,
     highestPrice: 0,
     powerWattage: 0

@@ -43,7 +43,7 @@ class CompletedBuildController extends AbstractController
         $offset = ($page - 1) * $limit;
 
         $configurationsPageKey = CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY . "_page_" . $page;
-        
+
         // Check if data exists in Redis cache
         if ($this->redis->isKeyExist($configurationsPageKey)) {
 
@@ -116,6 +116,7 @@ class CompletedBuildController extends AbstractController
 
             $pcConfigurationHighestPrice = $pcConfiguration->getHighestPrice();
         }
+
 
         if($pcConfiguration->getTotalWattage() !== null && $pcConfiguration->getTotalWattage() > 0){
 

@@ -48,9 +48,9 @@ class PcConfiguratorServiceImpl implements PCConfiguratorService
 
         $userPcConfiguration->setTotalWattage($componentsValues['power_wattage']);
 
-        $userPcConfiguration->setLowestPrice((int)$componentsValues['lowest_price']);
+        $userPcConfiguration->setLowestPrice((int)$componentsValues['lowestPrice']);
 
-        $userPcConfiguration->setHighestPrice((int)$componentsValues['highest_price']);
+        $userPcConfiguration->setHighestPrice((int)$componentsValues['highestPrice']);
 
         $this->entityManager->persist($userPcConfiguration);
         $this->entityManager->flush();
@@ -93,8 +93,6 @@ class PcConfiguratorServiceImpl implements PCConfiguratorService
         });
 
         $result = [];
-
-       // var_dump($filteredResultArray);
 
         foreach ($filteredResultArray as $item) {
 

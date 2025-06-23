@@ -366,8 +366,8 @@ class ConfiguratorController extends AbstractController
 
         $configurationData = [
             'name' => $componentsParams['name'],
-            'lowest_price' => $configurationLowestPrice,
-            'highest_price' => $configurationHighestPrice,
+            'lowestPrice' => $configurationLowestPrice,
+            'highestPrice' => $configurationHighestPrice,
             'power_wattage' => $configurationPowerWattage,
         ];
         // merge name of configuration which components after make validation
@@ -385,8 +385,8 @@ class ConfiguratorController extends AbstractController
             'name' => $newConfiguration->getName(),
             'totalWattage' => $newConfiguration->getTotalWattage(),
             'createdAt' => $newConfiguration->getCreatedAt(),
-            'lowest_price' => $newConfiguration->getLowestPrice(),
-            'highest_price' => $newConfiguration->getHighestPrice(),
+            'lowestPrice' => $newConfiguration->getLowestPrice(),
+            'highestPrice' => $newConfiguration->getHighestPrice(),
             'components' => [], // placeholder
         ];
 
