@@ -1,0 +1,23 @@
+/*#hardwareMenu {
+    transition: max-height 0.4s ease;
+    overflow: hidden;
+}
+#hardwareMenu.show {
+    max-height: 1000px; !* adjust to content size *!
+}*/
+#hardwareMenu.hidden {
+    max-height: 0;
+}
+/* Smooth drop effect */
+#hardwareMenu {
+    transition: all 0.4s ease;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(20px);
+}
+#hardwareMenu.show {
+    max-height: 1000px;
+    opacity: 1;
+    transform: translateY(0);
+}

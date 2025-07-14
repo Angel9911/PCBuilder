@@ -1,47 +1,153 @@
-<nav class="border-t border-b border-gray-200 bg-white relative">
-    <div class="absolute inset-0 bg-gradient-to-r from-blue-50 via-white to-blue-50 opacity-50"></div>
-    <div class="max-w-7xl mx-auto px-4 relative">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center py-3 px-6 space-y-2 sm:space-y-0">
-
+<nav class="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-900 border-t border-blue-900 relative z-40">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="flex flex-col sm:flex-row items-center py-3 px-6 space-y-2 sm:space-y-0">
             <!-- PC Конфигуратор -->
             <div class="w-full sm:flex-1 text-center sm:text-left">
-                <a href="/configurator/build" class="group relative inline-flex items-center justify-center w-full sm:w-auto px-6 py-3 rounded-lg transition-all duration-500 ease-in-out transform hover:scale-105 bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 border-2 border-blue-200 hover:border-blue-400">
-                    <div class="absolute inset-0 bg-blue-600 opacity-0 group-hover:opacity-10 rounded-lg transition-opacity duration-500"></div>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-monitor w-5 h-5 mr-2 transition-colors duration-500 text-blue-500 group-hover:text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <a href="/configurator/build" class="group relative inline-flex items-center justify-center w-full sm:w-auto px-6 py-3 rounded-md transition-all duration-300 bg-transparent text-white hover:bg-blue-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-monitor w-5 h-5 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <rect width="20" height="14" x="2" y="3" rx="2"></rect>
                         <line x1="8" x2="16" y1="21" y2="21"></line>
                         <line x1="12" x2="12" y1="17" y2="21"></line>
                     </svg>
                     <span class="font-semibold">PC Конфигуратор</span>
-                    <span class="absolute -bottom-1 left-0 w-full h-0.5 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></span>
                 </a>
             </div>
 
-            <!-- Лаптоп Конфигуратор -->
+            <!-- Hardware Button -->
             <div class="w-full sm:flex-1 text-center">
-                <a href="#" class="group relative inline-flex items-center justify-center w-full sm:w-auto px-6 py-3 rounded-lg transition-all duration-500 ease-in-out transform hover:scale-105 bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 border border-gray-200 hover:border-blue-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-laptop w-5 h-5 mr-2 transition-colors duration-500 text-blue-500 group-hover:text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"></path>
+                <button id="hardwareToggle" class="group relative inline-flex items-center justify-center w-full sm:w-auto px-6 py-3 rounded-md transition-all duration-300 bg-transparent text-white hover:bg-blue-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-cpu w-5 h-5 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                        <rect x="9" y="9" width="6" height="6"></rect>
+                        <path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2" />
                     </svg>
-                    <span class="font-medium">Лаптоп Конфигуратор</span>
-                    <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 h-0.5 bg-blue-500 transition-all duration-500 w-0 group-hover:w-full"></span>
-                </a>
+                    <span class="font-medium">Hardware</span>
+                </button>
             </div>
 
             <!-- Готови конфигурации -->
             <div class="w-full sm:flex-1 text-center sm:text-right">
-                <a href="/completed/build" class="group relative inline-flex items-center justify-center w-full sm:w-auto px-6 py-3 rounded-lg transition-all duration-500 ease-in-out transform hover:scale-105 bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 border border-gray-200 hover:border-blue-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-package w-5 h-5 mr-2 transition-colors duration-500 text-blue-500 group-hover:text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <a href="/completed/build" class="group relative inline-flex items-center justify-center w-full sm:w-auto px-6 py-3 rounded-md transition-all duration-300 bg-transparent text-white hover:bg-blue-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-package w-5 h-5 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path d="m7.5 4.27 9 5.15"></path>
                         <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
                         <path d="m3.3 7 8.7 5 8.7-5"></path>
                         <path d="M12 22V12"></path>
                     </svg>
                     <span class="font-medium">Готови конфигурации</span>
-                    <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 h-0.5 bg-blue-500 transition-all duration-500 w-0 group-hover:w-full"></span>
                 </a>
             </div>
 
+        </div>
+    </div>
+
+    <!-- Hardware Menu (will toggle visibility with JS) -->
+    <div id="hardwareMenu" class="hidden absolute left-0 w-full top-full z-50 bg-gradient-to-br from-slate-800 via-slate-900 to-indigo-900 border-t border-slate-700 rounded-xl shadow-2xl animate-fadeIn overflow-hidden transition-all duration-500">
+        <div class="flex flex-col lg:flex-row min-h-[500px]">
+            <!-- Left: Components -->
+            <div class="lg:w-1/2 p-6 border-b lg:border-b-0 lg:border-r border-slate-700/50">
+                <h4 class="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cpu h-5 w-5 text-blue-600">
+                        <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                        <rect x="9" y="9" width="6" height="6"></rect>
+                        <path d="M15 2v2"></path>
+                        <path d="M15 20v2"></path>
+                        <path d="M2 15h2"></path>
+                        <path d="M2 9h2"></path>
+                        <path d="M20 15h2"></path>
+                        <path d="M20 9h2"></path>
+                        <path d="M9 2v2"></path>
+                        <path d="M9 20v2"></path>
+                    </svg>
+                    Core Components
+                </h4>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+
+                    <!-- Component Box Example -->
+                    <a href="/component/cpu" class="block group">
+                        <div class="bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600 hover:border-blue-500 rounded-lg p-3 transition-all duration-300">
+                            <img src="{{ asset('/assets/images/hardware_cpu.png') }}" alt="CPU" class="mx-auto w-16 h-16">
+                            <p class="text-center text-sm font-semibold text-slate-300 mt-2 group-hover:text-white">CPU</p>
+                        </div>
+                    </a>
+                    <a href="/component/cpu_cooling" class="block group">
+                        <div class="bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600 hover:border-blue-500 rounded-lg p-3 transition-all duration-300">
+                            <img src="{{ asset('/assets/images/hardware_cpu_cooling.png') }}" alt="CPU" class="mx-auto w-16 h-16">
+                            <p class="text-center text-sm font-semibold text-slate-300 mt-2 group-hover:text-white">CPU Cooling</p>
+                        </div>
+                    </a>
+                    <a href="/component/gpu" class="block group">
+                        <div class="bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600 hover:border-blue-500 rounded-lg p-3 transition-all duration-300">
+                            <img src="{{ asset('/assets/images/hardware_gpu.png') }}" alt="CPU" class="mx-auto w-16 h-16">
+                            <p class="text-center text-sm font-semibold text-slate-300 mt-2 group-hover:text-white">GPU</p>
+                        </div>
+                    </a>
+                    <a href="/component/motherboard" class="block group">
+                        <div class="bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600 hover:border-blue-500 rounded-lg p-3 transition-all duration-300">
+                            <img src="{{ asset('/assets/images/hardware_motherboard.png') }}" alt="CPU" class="mx-auto w-16 h-16">
+                            <p class="text-center text-sm font-semibold text-slate-300 mt-2 group-hover:text-white">Motherboard</p>
+                        </div>
+                    </a>
+                    <a href="/component/storage" class="block group">
+                        <div class="bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600 hover:border-blue-500 rounded-lg p-3 transition-all duration-300">
+                            <img src="{{ asset('/assets/images/hardware_storage.png') }}" alt="CPU" class="mx-auto w-16 h-16">
+                            <p class="text-center text-sm font-semibold text-slate-300 mt-2 group-hover:text-white">Storage</p>
+                        </div>
+                    </a>
+                    <a href="/component/memory" class="block group">
+                        <div class="bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600 hover:border-blue-500 rounded-lg p-3 transition-all duration-300">
+                            <img src="{{ asset('/assets/images/hardware_memory.png') }}" alt="CPU" class="mx-auto w-16 h-16">
+                            <p class="text-center text-sm font-semibold text-slate-300 mt-2 group-hover:text-white">Memory</p>
+                        </div>
+                    </a>
+                    <a href="{/component/psu" class="block group">
+                        <div class="bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600 hover:border-blue-500 rounded-lg p-3 transition-all duration-300">
+                            <img src="{{ asset('/assets/images/hardware_psu.png') }}" alt="CPU" class="mx-auto w-16 h-16">
+                            <p class="text-center text-sm font-semibold text-slate-300 mt-2 group-hover:text-white">PSU</p>
+                        </div>
+                    </a>
+                    <a href="/component/pc_case" class="block group">
+                        <div class="bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600 hover:border-blue-500 rounded-lg p-3 transition-all duration-300">
+                            <img src="{{ asset('/assets/images/hardware_pc_case.png') }}" alt="CPU" class="mx-auto w-16 h-16">
+                            <p class="text-center text-sm font-semibold text-slate-300 mt-2 group-hover:text-white">PC Case</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right: Peripherals -->
+            <div class="lg:w-1/2 p-6 bg-gradient-to-br from-slate-800/30 to-indigo-900/30">
+                <h4 class="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-monitor h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <rect width="20" height="14" x="2" y="3" rx="2"></rect>
+                        <line x1="8" x2="16" y1="21" y2="21"></line>
+                        <line x1="12" x2="12" y1="17" y2="21"></line>
+                    </svg>
+                    Peripherals & Accessories
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-6">
+                    <div class="space-y-3">
+                        <h5 class="text-sm font-bold text-blue-300 border-b-2 border-blue-200/30 pb-2 uppercase tracking-wide">Peripherals</h5>
+                        <ul class="space-y-2">
+                            <li><button class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left border border-transparent hover:border-blue-500/30">Keyboards</button></li>
+                            <li><button class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left border border-transparent hover:border-blue-500/30">Mouse</button></li>
+                            <li><button class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left border border-transparent hover:border-blue-500/30">Headphones</button></li>
+                            <li><button class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left border border-transparent hover:border-blue-500/30">Webcams</button></li>
+                        </ul>
+                    </div>
+                    <div class="space-y-3">
+                        <h5 class="text-sm font-bold text-blue-300 border-b-2 border-blue-200/30 pb-2 uppercase tracking-wide">Accessories</h5>
+                        <ul class="space-y-2">
+                            <li><button class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left border border-transparent hover:border-blue-500/30">Case Fans</button></li>
+                            <li><button class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left border border-transparent hover:border-blue-500/30">UPS</button></li>
+                            <li><button class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left border border-transparent hover:border-blue-500/30">Thermal Paste</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gradient-to-r from-slate-800/80 to-indigo-900/80 px-6 py-4 border-t border-slate-700/50">
+            <p class="text-sm text-slate-300 text-center">Click on any component to browse available options and compare prices from multiple vendors</p>
         </div>
     </div>
 </nav>

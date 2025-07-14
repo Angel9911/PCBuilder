@@ -45,12 +45,50 @@ document.addEventListener('DOMContentLoaded', () => {
                 hideSpinner(); // Hide spinner after request completes
             });
     }
+
+    // add logic for add component to configuration
+    addComponentToConfig();
+
 });
 window.addEventListener('pageshow', (event) => {
 
     hideSpinner();
 });
 
+function addComponentToConfig() {
+    document.querySelectorAll('.add-to-config-btn').forEach(button => {
+        button.addEventListener('click', async function () {
+            const slugName = this.dataset.componentName;
+            const type = this.dataset.componentType;
+
+            try {
+                const response = await fetch(`/component/${type}/add`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ name: slugName })
+                });
+
+                if (response.redirected) {
+                    // Symfony redirects to configurator.build
+                    window.location.href = response.url;
+                } else {
+                    const data = await response.json();
+                    if (data.error) {
+                        alert("Error: " + data.error);
+                    } else {
+                        console.log("Added successfully", data);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to add component:", err);
+                alert("Something went wrong while adding the component.");
+            }
+        });
+    });
+}
 
 function clearAllFilters() {
     document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
