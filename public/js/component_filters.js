@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         showSpinner();
 
-        const url = `/component/${componentType}?${urlParams.toString()}`;
+        const url = `/product/${componentType}?${urlParams.toString()}`;
 
         fetch(url, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -62,7 +62,7 @@ function addComponentToConfig() {
             const type = this.dataset.componentType;
 
             try {
-                const response = await fetch(`/component/${type}/add`, {
+                const response = await fetch(`/product/${type}/add`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

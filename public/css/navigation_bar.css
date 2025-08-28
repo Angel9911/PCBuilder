@@ -21,3 +21,13 @@
     opacity: 1;
     transform: translateY(0);
 }
+/* Toggle icon animation (hamburger to X effect) */
+#menuToggle.open #line1 {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+#menuToggle.open #line2 {
+    opacity: 0;
+}
+#menuToggle.open #line3 {
+    transform: rotate(-45deg) translate(5px, -5px);
+}

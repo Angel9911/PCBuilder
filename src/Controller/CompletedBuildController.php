@@ -122,6 +122,9 @@ class CompletedBuildController extends AbstractController
 
             $pcConfigurationTotalWattage = $pcConfiguration->getTotalWattage();
         }
+        /*echo '<pre>';
+       print_r($result);
+       echo '</pre>';*/
 
         return $this->render('pages/completed_configuration_page/completed_configuration_info.html.twig', [
             'configuration_id' => $pcConfiguration->getId(),
@@ -130,12 +133,12 @@ class CompletedBuildController extends AbstractController
             'configuration_lowest_price' => $pcConfigurationLowestPrice ?? 0,
             'configuration_highest_price' => $pcConfigurationHighestPrice ?? 0,
             'configuration_total_wattage' => $pcConfigurationTotalWattage ?? 0,
-            'cpu' => $result['cpu']['component_name'],
-            'motherboard' => $result['motherboard']['component_name'],
-            'psu' => $result['psu']['component_name'],
-            'gpu' => $result['gpu']['component_name'],
-            'ram' => $result['ram']['component_name'],
-            'storage' => $result['storage']['component_name'],
+            'cpu' => $result['cpu']['name'],
+            'motherboard' => $result['motherboard']['name'],
+            'psu' => $result['psu']['name'],
+            'gpu' => $result['gpu']['name'],
+            'ram' => $result['ram']['name'],
+            'storage' => $result['storage']['name'],
             'pc_case' => $result['pc_case'],
         ]);
     }

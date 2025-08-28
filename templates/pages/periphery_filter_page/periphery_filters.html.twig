@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}PC Configuration{% endblock %}
+
+{% block content %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- code for spinner -->
+        <div id="loading-spinner" class="loading-spinner hidden">
+            <div class="spinner"></div>
+        </div>
+
+        <div class="bg-gradient-to-r from-indigo-50 via-purple-50 to-cyan-50 border-b border-indigo-100">
+            <div class="max-w-7xl mx-auto px-4 py-6 sm:py-10">
+                <div class="text-center mb-4 sm:mb-6">
+                    <h2 class="text-lg sm:text-2xl font-semibold sm:font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-1 sm:mb-2">
+                        AI-Powered Component Finder
+                    </h2>
+                    <p class="text-xs sm:text-sm text-gray-600">
+                        Describe what you need and let AI find the perfect peripherals for you
+                    </p>
+                </div>
+
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-2xl border border-indigo-200 p-3 sm:p-4 relative overflow-visible group transition-all duration-300 hover:shadow-indigo-300 focus-within:ring-2 focus-within:ring-purple-400">
+
+                        <!-- Animated AI Icon (smaller on mobile) -->
+                        <div class="relative flex-shrink-0 self-center sm:self-auto">
+                            <div class="relative w-10 h-10 sm:w-16 sm:h-16">
+                                <!-- Outer spinning gradient ring -->
+                                <div class="absolute inset-0 rounded-full border-[2px] sm:border-[3px] border-t-indigo-500 border-r-purple-500 animate-[spin_4s_linear_infinite]"></div>
+                                <!-- Pulsing border -->
+                                <div class="absolute inset-0 rounded-full border border-indigo-300 animate-[pulse_2s_ease-in-out_infinite]"></div>
+                                <!-- Icon circle with glowing bg -->
+                                <div class="absolute inset-1 z-10 sm:inset-1.5 flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full shadow-md group-hover:scale-105 transition-transform duration-500">
+                                    <img src="{{ asset('assets/images/new_ai_field_icon-removebg-preview.png') }}"
+                                         alt="AI Assistant"
+                                         class="w-full h-full object-contain filter drop-shadow-md saturate-150 brightness-110">
+                                </div>
+                            </div>
+                        </div>
+
+                        {# AI Input #}
+{#                        <input
+                                id="ai-periphery-input"
+                                type="text"
+                                inputmode="text"
+                                autocomplete="off"
+                                placeholder="e.g., “Budget wireless mouse for work, comfortable for long hours”"
+                                class="min-w-0 flex-1 px-3 sm:px-4 py-2.5 sm:py-3.5 text-sm sm:text-base border-none outline-none bg-transparent placeholder-gray-400 transition-all duration-300 focus:outline-none focus:ring-0"
+                                aria-label="Describe what you need"
+                        >
+
+                        #}{# AI Button (no hardcoded type; JS reads data-component from server context) #}{#
+                        <button
+                                id="ai-periphery-button"
+                                type="button"
+                                class="w-full sm:w-auto justify-center px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg sm:rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-2xl flex items-center gap-2 text-sm"
+                                data-endpoint="{{ path('component.ai.recommended', { product: componentType }) }}"
+                                data-component="{{ componentType }}"
+                                aria-label="Find with AI"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-sparkles w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                            <span>Find with AI</span>
+                        </button>#}
+                        <!-- AI Input -->
+                        <input
+                                id="ai-periphery-input"
+                                type="text"
+                                placeholder="e.g., 'I need a gaming keyboard for FPS games with tactile switches and RGB lighting'"
+                                class="min-w-0 flex-1 px-3 sm:px-4 py-2.5 sm:py-4 text-sm sm:text-base border-none outline-none bg-transparent placeholder-gray-400 transition-all duration-300 focus:outline-none focus:ring-0"
+                        >
+
+                        <!-- AI Filter Button -->
+                        <button id="ai-periphery-button"
+                                class="w-full sm:w-auto justify-center px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg sm:rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-2xl flex items-center gap-2 text-sm"
+                        >
+                            <span>Find with AI</span>
+                        </button>
+                        <div
+                                id="ai-context"
+                                data-component="{{ componentType }}"
+                                data-endpoint="{{ path('component.ai.recommended', { product: componentType }) }}"
+                        ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# --- AI Recommendations Mount Point --- #}
+        <div id="ai-reco-container" class="max-w-7xl mx-auto px-4 mt-6 sm:mt-8"></div>
+        {#{% include 'pages/peripherals/ai_recommended_products.html.twig' with {
+            peripherals: ai_recommended_products,   // your array above
+            user_query: user_requirement            // string above
+        } %}#}
+
+
+        <h2 id="component-data" data-type="{{ componentType }}" class="text-2xl font-bold text-center mb-6 bg-gradient-to-r from-indigo-700 to-cyan-500 bg-clip-text text-transparent">
+            {{ componentLabel }}
+        </h2>
+        <div class="md:flex md:gap-8">
+            <div class="md:w-1/4">
+
+                {# in your periphery_filters.html.twig (or components), inside the grid layout #}
+                {% include 'pages/pages_templates/new_product_filter_section.html.twig' with { filters: filters, componentType: componentType } %}
+
+            </div>
+            <div class="md:w-3/4 mt-6 md:mt-0">
+                <div id="component-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% include 'pages/periphery_filter_page/periphery_template/periphery_list.html.twig' with {
+                        'peripherals': peripherals,
+                        'componentType': componentType
+                    } %}
+                </div>
+            </div>
+        </div>
+        <div id="pagination-container">
+            {% include 'pages/component_filters_page/component_templates/component_pagination.html.twig' with {
+                'totalPages': totalPages,
+                'currentPage': currentPage,
+                'componentType': componentType
+            } %}
+        </div>
+    </div>
+{% endblock %}

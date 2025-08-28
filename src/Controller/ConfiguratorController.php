@@ -65,7 +65,7 @@ class ConfiguratorController extends AbstractController
 
         $componentsData = $this->populateComponentsFields();
 
-        //return$this->json($componentsData['pc_cases']);
+        //return$this->json($pcConfiguration);
 
         return $this->render('pages/pc_configurator_page/pc_build_configuration.html.twig', [
             'pcConfiguration' => $pcConfiguration,
@@ -74,6 +74,7 @@ class ConfiguratorController extends AbstractController
             'selected_components_count' => empty($pcConfiguration) ? 0 : count($pcConfiguration),
             'max_components_count' => 9,
             'cpus' => $componentsData['cpus'],
+            'cpus_cooling' => $componentsData['cpus_cooling'],
             'motherboards' => $componentsData['motherboards'],
             'psus' => $componentsData['psus'],
             'gpus' => $componentsData['gpus'],
@@ -91,7 +92,7 @@ class ConfiguratorController extends AbstractController
 
         $userRequirements = ObjectMapper::mapJsonToObject($request->getContent());
 
-        $recommendationAi = $this->openAIService->generateRecommendedPcConfiguration($userRequirements);
+        $recommendationAi = $this->openAIService->generateRecommendedPcConfigurationFromQuestionnaire($userRequirements);
 
         // Store the recommendation in the session and redirect
         $session = $request->getSession();
@@ -215,6 +216,7 @@ class ConfiguratorController extends AbstractController
         // Clear session values related to AI-generated configuration
         $session = $request->getSession();
         $session->set('pc_configuration', []);
+        $session->set('compatible_components', []);
         $session->set('explanation',[]);// Remove explanation
 
         return $this->redirectToRoute('configurator.build');
@@ -446,6 +448,7 @@ class ConfiguratorController extends AbstractController
 
         return [
             'cpus' => $this->componentService->getComponentsByType('cpu'),
+            'cpus_cooling' => $this->componentService->getComponentsByType('cpu_cooling'),
             'motherboards' => $this->componentService->getComponentsByType('motherboard'),
             'psus' => $this->componentService->getComponentsByType('psu'),
             'gpus' => $this->componentService->getComponentsByType('gpu'),

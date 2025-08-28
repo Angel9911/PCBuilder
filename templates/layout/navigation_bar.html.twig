@@ -1,4 +1,5 @@
-<nav class="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-900 border-t border-blue-900 relative z-40">
+<!-- Main Desktop Navigation (Hidden on Mobile) -->
+<nav class="hidden sm:block bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-900 border-t border-blue-900 relative">
     <div class="max-w-7xl mx-auto px-4">
         <div class="flex flex-col sm:flex-row items-center py-3 px-6 space-y-2 sm:space-y-0">
             <!-- PC Конфигуратор -->
@@ -64,49 +65,49 @@
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
 
                     <!-- Component Box Example -->
-                    <a href="/component/cpu" class="block group">
+                    <a href="/product/cpu" class="block group">
                         <div class="bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600 hover:border-blue-500 rounded-lg p-3 transition-all duration-300">
                             <img src="{{ asset('/assets/images/hardware_cpu.png') }}" alt="CPU" class="mx-auto w-16 h-16">
                             <p class="text-center text-sm font-semibold text-slate-300 mt-2 group-hover:text-white">CPU</p>
                         </div>
                     </a>
-                    <a href="/component/cpu_cooling" class="block group">
+                    <a href="/product/cpu_cooling" class="block group">
                         <div class="bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600 hover:border-blue-500 rounded-lg p-3 transition-all duration-300">
                             <img src="{{ asset('/assets/images/hardware_cpu_cooling.png') }}" alt="CPU" class="mx-auto w-16 h-16">
                             <p class="text-center text-sm font-semibold text-slate-300 mt-2 group-hover:text-white">CPU Cooling</p>
                         </div>
                     </a>
-                    <a href="/component/gpu" class="block group">
+                    <a href="/product/gpu" class="block group">
                         <div class="bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600 hover:border-blue-500 rounded-lg p-3 transition-all duration-300">
                             <img src="{{ asset('/assets/images/hardware_gpu.png') }}" alt="CPU" class="mx-auto w-16 h-16">
                             <p class="text-center text-sm font-semibold text-slate-300 mt-2 group-hover:text-white">GPU</p>
                         </div>
                     </a>
-                    <a href="/component/motherboard" class="block group">
+                    <a href="/product/motherboard" class="block group">
                         <div class="bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600 hover:border-blue-500 rounded-lg p-3 transition-all duration-300">
                             <img src="{{ asset('/assets/images/hardware_motherboard.png') }}" alt="CPU" class="mx-auto w-16 h-16">
                             <p class="text-center text-sm font-semibold text-slate-300 mt-2 group-hover:text-white">Motherboard</p>
                         </div>
                     </a>
-                    <a href="/component/storage" class="block group">
+                    <a href="/product/storage" class="block group">
                         <div class="bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600 hover:border-blue-500 rounded-lg p-3 transition-all duration-300">
                             <img src="{{ asset('/assets/images/hardware_storage.png') }}" alt="CPU" class="mx-auto w-16 h-16">
                             <p class="text-center text-sm font-semibold text-slate-300 mt-2 group-hover:text-white">Storage</p>
                         </div>
                     </a>
-                    <a href="/component/memory" class="block group">
+                    <a href="/product/ram" class="block group">
                         <div class="bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600 hover:border-blue-500 rounded-lg p-3 transition-all duration-300">
                             <img src="{{ asset('/assets/images/hardware_memory.png') }}" alt="CPU" class="mx-auto w-16 h-16">
                             <p class="text-center text-sm font-semibold text-slate-300 mt-2 group-hover:text-white">Memory</p>
                         </div>
                     </a>
-                    <a href="{/component/psu" class="block group">
+                    <a href="/product/psu" class="block group">
                         <div class="bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600 hover:border-blue-500 rounded-lg p-3 transition-all duration-300">
                             <img src="{{ asset('/assets/images/hardware_psu.png') }}" alt="CPU" class="mx-auto w-16 h-16">
                             <p class="text-center text-sm font-semibold text-slate-300 mt-2 group-hover:text-white">PSU</p>
                         </div>
                     </a>
-                    <a href="/component/pc_case" class="block group">
+                    <a href="/product/pc_case" class="block group">
                         <div class="bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600 hover:border-blue-500 rounded-lg p-3 transition-all duration-300">
                             <img src="{{ asset('/assets/images/hardware_pc_case.png') }}" alt="CPU" class="mx-auto w-16 h-16">
                             <p class="text-center text-sm font-semibold text-slate-300 mt-2 group-hover:text-white">PC Case</p>
@@ -126,21 +127,24 @@
                     Peripherals & Accessories
                 </h4>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-6">
+                    <!-- Peripherals -->
                     <div class="space-y-3">
                         <h5 class="text-sm font-bold text-blue-300 border-b-2 border-blue-200/30 pb-2 uppercase tracking-wide">Peripherals</h5>
                         <ul class="space-y-2">
-                            <li><button class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left border border-transparent hover:border-blue-500/30">Keyboards</button></li>
-                            <li><button class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left border border-transparent hover:border-blue-500/30">Mouse</button></li>
-                            <li><button class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left border border-transparent hover:border-blue-500/30">Headphones</button></li>
-                            <li><button class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left border border-transparent hover:border-blue-500/30">Webcams</button></li>
+                            <li><a href="/product/keyboard" class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left block border border-transparent hover:border-blue-500/30">Keyboards</a></li>
+                            <li><a href="/product/mouse" class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left block border border-transparent hover:border-blue-500/30">Mouse</a></li>
+                            <li><a href="/product/headphones" class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left block border border-transparent hover:border-blue-500/30">Headphones</a></li>
+                            <li><a href="/product/webcam" class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left block border border-transparent hover:border-blue-500/30">Webcams</a></li>
                         </ul>
                     </div>
+
+                    <!-- Accessories -->
                     <div class="space-y-3">
                         <h5 class="text-sm font-bold text-blue-300 border-b-2 border-blue-200/30 pb-2 uppercase tracking-wide">Accessories</h5>
                         <ul class="space-y-2">
-                            <li><button class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left border border-transparent hover:border-blue-500/30">Case Fans</button></li>
-                            <li><button class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left border border-transparent hover:border-blue-500/30">UPS</button></li>
-                            <li><button class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left border border-transparent hover:border-blue-500/30">Thermal Paste</button></li>
+                            <li><a href="/product/case_fans" class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left block border border-transparent hover:border-blue-500/30">Case Fans</a></li>
+                            <li><a href="/product/ups" class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left block border border-transparent hover:border-blue-500/30">UPS</a></li>
+                            <li><a href="/product/thermal_paste" class="text-sm text-slate-300 hover:text-blue-300 hover:bg-slate-700/50 hover:shadow-sm px-3 py-2 rounded-lg transition-all duration-200 w-full text-left block border border-transparent hover:border-blue-500/30">Thermal Paste</a></li>
                         </ul>
                     </div>
                 </div>

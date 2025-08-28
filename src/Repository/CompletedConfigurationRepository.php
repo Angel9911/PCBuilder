@@ -107,8 +107,8 @@ class CompletedConfigurationRepository extends ServiceEntityRepository
         foreach ($components as $comp) {
 
             $componentData = [
-                'component_id' => $comp['component_id'],
-                'component_name' => $comp['component_name']
+                //'component_id' => $comp['component_id'],
+                'name' => $comp['component_name']
             ];
 
 

@@ -35,9 +35,9 @@ class Component
     #[Groups(["component_read"])]
     private int $powerWattage = 0;
 
-    #[ORM\Column(type: "string", length: 255)]
+    #[ORM\Column(name: "slugify_name", type: "string", length: 255)]
     #[Groups(["component_read"])]
-    private string $slugify_name;
+    private string $slugifyName;
 
     #[ORM\OneToMany(targetEntity: PCConfigComponent::class, mappedBy: "component")]
     private Collection $pcConfigComponents;

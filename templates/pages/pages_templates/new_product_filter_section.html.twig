@@ -1,0 +1,179 @@
+{# Floating open button (mobile) #}
+<button
+        id="filters-open"
+        type="button"
+        class="md:hidden fixed bottom-6 right-6 z-40 bg-gradient-to-r from-indigo-600 to-cyan-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 animate-bounce"
+        aria-controls="filters-overlay"
+        aria-expanded="false">
+    <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-filter w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+    </svg>
+</button>
+
+{# Backdrop + Drawer wrapper #}
+<div id="filters-overlay"
+     class="fixed inset-0 z-40 pointer-events-none md:pointer-events-auto md:static md:inset-auto md:z-auto md:block">
+{#<div id="filters-overlay"
+     class="fixed inset-0 z-40
+     pointer-events-none md:pointer-events-auto
+     md:static md:inset-auto md:z-auto md:block">#}
+
+    {# Backdrop (mobile only) #}
+    <div id="filters-backdrop"
+         class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity md:hidden"></div>
+
+    {# Drawer (mobile) / Static (desktop) #}
+    <div id="filters-drawer"
+         class="absolute left-0 top-0 h-full w-80 max-w-[85vw] -translate-x-full
+              transition-transform duration-500 ease-in-out
+              md:static md:h-auto md:w-auto md:max-w-none md:translate-x-0">
+
+        {# Panel container #}
+        <div class="bg-white rounded-xl shadow-lg p-6 space-y-6 border border-slate-200 h-full overflow-y-auto md:h-auto">
+
+            {# SINGLE header (keep just this one) #}
+            <div class="flex items-center justify-between mb-6 sticky top-0 bg-white z-10 pb-2">
+                <div class="flex items-center gap-2">
+                    <h2 id="filters-title"
+                        class="text-lg font-semibold bg-gradient-to-r from-indigo-700 to-cyan-500 bg-clip-text text-transparent">
+                        Filters
+                    </h2>
+                    <span id="filters-selected-count"
+                          class="hidden bg-gradient-to-r from-indigo-500 to-cyan-500 text-white text-xs font-medium px-2.5 py-1 rounded-full">0</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button type="button"
+                            class="js-clear-filters inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-gradient-to-r from-slate-50 to-white hover:from-indigo-50 hover:to-cyan-50 text-slate-700 hover:text-slate-800 border border-slate-200 hover:border-slate-300 focus:ring-slate-400 shadow-sm hover:shadow px-4 py-2 text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-x w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                        </svg>
+                        Clear all
+                    </button>
+
+                    {# Mobile close #}
+                    <button id="filters-close" type="button" class="p-2 text-slate-500 hover:text-slate-700 md:hidden" aria-label="Close filters">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            {# ONLY the sections list here (no extra header inside) #}
+            <div id="filters-panel">
+                <div class="space-y-6">
+                    {% for f in filters %}
+                        {% set isCheckbox = f.type == 'checkbox' %}
+                        {% set isRadio    = f.type == 'radio' %}
+                        {% set isRange    = f.type == 'range' %}
+                        {% set isRangeSpan= f.type == 'range_span' %}
+
+                        <div class="border-b border-slate-200 pb-4 last:border-0">
+                            <button type="button"
+                                    class="filter-toggle w-full flex items-center justify-between py-2 text-left focus:outline-none group transition-all duration-200 hover:bg-slate-50 rounded-lg px-2">
+                                <h3 class="text-sm font-medium text-slate-900 group-hover:text-indigo-600 transition-colors duration-200">
+                                    {{ f.label }}
+                                </h3>
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     class="chevron lucide lucide-chevron-up h-5 w-5 text-slate-400 group-hover:text-indigo-600 transition-transform duration-300"
+                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="m18 15-6-6-6 6"></path>
+                                </svg>
+                            </button>
+
+                            <div class="filter-content mt-3 transition-all duration-300 ease-in-out overflow-hidden max-h-96 opacity-100">
+                                {% if isCheckbox %}
+                                    <div class="space-y-3 max-h-48 overflow-y-auto custom-scroll">
+                                        {% for value,label in f.values %}
+                                            <label class="flex items-center space-x-3 cursor-pointer group">
+                                                <input type="checkbox"
+                                                       class="filter-input w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 focus:ring-2 transition-all duration-200"
+                                                       name="{{ f.key }}[]"
+                                                       value="{{ value }}">
+                                                <span class="text-sm text-slate-600 group-hover:text-slate-800 flex-1 transition-colors duration-200">
+                          {{ label }}
+                        </span>
+                                                <span class="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded-full group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-all duration-200">12</span>
+                                            </label>
+                                        {% endfor %}
+                                    </div>
+
+                                {% elseif isRadio %}
+                                    <div class="space-y-3">
+                                        {% for value,label in f.values %}
+                                            <label class="flex items-center space-x-3 cursor-pointer group">
+                                                <input type="radio"
+                                                       class="filter-input w-4 h-4 text-indigo-600 border-slate-300 focus:ring-indigo-500 focus:ring-2 transition-all duration-200"
+                                                       name="{{ f.key }}"
+                                                       value="{{ value }}">
+                                                <span class="text-sm text-slate-600 group-hover:text-slate-800 flex-1 transition-colors duration-200">
+                          {{ label }}
+                        </span>
+                                                <span class="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded-full group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-all duration-200">12</span>
+                                            </label>
+                                        {% endfor %}
+                                    </div>
+
+                                {% elseif isRange or isRangeSpan %}
+                                    {% set minVal = f.values.min ?? 0 %}
+                                    {% set maxVal = f.values.max ?? 100 %}
+                                    {% set nameMin = f.key ~ '_min' %}
+                                    {% set nameMax = f.key ~ '_max' %}
+
+                                    <div class="space-y-4">
+                                        <div class="flex items-center justify-between text-sm">
+                      <span class="text-slate-600 font-medium">
+                        <span class="range-display-min" data-key="{{ f.key }}">{{ minVal }}</span> –
+                        <span class="range-display-max" data-key="{{ f.key }}">{{ maxVal }}</span>
+                      </span>
+                                            <span class="text-slate-400 text-xs">{{ minVal }} – {{ maxVal }}</span>
+                                        </div>
+
+                                        <div class="relative">
+                                            <div class="relative h-2 bg-slate-200 rounded-full overflow-hidden">
+                                                <div class="absolute h-2 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-full transition-all duration-300 range-fill"
+                                                     data-key="{{ f.key }}" style="left:0%;width:100%;"></div>
+
+                                                <input type="range" min="{{ minVal }}" max="{{ maxVal }}" step="1"
+                                                       class="absolute w-full h-2 bg-transparent appearance-none cursor-pointer slider-thumb z-20 range-min"
+                                                       value="{{ minVal }}" data-key="{{ f.key }}" name="{{ nameMin }}">
+                                                <input type="range" min="{{ minVal }}" max="{{ maxVal }}" step="1"
+                                                       class="absolute w-full h-2 bg-transparent appearance-none cursor-pointer slider-thumb z-20 range-max"
+                                                       value="{{ maxVal }}" data-key="{{ f.key }}" name="{{ nameMax }}">
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex-1">
+                                                <input type="number" min="{{ minVal }}" max="{{ maxVal }}"
+                                                       class="range-number-min w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
+                                                       placeholder="Min" value="{{ minVal }}" data-key="{{ f.key }}" name="{{ nameMin }}">
+                                            </div>
+                                            <span class="text-slate-400 text-sm">to</span>
+                                            <div class="flex-1">
+                                                <input type="number" min="{{ minVal }}" max="{{ maxVal }}"
+                                                       class="range-number-max w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
+                                                       placeholder="Max" value="{{ maxVal }}" data-key="{{ f.key }}" name="{{ nameMax }}">
+                                            </div>
+                                        </div>
+
+                                        {% if f.distinct is defined and f.distinct|length > 0 %}
+                                            <div class="flex flex-wrap gap-1 pt-1">
+                                                {% for tickVal, tickLabel in f.distinct %}
+                                                    <span class="px-2 py-0.5 text-xs rounded bg-slate-100 text-slate-500">{{ tickLabel }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

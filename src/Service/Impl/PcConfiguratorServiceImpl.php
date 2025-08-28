@@ -97,8 +97,11 @@ class PcConfiguratorServiceImpl implements PCConfiguratorService
         foreach ($filteredResultArray as $item) {
 
             $componentData = [
-                'component_id'   => $item['component_id'],
-                'component_name' => $item['component_name']
+                // TODO: THIS CODE IS DUPLICATE WITH CompletedConfigurationRepository::getAllPcConfigurations()
+                // remove component_id and rename the component_name to name, because the apply config doesn't work
+
+                //'component_id'   => $item['component_id'],
+                'name'           => $item['component_name']
             ];
 
             if($item['component_type'] === 'pc_case'){

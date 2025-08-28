@@ -1,0 +1,94 @@
+{% for periphery in peripherals %}
+    <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-500 overflow-hidden group relative border-2 border-transparent hover:border-gradient-animated flex flex-col justify-between">
+
+        <!-- Gradient Border -->
+        <div class="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+            <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 animate-gradient-x"></div>
+            <div class="absolute inset-[2px] rounded-xl bg-white"></div>
+        </div>
+
+        <!-- Card Content -->
+        <div class="relative z-10 flex flex-col h-full">
+
+            <!-- Product Image -->
+            <div class="relative">
+                <img src="{{ main_image }}" alt="{{ periphery.name }}"
+                     class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300">
+
+                {# Promo Badge #}
+                {% if periphery.promo is defined and periphery.promo %}
+                    <div class="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg shadow-xl transform -rotate-3 hover:rotate-0 transition-transform duration-300">
+                        <span class="text-sm font-bold">ПРОМО</span>
+                    </div>
+                {% endif %}
+
+                {# Stock Badge #}
+                {% if periphery.in_stock is defined and periphery.in_stock %}
+                    <div class="absolute top-3 right-3 px-3 py-1.5 rounded-lg shadow-lg text-sm font-bold bg-gradient-to-r from-green-500 to-green-600 text-white">
+                        <span class="flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                            В НАЛИЧНОСТ
+                        </span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Text Content -->
+            <div class="p-6 flex flex-col flex-1">
+                <div class="mb-2">
+                    <span class="text-sm text-blue-600 font-medium">{{ periphery.brand_name }}</span>
+                    <h3 class="text-lg font-semibold text-gray-900 mt-1 leading-tight">{{ periphery.name }}</h3>
+                </div>
+
+                <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ periphery.description }}</p>
+
+                <!-- Features -->
+                <div class="mb-4">
+                    <ul class="space-y-2">
+                        {% for label, value in periphery.specifications %}
+                            {% set iconConfig = periphery_type_icons[label]|default(null) %}
+                            <li class="flex items-center text-sm text-gray-700">
+                                <div class="w-8 h-8 rounded-lg mr-3 flex items-center justify-center
+                                    {{ iconConfig.bgClass|default('bg-gray-100') }}
+                                    {{ iconConfig.textClass|default('text-gray-600') }}">
+                                    <img src="/assets/images/periphery/{{ iconConfig.icon|default('default_icon.png') }}"
+                                         class="w-full h-full object-contain" alt="{{ label }}">
+                                </div>
+                                {{ value }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Ratings -->
+                <div class="mb-4">
+                    <div class="flex items-center gap-1">
+                        {% for i in 1..5 %}
+                            {% if i <= 4 %}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-star w-4 h-4 text-yellow-400 fill-yellow-400" fill="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-star w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            {% endif %}
+                        {% endfor %}
+                        <span class="text-sm text-gray-600 ml-1">(4.8)</span>
+                    </div>
+                </div>
+
+                <!-- Price -->
+                <div class="mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl font-bold text-gray-900">$20</span>
+                        <span class="text-lg text-gray-500 line-through">$50</span>
+                    </div>
+                </div>
+
+                <!-- Button -->
+                <button class="inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 px-4 py-3 text-sm w-full bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-700 hover:to-cyan-600 text-white shadow-md hover:shadow-lg focus:ring-indigo-500 mt-auto">
+                    Add to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+{% endfor %}

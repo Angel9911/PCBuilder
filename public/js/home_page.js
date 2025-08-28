@@ -1,19 +1,34 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const menuToggle = document.getElementById('mobile-menu-toggle');
-    const menu = document.getElementById('mobile-menu');
 
-    if (menuToggle && menu) {
+    const menuToggle = document.getElementById('menuToggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const userIcon = document.getElementById("open-auth-modal");
+    const closeMenu = document.getElementById('closeMenu');
+    if (menuToggle && mobileMenu) {
         menuToggle.addEventListener('click', () => {
-            if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden');
-                menu.classList.remove('animate-fade-slide');
-                void menu.offsetWidth;
-                menu.classList.add('animate-fade-slide');
+            const isOpen = menuToggle.classList.contains('open');
+
+            if (!isOpen) {
+                menuToggle.classList.add('open');
+                mobileMenu.classList.remove('translate-x-full');
+                mobileMenu.classList.add('translate-x-0');
+                mobileMenu.classList.remove('hidden');
+                userIcon.classList.add('hidden');
             } else {
-                menu.classList.add('hidden');
-                menu.classList.remove('animate-fade-slide');
+                menuToggle.classList.remove('open');
+                mobileMenu.classList.add('translate-x-full');
+                mobileMenu.classList.add('hidden');
+                //setTimeout(() => mobileMenu.classList.add('hidden'), 500);
+                userIcon.classList.remove('hidden');
             }
         });
+
+        /*closeMenu.addEventListener('click', () => {
+            menuToggle.classList.remove('open');
+            mobileMenu.classList.add('translate-x-full');
+            setTimeout(() => mobileMenu.classList.add('hidden'), 500);
+            userIcon.classList.remove('hidden');
+        });*/
     }
 
     // ========== Hero Carousel ==========
@@ -55,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
             slideEl.className = `carousel-slide absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? "opacity-100 z-20" : "opacity-0 z-10"}`;
             slideEl.innerHTML = `
             <div class="absolute inset-0 bg-black/40 z-10"></div>
-            <img src="${slide.image}" class="w-full h-full object-cover" loading="lazy" />
+            <img src="${slide.image}" class="w-full h-full object-cover" loading="lazy"  alt=""/>
             <div class="absolute inset-0 z-20 flex items-center justify-center">
                 <div class="text-center text-white max-w-4xl px-4">
                     <h1 class="text-4xl md:text-6xl font-bold mb-6">${slide.title}</h1>

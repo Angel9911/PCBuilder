@@ -73,11 +73,17 @@ class CompatibilityController extends AbstractController
 
             if (!empty($compatiblePcComponents)) {
 
-                return $this->json($compatiblePcComponents);
+                $compatibleProductsSessionVal = [];
+
+                foreach ($compatiblePcComponents as $key => $rows) {
+
+                    // Expect keys like cpu_ids, motherboard_ids, ...
+                    $compatibleProductsSessionVal[$key] = array_map(fn($r) => ['component_id' => (int)$r['component_id']], $rows);
+                }
+
+                $request->getSession()->set('compatible_components', $compatibleProductsSessionVal);
             }
         }
-
-        $compatiblePcComponents = $this->componentService->getCompatibleComponents($componentsParams);
 
         return $this->json($compatiblePcComponents);
     }

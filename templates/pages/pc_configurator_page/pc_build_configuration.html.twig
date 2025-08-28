@@ -17,32 +17,36 @@
             <p id="error-message"></p>
         </div>
     </div>
+    <br>
+    <div class="md:flex md:items-center md:justify-between">
+        <div class="flex-1 min-w-0">
+            <h1 class="text-xl sm:text-3xl font-semibold sm:font-bold text-center mb-4 sm:mb-8 bg-gradient-to-r from-indigo-700 to-cyan-500 bg-clip-text text-transparent">
+                PC Builder Configuration
+            </h1>
+        </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Bottleneck template -->
-        {% include 'pages/pc_configurator_page/pc_config_templates/bottleneck_configuration-template.html.twig' %}
-
-        <div class="md:flex md:items-center md:justify-between">
-            <div class="flex-1 min-w-0">
-                <h1 class="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-indigo-700 to-cyan-500 bg-clip-text text-transparent">PC Builder Configuration</h1>
-            </div>
-
-            {#<div class="mt-4 flex md:mt-0 md:ml-4">
+        {#<div class="mt-4 flex md:mt-0 md:ml-4">
                 <button id='start-config'
                         class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     Решете отново въпросника
                 </button>
             </div>#}
-        </div>
+    </div>
 
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Bottleneck template -->
-        {% include 'pages/pc_configurator_page/pc_config_templates/performance_analysis-template.html.twig' %}
+        {#{% include 'pages/pc_configurator_page/pc_config_templates/bottleneck_configuration-template.html.twig' %}#}
+        <!-- AI input field and Performance Analysis section -->
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-xl">
+            {% include 'pages/pc_configurator_page/pc_config_templates/ai_input_field-template.html.twig' %}
+            {% include 'pages/pc_configurator_page/pc_config_templates/performance_analysis-template.html.twig' %}
+        </div>
 
         <br>
 
         {% if app.request.headers.get('User-Agent') matches '/Mobile|Android|iPhone/' %}
 
-            {% include 'pages/pc_configurator_page/pc_config_templates/mobile_review_summary_section.html.twig' %}
+            {% include 'pages/pc_configurator_page/pc_config_templates/new_mobile_review_summary_section.html.twig' %}
 
         {% endif %}
 
@@ -59,25 +63,25 @@
                                 id: 'cpu',
                                 label: 'Processor (CPU)',
                                 icon_path: '/assets/images/icons8-processor-50.png',
-                                filter_path: '/components/cpu/filter',
+                                filter_path: '/product/cpu/filter',
                                 default_option: 'Select Processor (CPU)',
                                 options: cpus
                             } %}
 
                         </li>
 
-                        {#<li class="group hover:bg-gray-50 transition-colors duration-150">
+                        <li class="group hover:bg-gray-50 transition-colors duration-150">
 
                             {% include 'pages/pc_configurator_page/pc_config_templates/component-combobox-template.html.twig' with {
                                 id: 'cpu_cooling',
                                 label: 'CPU Cooling',
                                 icon_path: '/assets/images/icons8-burn-cd-50.png',
-                                filter_path: '/components/cooling/filter',
+                                filter_path: '/product/cpu_cooling/filter',
                                 default_option: 'Select CPU Cooling',
-                                options: ['Cooler Master Hyper 212', 'NZXT Kraken X63', 'Noctua NH-D15']
+                                options: cpus_cooling
                             } %}
 
-                        </li>#}
+                        </li>
 
                         <li class="group hover:bg-gray-50 transition-colors duration-150">
 
@@ -85,7 +89,7 @@
                                 id: 'motherboard',
                                 label: 'Motherboard',
                                 icon_path: '/assets/images/icons8-motherboard-50.png',
-                                filter_path: '/components/motherboard/filter',
+                                filter_path: '/product/motherboard/filter',
                                 default_option: 'Select Motherboard',
                                 options: motherboards
                             } %}
@@ -98,7 +102,7 @@
                                 id: 'ram',
                                 label: 'Memory (RAM)',
                                 icon_path: '/assets/images/icons8-memory-slot-50.png',
-                                filter_path: '/components/ram/filter',
+                                filter_path: '/product/ram/filter',
                                 default_option: 'Select Memory(RAM)',
                                 options: rams
                             } %}
@@ -111,7 +115,7 @@
                                 id: 'gpu',
                                 label: 'Video Card',
                                 icon_path: '/assets/images/icons8-video-card-50.png',
-                                filter_path: '/components/gpu/filter',
+                                filter_path: '/product/gpu/filter',
                                 default_option: 'Select Video Card',
                                 options: gpus
                             } %}
@@ -124,20 +128,20 @@
                                 id: 'storage',
                                 label: 'Storage',
                                 icon_path: '/assets/images/icons8-ssd-50.png',
-                                filter_path: '/components/storage/filter',
+                                filter_path: '/product/storage/filter',
                                 default_option: 'Select Storage',
                                 options: storages
                             } %}
 
                         </li>
 
-                        {#<li class="group hover:bg-gray-50 transition-colors duration-150">
+                        <li class="group hover:bg-gray-50 transition-colors duration-150">
 
                             {% include 'pages/pc_configurator_page/pc_config_templates/component-combobox-template.html.twig' with {
                                 id: 'monitor',
                                 label: 'Monitor',
                                 icon_path: '/assets/images/icons8-server-50.png',
-                                filter_path: '/components/case/filter',
+                                filter_path: '/product/case/filter',
                                 default_option: 'Select Monitor',
                                 image_url: 'https://www.pic.bg/data/asbis/782669-f60cf782e860e111661df24196c5b790.png',
                                 options: monitors
@@ -151,7 +155,7 @@
                                         class="mx-auto max-w-xs rounded-lg shadow-lg border border-gray-200"
                                 >
                             </div>
-                        </li>#}
+                        </li>
 
                         <li class="group hover:bg-gray-50 transition-colors duration-150">
 
@@ -159,7 +163,7 @@
                                 id: 'pc_case',
                                 label: 'PC Case',
                                 icon_path: '/assets/images/icons8-server-50.png',
-                                filter_path: '/components/case/filter',
+                                filter_path: '/product/case/filter',
                                 default_option: 'Select Case',
                                 image_url: 'https://www.pic.bg/data/asbis/782669-f60cf782e860e111661df24196c5b790.png',
                                 options: pc_cases
@@ -181,7 +185,7 @@
                                 id: 'psu',
                                 label: 'Power Supply',
                                 icon_path: '/assets/images/icons8-power-over-ethernet-50.png',
-                                filter_path: '/components/psu/filter',
+                                filter_path: '/product/psu/filter',
                                 default_option: 'Select Power Supply (PSU)',
                                 options: psus
                             } %}

@@ -4,7 +4,9 @@ const toggleBtn = document.getElementById("toggle-performance");
 const chevronIcon = document.getElementById("chevron-icon");
 const section = document.getElementById("performance-analysis-content");
 
-let isVisible = true;
+let isVisible = false;
+
+//chevronIcon.classList.toggle('rotate-180', section.classList.contains('hidden'));
 
 function updateBottleneckSummaryState(cpuSelect, gpuSelect, ramSelect){
     // Used for Performance analysis section
@@ -111,7 +113,18 @@ btnFps.addEventListener("click", () => {
 
     setTimeout(() => updateSectionView(cpuId, gpuId, ramId), 0);
 });
+/*toggleBtn   .addEventListener("click", function () {
+    section.classList.toggle("hidden");
 
+    // Toggle chevron icon direction
+    if (chevronIcon.classList.contains("lucide-chevron-down")) {
+        chevronIcon.classList.remove("lucide-chevron-down");
+        chevronIcon.classList.add("lucide-chevron-up");
+    } else {
+        chevronIcon.classList.remove("lucide-chevron-up");
+        chevronIcon.classList.add("lucide-chevron-down");
+    }
+});*/
 toggleBtn.addEventListener("click", () => {
     isVisible = !isVisible;
 

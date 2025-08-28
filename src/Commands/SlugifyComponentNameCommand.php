@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Commands;
 
 use App\Service\ComponentService;
+use App\utils\SlugifyClass;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,28 +30,12 @@ class SlugifyComponentNameCommand extends Command
 
             foreach ($componentType as $component) {
 
-                $slugifyComponent = $this->slugify($component);
+                $slugifyComponent = SlugifyClass::slugify($component);
 
                 $this->componentService->updateComponentName($component, $slugifyComponent);
             }
         }
 
         return Command::SUCCESS;
-    }
-    function slugify(string $text): string
-    {
-        // Replace special characters with ASCII equivalents
-        $text = iconv('UTF-8', 'ASCII//TRANSLIT', $text);
-
-        // Replace non letter or digits by -
-        $text = preg_replace('~[^\pL\d]+~u', '-', $text);
-
-        // Remove unwanted characters
-        $text = preg_replace('~[^-\w]+~', '', $text);
-
-        // Trim and lowercase
-        $text = strtolower(trim($text, '-'));
-
-        return $text;
     }
 }

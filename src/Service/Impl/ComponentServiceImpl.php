@@ -2,13 +2,15 @@
 
 namespace App\Service\Impl;
 
-use App\Entity\Component;
+use App\Private_lib\BaseProduct;
+use App\Private_lib\BaseProductService;
 use App\Repository\ComponentRepository;
 use App\Service\ComponentService;
 use Doctrine\DBAL\Exception;
 use App\Constraints\ComponentConstraints;
 
-class ComponentServiceImpl implements ComponentService
+
+class ComponentServiceImpl extends BaseProduct implements BaseProductService, ComponentService
 {
     private ComponentRepository $componentRepository;
 
@@ -31,6 +33,11 @@ class ComponentServiceImpl implements ComponentService
         $this->componentRepository = $componentRepository;
     }
 
+
+    public static function getUnits(): array
+    {
+        return self::$UNITS;
+    }
 
     public function getAllComponents(): array
     {
@@ -58,13 +65,24 @@ class ComponentServiceImpl implements ComponentService
     /**
      * @throws Exception
      */
-    public function getComponentsByFilters(string $componentType, array $filters, int $limit = 12, int $offset = 0): array
+    public function getComponentsByFilters(string $componentType, array $filters, int $limit = 12, int $offset = 0, array $selectedComponents = []): array
     {
-        $components = $this->componentRepository->getComponentSpecs($componentType, $limit, $offset, $filters);
+        $components = $this->componentRepository->getComponentSpecs($componentType, $limit, $offset, $filters, $selectedComponents);
 
-        $result = [];
+        $result = $this->getAdvancedFilterProducts(
+            $componentType,
+            'component_type',
+            $components,
+            'component_id',
+            'components',
+            fn(array $componentProduct) => $this->getComponentScores($componentType, $componentProduct),
+        );
 
-        if (!empty($components)) {
+        $result['filters'] = $this->componentRepository->getAndLoadProductFiltersByType($componentType);
+
+        return $result;
+
+/*        if (!empty($components)) {
 
             $componentSpecifications = []; // Used for cardbox specifications
 
@@ -90,7 +108,7 @@ class ComponentServiceImpl implements ComponentService
                     }
                 }
 
-                $componentSpecifications = $this->formatComponentSpecifications($filteredData);
+                $componentSpecifications = $this->formatSpecifications($filteredData);
 
                 // Append to response (component_type not included)
                 $result['components'][] = [
@@ -100,102 +118,7 @@ class ComponentServiceImpl implements ComponentService
                     'specifications' => $componentSpecifications,
                     'slugify_name' => $component['slugify_name']
                 ];
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function getAdvanceFilterComponentsByType(string $componentType, int $limit = 12, int $offset = 0): array
-    {
-        $components = $this->componentRepository->getComponentSpecs($componentType, $limit, $offset);
-
-        $responseComponentsFilters = [
-            'components' => [],
-            'filters' => []  // we'll convert this to an array of objects below
-        ];
-
-        if (!empty($components)) {
-
-            $componentSpecifications = []; // Used for cardbox specifications
-
-            $rawFilters = [];
-
-            foreach ($components as $component) {
-
-                // Add the component to response
-                // TODO: from here to formating specification response could be extract in another method
-                $componentFitlers = $this->getComponentTypesFilter();
-
-                $filters = $componentFitlers[$component['component_type']] ?? [];
-
-                $filteredData = [
-                    'id' => $component['id'],
-                    'component_id' => $component['component_id'],
-                    'name' => $component['name'],
-                    'slugify_name' => $component['slugify_name'],
-                ];
-
-                foreach ($filters as $filter) {
-                    if (isset($component[$filter])) {
-                        $filteredData[$filter] = $component[$filter];
-                    }
-                }
-
-                //var_dump($filteredData);
-                $componentSpecifications = $this->formatComponentSpecifications($filteredData);
-
-                // Append to response (component_type not included)
-                $responseComponentsFilters['components'][] = [
-                    'id' => $component['id'],
-                    'component_id' => $component['component_id'],
-                    'name' => $component['name'],
-                    'slugify_name' => $component['slugify_name'],
-                    'specifications' => $componentSpecifications
-                ];
-                //$responseComponentsFilters['components'][] = $filteredData;
-
-                // Gather filterable fields
-                foreach ($component as $key => $value) {
-                    if (in_array($key, ['id', 'component_id', 'name', 'slugify_name', 'component_type'])) {
-                        continue;
-                    }
-
-                    // Normalize string sets: "{A,B,C}"
-                    if (preg_match('/^\{(.+)\}$/', $value, $matches)) {
-                        $values = explode(',', $matches[1]);
-                    } else {
-                        $values = [$value];
-                    }
-
-                    foreach ($values as $val) {
-                        $val = trim($val);
-
-                        if (!isset($rawFilters[$key])) {
-                            $rawFilters[$key] = [];
-                        }
-
-                        if (!in_array($val, $rawFilters[$key], true)) {
-                            $rawFilters[$key][] = $val;
-                        }
-                    }
-                }
-            }
-
-            // Transform into array of filter objects
-            foreach ($rawFilters as $filterKey => $filterValues) {
-                $responseComponentsFilters['filters'][] = [
-                    'label' => ucwords(str_replace('_', ' ', $filterKey)),
-                    'key' => $filterKey, // optional, used for form names
-                    'values' => $filterValues
-                ];
-            }
-        }
-
-        return $responseComponentsFilters;
+            }*/
     }
 
     /**
@@ -205,7 +128,6 @@ class ComponentServiceImpl implements ComponentService
     {
         return $this->componentRepository->getTotalsCountComponent($componentType);
     }
-
 
     private function getComponentTypesFilter(): array
     {
@@ -220,38 +142,58 @@ class ComponentServiceImpl implements ComponentService
         ];
     }
 
-    /**
-     * @param array $components
-     * @return array
-     */
-    public function formatComponentSpecifications(array $components): array
+    private function getComponentTypesSpecsScores(string $type): array
     {
-        // Format specifications (keys prettified, with optional units)
-        $specs = [];
-        foreach ($components as $key => $value) {
-            // TODO CHECK WHY WHEN WE LOAD SPECIFIC COMPONENT WE RECEIVE HERE images key?
-            if (in_array($key, ['id', 'component_id', 'name', 'slugify_name', 'images'])) {
-                continue;
-            }
+        $componentScores = [
+            'cpu' => ComponentConstraints::$CPU_FILTERS_COMPONENT_SCORES,
+            'gpu' => ComponentConstraints::$GPU_FILTERS_COMPONENT_SCORES,
+            'storage' => ComponentConstraints::$STORAGE_FILTERS_COMPONENT_SCORES,
+            'ram' => ComponentConstraints::$RAM_FILTERS_COMPONENT_SCORES,
+        ];
 
-            $label = ucwords(str_replace('_', ' ', $key));
-            if (isset(self::$UNITS[$key])) {
-                $value .= self::$UNITS[$key];
-            }
-
-            $specs[$label] = $value;
-        }
-        return $specs;
+        return $componentScores[$type] ?? [];
     }
+
+    public function updateComponentName(string $existingName, string $slugifyName): void
+    {
+        $this->componentRepository->updateComponentName($existingName, $slugifyName);
+    }
+
+
+    public function getComponentIdBySlugifyName(string $slugifyName): int
+    {
+        //$this->componentRepository->
+    }
+
+    public function getComponentNameBySlugifyName(string $slugifyName): array
+    {
+        return $this->componentRepository->findComponentNameBySlugifyName($slugifyName);
+    }
+
+    public function getProductKeySpecificationsByType(string $type): array
+    {
+        $componentFilters = [
+            'cpu' => ComponentConstraints::$CPU_FILTERS_COMPONENT,
+            'motherboard' => ComponentConstraints::$MOTHERBOARD_FILTERS_COMPONENT,
+            'gpu' => ComponentConstraints::$GPU_FILTERS_COMPONENT,
+            'pc_case' => ComponentConstraints::$PC_CASE_FILTERS_COMPONENT,
+            'psu' => ComponentConstraints::$PSU_FILTERS_COMPONENT,
+            'storage' => ComponentConstraints::$STORAGE_FILTERS_COMPONENT,
+            'ram' => ComponentConstraints::$RAM_FILTERS_COMPONENT,
+        ];
+
+        return $componentFilters[$type] ?? [];
+    }
+
 
     /**
      * @throws Exception
      */
-    public function getComponentDetailsByComponentName(string $componentName, string $componentType): array
+    public function getProductDetailsByProductNameAndType(string $productName, string $productType): array
     {
-        $componentDetails = $this->componentRepository->findComponentSpecificationsByNameAndType($componentName, $componentType);
+        $componentDetails = $this->componentRepository->findComponentSpecificationsByNameAndType($productName, $productType);
 
-        $componentImages = $this->getImagesByComponent($componentDetails);
+        $componentImages = $this->getImagesByProduct($componentDetails);
 
         return [
             'id' => $componentDetails[0]['id'],
@@ -261,54 +203,90 @@ class ComponentServiceImpl implements ComponentService
                 'main_image_url' => $componentImages['main_image_url'],
                 'all_image_urls' => $componentImages['all_image_urls'],
             ],
-            'specifications' => $this->formatComponentSpecifications($componentDetails[0])
+            'specifications' => $this->formatSpecifications($componentDetails[0])
         ];
     }
 
-    public function updateComponentName(string $existingName, string $slugifyName): void
+    /**
+     * @throws Exception
+     */
+    public function getAllProductsByType(string $productType, int $limit = 0, int $offset = 0, array $selectedCompatibleProducts = [], array $productIds = []): array
     {
-        $this->componentRepository->updateComponentName($existingName, $slugifyName);
-    }
+        // TODO: REWORK THIS
+        if(!empty($productIds)){
 
-    private function getImagesByComponent(array $component): array
-    {
-        // Normalize image field (can be array or single object)
-       /* echo '<pre>';
-        print_r($component);
-        echo '</pre>';*/
-        $imagesRaw = $component[0]['images'];
-        //var_dump($component[0]['images']);
-        $images = [];
-
-        if (isset($imagesRaw[0])) {
-            // If already an array of images
-            $images = $imagesRaw;
-        } else {
-            // Single image case
-            $images = [$imagesRaw];
+            $selectedCompatibleProducts = $productIds;
         }
 
-        // Get main image (fallback to first)
-        $mainImage = array_filter($images, function ($img) {
-            return isset($img['is_main']) && ($img['is_main'] === true || $img['is_main'] === 'true');
-        });
-        $mainImageUrl = count($mainImage) > 0
-            ? array_values($mainImage)[0]['component_image_url']
-            : $images[0]['component_image_url'] ?? null;
+        $components = $this->componentRepository->getComponentSpecs($productType, $limit, $offset, [], $selectedCompatibleProducts);
 
-        // Create array of thumbnail-friendly objects
-        $allImageUrls = array_map(function ($img) {
-            return ['url' => $img['component_image_url']];
-        }, $images);
+        $result = $this->getAdvancedFilterProducts(
+            $productType,
+            'component_type',
+            $components,
+            'component_id',
+            'components',
+            fn(array $componentProduct) => $this->getComponentScores($productType, $componentProduct),
+        );
 
-        return [
-            'main_image_url' => $mainImageUrl,
-            'all_image_urls' => $allImageUrls
-        ];
+        $result['filters'] = $this->componentRepository->getAndLoadProductFiltersByType($productType);
+
+        return $result;
     }
 
-    public function getComponentIdBySlugifyName(string $slugifyName): int
+    /**
+     * @throws Exception
+     */
+    public function getProductsTypeCount(string $type): int
     {
-        //$this->componentRepository->
+        return $this->componentRepository->getTotalsCountComponent($type);
+    }
+
+    public function getAiRecommendedProduct(string $productType, array $userRequirements): array
+    {
+        // TODO: Implement getAiRecommendedProduct() method.
+    }
+
+    public function getProductFiltersByType(string $type): array
+    {
+        // TODO: Implement getProductFiltersByType() method.
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getProductsIdsByType(string $type): array
+    {
+        return $this->componentRepository->getProductsIdsByType($type);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getProductCardSpecsByTypeAndIds(string $peripheryType, array $ids): array
+    {
+        return $this->componentRepository->getProductSpecsByTypeAndIds($peripheryType, $ids);
+    }
+    private function getComponentScores(string $componentType, array $componentProduct): array
+    {
+        $componentSpecScores = $this->getComponentTypesSpecsScores($componentType);
+
+        if(empty($componentSpecScores)){
+            return [];
+        }
+
+        $formatComponentScores = [];
+
+        foreach ($componentSpecScores as $specScore) {
+
+            if(array_key_exists($specScore, $componentProduct)){
+
+                $labelSpecificationScore = ucwords(str_replace('_', ' ', $specScore));
+
+                $formatComponentScores[$labelSpecificationScore] = $componentProduct[$specScore];
+            }
+        }
+
+        return $formatComponentScores;
     }
 }

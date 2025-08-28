@@ -253,6 +253,39 @@ function renderBuildSummary() {
     }
 }
 
+function initMobileSummaryPanel() {
+    // These elements only exist on the mobile template; on desktop this exits immediately.
+    const fab     = document.getElementById('mobile-summary-fab');
+    const panel   = document.getElementById('mobile-summary-panel');
+    const overlay = document.getElementById('mobile-summary-overlay');
+    const close   = document.getElementById('mobile-summary-close');
+
+    if (!fab || !panel || !overlay) return; // desktop or template not loaded
+
+    const openPanel = () => {
+        panel.classList.remove('translate-x-full');  // slide in
+        overlay.classList.remove('hidden');          // show dim/blur
+        document.body.style.overflow = 'hidden';     // lock scroll
+    };
+
+    const closePanel = () => {
+        panel.classList.add('translate-x-full');     // slide out
+        overlay.classList.add('hidden');             // hide dim/blur
+        document.body.style.overflow = '';           // restore scroll
+    };
+
+    // Prevent double-binding if this script executes more than once (e.g., hot reload)
+    if (!fab.dataset.bound) {
+        fab.addEventListener('click', openPanel);
+        overlay.addEventListener('click', closePanel);
+        close?.addEventListener('click', closePanel);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !overlay.classList.contains('hidden')) closePanel();
+        });
+        fab.dataset.bound = '1';
+    }
+}
+
 document.getElementById("review-build-button").addEventListener("click", () => {
     document.getElementById("reviewModal").classList.remove("hidden");
 });

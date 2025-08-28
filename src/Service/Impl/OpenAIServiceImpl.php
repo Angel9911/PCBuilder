@@ -5,6 +5,7 @@ namespace App\Service\Impl;
 use App\Entity\Component;
 use App\Service\ComponentService;
 use App\Service\OpenAIService;
+use App\Service\PeripheryService;
 use App\utils\ObjectMapper;
 use Exception;
 use Symfony\Component\HttpClient\HttpClient;
@@ -26,7 +27,9 @@ class OpenAIServiceImpl implements OpenAIService
      * @param ComponentService $componentService
      * @param  $apiKey
      */
-    public function __construct(ComponentService $componentService, HttpClientInterface $httpClient, string $apiKey)
+    public function __construct(ComponentService $componentService
+                            , HttpClientInterface $httpClient
+                            , string $apiKey)
     {
         $this->componentService = $componentService;
         $this->httpClient = $httpClient;
@@ -43,7 +46,7 @@ class OpenAIServiceImpl implements OpenAIService
      * @throws Exception
      * @throws DecodingExceptionInterface
      */
-    public function generateRecommendedPcConfiguration(array $userAnswers): array
+    public function generateRecommendedPcConfigurationFromQuestionnaire(array $userAnswers): array
     {
         $components = $this->componentService->getAllComponents();
 
@@ -61,7 +64,7 @@ class OpenAIServiceImpl implements OpenAIService
                             'role' => 'system',
                             'content' => "You are a PC build expert. Recommend a **compatible** PC build using only the provided components. 
 
-                            - Match components to user preferences (brand, budget, usage).
+                            - Match components to user preferences (brand, budget, usage) given as structured answers and/or free-text (“User Request”).
                             - Ensure **full compatibility**.
                             - The computer parts you will choose should only be for: CPU, GPU, PSU, MOTHERBOARD, RAM, STORAGE
                             - Output **only JSON**:  
@@ -90,6 +93,7 @@ class OpenAIServiceImpl implements OpenAIService
 
             // Ensure JSON is properly structured
             if (!isset($decodedResponse['Component Selection']) || !isset($decodedResponse['Explanation'])) {
+                var_dump($decodedResponse);
                 throw new Exception("Invalid AI response format.");
             }
 
@@ -281,6 +285,87 @@ class OpenAIServiceImpl implements OpenAIService
         }
     }
 
+
+    /**
+     * @throws TransportExceptionInterface
+     * @throws Exception
+     */
+    public function generateRecommendedProducts(string $productType, array $availableProducts, array $userAnswer): array
+    {
+        try {
+
+            $userPayload = [
+                'product_type' => $productType,
+                'available_products' => $availableProducts['available_products'],
+                'product_specifications' => $availableProducts['product_specifications'],
+                'user_requirement' => $userAnswer['user_requirement']
+            ];
+
+            $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/chat/completions', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->apiKey,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'model' => 'gpt-3.5-turbo',
+                    'temperature' => 0.2,
+                    'messages' => [
+                        [
+                            'role' => 'system',
+                            'content' =>
+                                "You are an assistant that recommends PC hardware and peripherals based on the user’s needs.
+
+                                Rules you MUST follow:
+                                - Consider the user's requirement, the product type, and the provided catalog items/specifications (note: this is a partial list, not exhaustive).
+                                - Choose from the CATALOG ONLY (do not invent products).
+                                - Return STRICT JSON (UTF-8, no Markdown, no backticks, no explanations before/after).
+                                - Top-level schema MUST be:
+                                {
+                                \"type\": \"<type>\",
+                                \"recommended\": [
+                                  {\"id\": <int>, \"name\": \"<catalog name>\", \"matching\": <int 0-100>, \"short_description\": \"<<=20 words>\"}
+                                ]
+                              }
+                            - Output at most 3 items in \"recommended_products\".
+                            - \"matching\" is an integer from 0 to 100 (no % sign).
+                            - \"short_description\" in the SAME LANGUAGE as the user's requirement.
+                            - If nothing fits, return:
+                              {\"type\": \"<type>\", \"recommended\": []}
+                            - Use EXACT key names: product_type, recommended_products, id, name, matching, short_description.
+",
+                        ],
+                        ['role' => 'user', 'content' => json_encode($userPayload, JSON_UNESCAPED_UNICODE)],
+                    ],
+                ],
+            ]);
+
+            $result = $response->toArray();
+
+            $resultText = $result['choices'][0]['message']['content'] ?? '{}';
+
+            $decodedResult = json_decode($resultText, true);
+
+            if(!isset($decodedResult['type'])
+                || !isset($decodedResult['recommended'])) {
+
+                throw new Exception("Invalid AI response format.");
+            }
+
+            return [
+                'product_type' => $decodedResult['type'],
+                'recommended_products' => $decodedResult['recommended']
+            ];
+
+        }catch (Exception $exception){
+
+            throw new Exception("Failed to generate user configuration recommendations: " . $exception->getMessage());
+        }
+    }
+
+    public function generateRecommendedPcConfigurationFromField()
+    {
+        // TODO: Implement generateRecommendedPcConfigurationFromField() method.
+    }
 
     public function getHardcodedArray(): array
     {

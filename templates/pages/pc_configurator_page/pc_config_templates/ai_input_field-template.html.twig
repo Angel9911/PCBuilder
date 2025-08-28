@@ -1,0 +1,53 @@
+<!-- Header with icon -->
+<div class="px-4 py-3 sm:px-6 sm:py-4 bg-gradient-to-r from-white via-blue-50 to-slate-100 border-b border-slate-200 text-center">
+    <h3 class="text-lg sm:text-[1.3rem] font-semibold tracking-tight bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 bg-clip-text text-transparent mb-0.5 sm:mb-1">
+        Build Your Dream PC with AI
+    </h3>
+    <p class="text-xs sm:text-sm text-blue-500/80">
+        Describe your goals and let AI suggest a full build
+    </p>
+</div>
+
+<!-- Icon & AI Input & Button -->
+<div class="px-4 py-4 sm:px-6 sm:py-6 bg-gradient-to-br from-indigo-50 via-cyan-50 to-white transition-all duration-300">
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl border border-indigo-200 p-3 sm:p-4 relative overflow-visible group hover:shadow-indigo-300 focus-within:ring-2 focus-within:ring-cyan-400">
+
+        <!-- Animated Icon (smaller on mobile) -->
+        <div class="relative flex-shrink-0 self-center sm:self-auto">
+            <div class="relative w-10 h-10 sm:w-14 sm:h-14">
+                <!-- Outer ring (hide on very small screens if you want) -->
+                <div class="absolute inset-0 rounded-full border-[2px] sm:border-[3px] border-t-indigo-500 border-r-purple-500 animate-spin-slow"></div>
+                <!-- Pulsing border -->
+                <div class="absolute inset-0 rounded-full border border-indigo-200 animate-pulse"></div>
+                <!-- Center icon -->
+                <div class="absolute inset-1 z-10 sm:inset-1.5 flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full shadow-md group-hover:scale-105 transition-transform duration-500">
+                    <img src="{{ asset('assets/images/new_ai_field_icon-removebg-preview.png') }}"
+                         alt="AI Assistant"
+                         class="w-full h-full object-contain filter drop-shadow-md saturate-150 brightness-110">
+                </div>
+            </div>
+        </div>
+
+        <!-- Input -->
+        <input
+                id="ai-pc-config-input"
+                type="text"
+                placeholder="e.g. 'Quiet workstation for video editing and 3D rendering'"
+                class="min-w-0 flex-1 px-3 sm:px-4 py-3 sm:py-4 text-sm sm:text-base border-none outline-none bg-transparent placeholder-gray-500 transition-all duration-300 focus:outline-none focus:ring-0"
+        >
+
+        <!-- Button -->
+        <button id="ai-pc-config-button"
+                class="w-full sm:w-auto justify-center px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-700 hover:to-cyan-700 text-white rounded-lg sm:rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-2xl flex items-center gap-2 text-sm"
+        >
+            <svg class="lucide lucide-bot w-4 h-4 sm:w-5 sm:h-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+                <circle cx="7" cy="16" r="1"></circle>
+                <circle cx="17" cy="16" r="1"></circle>
+                <path d="M12 3v8"></path>
+            </svg>
+            Build with AI
+        </button>
+    </div>
+</div>

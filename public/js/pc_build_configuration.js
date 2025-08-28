@@ -8,6 +8,7 @@ let totalConfigPowerWattage = 0.0;
 
 document.addEventListener("DOMContentLoaded", function () {
 
+    initMobileSummaryPanel();   // ✅ This initializes the mobile FAB + panel
     // set up js actions on summary modal dialog
     setupInitialQuestionListeners();
 
@@ -432,6 +433,47 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 });
+let buildAiButton= document.getElementById('ai-pc-config-button');
+
+function generateAiPcConfiguration(){
+    const input = document.getElementById('ai-pc-config-input');
+
+    const userRequirement = input.value.trim();
+
+    if(!userRequirement){
+        input.focus();
+        input.classList.add('ring-2','ring-red-400');
+        setTimeout(() => input.classList.remove('ring-2','ring-red-400'), 900);
+        return;
+    }
+
+    showSpinner();
+    //console.log(userAnswers)
+    fetch("/configurator/ai", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ user_requirement: userRequirement })
+    })
+        .then(response => {
+
+            if (response.ok) {
+                // Redirect to PC build configuration page
+                window.location.href = '/configurator/build';
+            } else {
+                console.error('Error processing request');
+            }
+        })
+        .catch(error => console.error("Error:", error))
+        .finally(() => {
+
+            hideSpinner()// hide spinner
+        });
+}
+
+buildAiButton.addEventListener('click', generateAiPcConfiguration);
+
 window.selectedComponents = selectedComponentsSummary;
 
 

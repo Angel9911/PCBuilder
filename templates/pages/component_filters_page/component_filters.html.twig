@@ -32,6 +32,12 @@
     </h2>
     <div class="md:flex md:gap-8">
         <div class="md:w-1/4">
+
+            {# in your periphery_filters.html.twig (or components), inside the grid layout #}
+            {% include 'pages/pages_templates/new_product_filter_section.html.twig' with { filters: filters, componentType: componentType } %}
+
+        </div>
+        {#<div class="md:w-1/4">
             <div class="bg-white rounded-xl shadow-lg p-6 space-y-6 sticky top-8 border border-slate-200">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-lg font-semibold bg-gradient-to-r from-indigo-700 to-cyan-500 bg-clip-text text-transparent">
@@ -72,7 +78,7 @@
                     </div>
                 {% endfor %}
             </div>
-        </div>
+        </div>#}
         <div class="md:w-3/4 mt-6 md:mt-0">
             <div id="component-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {% include 'pages/component_filters_page/component_templates/component_list.html.twig' with {
