@@ -78,14 +78,7 @@ abstract class BaseProduct
                 $finalProduct = array_merge($finalProduct, $additionalFields);
             }
 
-          /*  echo '<pre>';
-            print_r($finalProduct);
-            echo '</pre>';*/
-
             $finalProduct['specifications'] = $specifications;
-           /* echo '<pre>';
-            print_r($finalProduct);
-            echo '</pre>';*/
 
             $response[$collectionKey][] = $finalProduct;
 

@@ -39,6 +39,9 @@
         return (label === 'Future Proofing') ? 'Future-Proofing' : label;
     }
 
+    /**
+     * @param {ParentNode} [root=document]  // accept Document or any Element
+     */
     function initScores(root = document) {
         const items = root.querySelectorAll('.score-item[data-score]');
         items.forEach((item) => {
@@ -53,6 +56,9 @@
 
             // set numeric value + color
             const valEl = item.querySelector('.score-value');
+
+            //console.log(valEl);
+
             if (valEl) {
                 valEl.textContent = String(v);
                 cleanseGradientClasses(valEl);

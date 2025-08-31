@@ -65,14 +65,22 @@
                                         </div>
 
                                         <div class="flex items-center gap-2">
-                                            <div class="text-lg font-bold bg-white px-2 py-1 rounded-lg shadow-sm score-value">0</div>
+                                            <div class="text-lg font-bold bg-white px-2 py-1 rounded-lg shadow-sm score-value">
+                                                {{ scoreValue|default(0) }}
+                                            </div>
                                             <div class="text-xs text-gray-500">/100</div>
                                         </div>
                                     </div>
-
+                                    {% set score = scoreValue|default(0) %}
+                                    {% if score < 0 %}
+                                        {% set score = 0 %}
+                                    {% elseif score > 100 %}
+                                        {% set score = 100 %}
+                                    {% endif %}
                                     <div class="relative">
                                         <div class="h-2 bg-white rounded-full overflow-hidden shadow-inner">
-                                            <div class="h-full transition-all duration-1000 ease-out relative group-hover/score:shadow-lg origin-left score-bar">
+                                            <div class="h-full transition-all duration-1000 ease-out relative group-hover/score:shadow-lg origin-left score-bar"
+                                                 style="width: {{ score }}%;">
                                                 <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-[shimmer_2s_linear_infinite]"></div>
                                             </div>
                                         </div>

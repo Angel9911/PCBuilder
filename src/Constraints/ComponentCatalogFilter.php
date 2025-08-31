@@ -10,7 +10,7 @@ final class ComponentCatalogFilter
 
             // We need components for brand and for "Series" derived from c.name
             'base_joins' => [
-                ['type' => 'INNER', 'table' => 'components',        'alias' => 'c',  'on' => 'c.id = t.component_id'],
+                ['type' => 'INNER', 'table' => 'components', 'alias' => 'c',  'on' => 'c.id = t.component_id'],
             ],
 
             'filters' => [

@@ -218,20 +218,27 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
         }
 
         $params = [];
-        $whereSql = $this->buildWhereClauseSql(
+
+        $cfg = ComponentCatalogFilter::get($type);
+
+        $filtersCfg = $cfg['filters'] ?? [];
+
+        $whereSql = $this->buildQueryFilter($filtersCfg, $filters, 't', $params);
+        /*$whereSql = $this->buildWhereClauseSql(
             'component_id',
             $id,
             $filters,
             $selectedComponents,
             't',
             $params
-        );
+        );*/
 
         $sql = "
-            SELECT t.*, comp.name, comp.slugify_name, ct.name AS component_type
+            SELECT t.*, c.name, c.slugify_name, ct.name AS component_type, cb.name AS brand
             FROM {$type} t
-            JOIN components comp ON comp.id = t.component_id
-            JOIN component_types ct ON ct.id = comp.type_id
+            JOIN components c ON c.id = t.component_id
+            JOIN component_brands cb ON cb.id = c.brand_id
+            JOIN component_types ct ON ct.id = c.type_id
             $whereSql
         ";
 

@@ -65,6 +65,34 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
     /**
      * @throws Exception
      */
+    public function getAllProductsByType(string $productType, int $limit = 0, int $offset = 0, array $selectedCompatibleProducts = [], array $productIds = []): array
+    {
+        // TODO: REWORK THIS
+        if(!empty($productIds)){
+
+            $selectedCompatibleProducts = $productIds;
+        }
+
+        $components = $this->componentRepository->getComponentSpecs($productType, $limit, $offset, [], $selectedCompatibleProducts);
+
+        $result = $this->getAdvancedFilterProducts(
+            $productType,
+            'component_type',
+            $components,
+            'component_id',
+            'components',
+            fn(array $componentProduct) => $this->getComponentScores($productType, $componentProduct),
+        );
+
+
+        $result['filters'] = $this->componentRepository->getAndLoadProductFiltersByType($productType);
+
+        return $result;
+    }
+
+    /**
+     * @throws Exception
+     */
     public function getComponentsByFilters(string $componentType, array $filters, int $limit = 12, int $offset = 0, array $selectedComponents = []): array
     {
         $components = $this->componentRepository->getComponentSpecs($componentType, $limit, $offset, $filters, $selectedComponents);
@@ -82,43 +110,6 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
 
         return $result;
 
-/*        if (!empty($components)) {
-
-            $componentSpecifications = []; // Used for cardbox specifications
-
-            foreach ($components as $component) {
-
-                // Add the component to response
-                $componentFitlers = $this->getComponentTypesFilter();
-
-                $filters = $componentFitlers[$component['component_type']] ?? [];
-
-                $filteredData = [
-                    'id' => $component['id'],
-                    'component_id' => $component['component_id'],
-                    'name' => $component['name'],
-                    'slugify_name' => $component['slugify_name']
-                ];
-
-                foreach ($filters as $filter) {
-
-                    if (isset($component[$filter])) {
-
-                        $filteredData[$filter] = $component[$filter];
-                    }
-                }
-
-                $componentSpecifications = $this->formatSpecifications($filteredData);
-
-                // Append to response (component_type not included)
-                $result['components'][] = [
-                    'id' => $component['id'],
-                    'component_id' => $component['component_id'],
-                    'name' => $component['name'],
-                    'specifications' => $componentSpecifications,
-                    'slugify_name' => $component['slugify_name']
-                ];
-            }*/
     }
 
     /**
@@ -154,11 +145,11 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
         return $componentScores[$type] ?? [];
     }
 
+
     public function updateComponentName(string $existingName, string $slugifyName): void
     {
         $this->componentRepository->updateComponentName($existingName, $slugifyName);
     }
-
 
     public function getComponentIdBySlugifyName(string $slugifyName): int
     {
@@ -169,6 +160,7 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
     {
         return $this->componentRepository->findComponentNameBySlugifyName($slugifyName);
     }
+
 
     public function getProductKeySpecificationsByType(string $type): array
     {
@@ -184,7 +176,6 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
 
         return $componentFilters[$type] ?? [];
     }
-
 
     /**
      * @throws Exception
@@ -205,33 +196,6 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
             ],
             'specifications' => $this->formatSpecifications($componentDetails[0])
         ];
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function getAllProductsByType(string $productType, int $limit = 0, int $offset = 0, array $selectedCompatibleProducts = [], array $productIds = []): array
-    {
-        // TODO: REWORK THIS
-        if(!empty($productIds)){
-
-            $selectedCompatibleProducts = $productIds;
-        }
-
-        $components = $this->componentRepository->getComponentSpecs($productType, $limit, $offset, [], $selectedCompatibleProducts);
-
-        $result = $this->getAdvancedFilterProducts(
-            $productType,
-            'component_type',
-            $components,
-            'component_id',
-            'components',
-            fn(array $componentProduct) => $this->getComponentScores($productType, $componentProduct),
-        );
-
-        $result['filters'] = $this->componentRepository->getAndLoadProductFiltersByType($productType);
-
-        return $result;
     }
 
     /**
@@ -288,5 +252,26 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
         }
 
         return $formatComponentScores;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getProductsByFilters(string $productType, array $filters, int $limit = 12, int $offset = 0, array $selectedComponents = []): array
+    {
+        $components = $this->componentRepository->getComponentSpecs($productType, $limit, $offset, $filters, $selectedComponents);
+
+        $result = $this->getAdvancedFilterProducts(
+            $productType,
+            'component_type',
+            $components,
+            'component_id',
+            'components',
+            fn(array $componentProduct) => $this->getComponentScores($productType, $componentProduct),
+        );
+
+        $result['filters'] = $this->componentRepository->getAndLoadProductFiltersByType($productType);
+
+        return $result;
     }
 }

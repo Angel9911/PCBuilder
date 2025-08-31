@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Constraints\ComponentCatalogFilter;
 use App\Constraints\PeripheryCatalogFilter;
 use App\Entity\Component;
 use App\Entity\Periphery\Periphery;
@@ -118,14 +119,21 @@ class PeripheryRepository extends ServiceEntityRepository implements IndexablePr
         }
 
         $params = [];
-        $whereSql = $this->buildWhereClauseSql(
+
+        $cfg = PeripheryCatalogFilter::get($type);
+
+        $filtersCfg = $cfg['filters'] ?? [];
+
+        $whereSql = $this->buildQueryFilter($filtersCfg, $filters, 't', $params);
+
+        /*$whereSql = $this->buildWhereClauseSql(
             'peripheral_id',
             $id,
             $filters,
             $selectedPeripherals,
             't',
             $params
-        );
+        );*/
 
         // NEW: If we were given a list of base IDs, constrain by p.id
         if (!empty($productIds)) {
@@ -151,10 +159,6 @@ class PeripheryRepository extends ServiceEntityRepository implements IndexablePr
 
         $sql .= $this->buildPaginationClauseSql($limit, $offset);
 
-        //$stmt = $conn->prepare($sql);
-/*        echo '<pre>';
-        print_r($params['ids']);
-        echo '</pre>';*/
         $result = $conn->executeQuery(
             $sql,
             $params,

@@ -5,6 +5,7 @@ namespace App\Private_lib;
 interface BaseProductService
 {
     public function getAllProductsByType(string $productType, int $limit = 12, int $offset = 0, array $selectedCompatibleProducts = [], array $productIds = []): array;
+    public function getProductsByFilters(string $productType, array $filters, int $limit = 12, int $offset = 0, array $selectedComponents = [], );
     public function getProductDetailsByProductNameAndType(string $productName, string $productType): array;
 
     public function getAiRecommendedProduct(string $productType, array $userRequirements): array;

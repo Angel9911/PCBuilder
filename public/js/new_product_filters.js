@@ -250,11 +250,23 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then(res => res.json())
             .then(data => {
-                document.getElementById('component-container').innerHTML = data.components;
+
+                const html = data.components ?? data.peripherals ?? '';
+                const container = document.getElementById('component-container');
+                container.innerHTML = html;
+                
+                //container.innerHTML = data.periphery_type_icons;
+
                 document.getElementById('pagination-container').innerHTML = data.pagination;
                 // Rebind after DOM swap
                 document.querySelectorAll('a[href^="/component/"]').forEach(link => handleViewDetailsButton(link));
                 if (typeof addComponentToConfig === 'function') addComponentToConfig();
+
+                // 🔁 Re-initialize spec score styling for the newly injected nodes:
+                if (typeof window.initComponentScores === 'function') {
+                    window.initComponentScores(container);   // pass the root you just swapped in
+                }
+
             })
             .catch(err => console.error('Error loading components:', err))
             .finally(() => {
@@ -290,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Repaint fills & labels
             initRanges();
             updateSelectedCount();
-            //handleFilterChange(1);
+            handleFilterChange(1);
         });
     });
 

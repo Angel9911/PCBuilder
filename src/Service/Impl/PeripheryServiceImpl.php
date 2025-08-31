@@ -93,9 +93,31 @@ class PeripheryServiceImpl extends BaseProduct implements BaseProductService, Pe
 
         $result['filters'] = $this->peripheryRepository->getAndLoadProductFiltersByType($productType);
 
-        /*echo '<pre>';
-        print_r($result['filters']);
-        echo '</pre>'*/;
+
+        return $result;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getProductsByFilters(string $productType, array $filters, int $limit = 12, int $offset = 0, array $selectedComponents = []): array
+    {
+        $peripherals = $this->peripheryRepository->getPeripherySpecs($productType, $limit, $offset, $selectedComponents, $filters);
+
+        $result = $this->getAdvancedFilterProducts(
+            $productType,
+            'periphery_type',
+            $peripherals,
+            'peripheral_id',
+            'peripherals',
+            fn(array $peripheryProduct) => [
+                'brand_name' => $peripheryProduct['brand_name'],
+                'description' => $peripheryProduct['description'],
+            ],
+            fn(int $pid) => $this->peripheryRepository->getPeripheralConnectionNames($pid)
+        );
+
+        $result['filters'] = $this->peripheryRepository->getAndLoadProductFiltersByType($productType);
 
         return $result;
     }

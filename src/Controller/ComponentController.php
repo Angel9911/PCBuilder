@@ -112,20 +112,17 @@ class ComponentController extends AbstractController
         // Determine if any filters are set (excluding 'page' param)
         $hasFilters = array_filter(array_keys($filters), fn($key) => $key !== 'page' && $key !== 'ajax_ai');
 
-/*        echo '<pre>';
-        print_r($filters);
-        echo '</pre>';*/
-
         if ($hasFilters) {
 
             // Fetch filtered components
-            $result = $this->componentService->getComponentsByFilters($component
+            $result = $productService->getProductsByFilters($componentType
                 , $filters
                 , $limit
                 , $offset
                 , !empty($currentComponentCompatibleValues) ? $currentComponentCompatibleValues : []);
 
             $totalCount = count($result); // Count of filtered components
+
         } else {
                 // NEW WAY CACHING
 
@@ -156,7 +153,7 @@ class ComponentController extends AbstractController
 
                 $missing = array_values(array_diff($currentProductIdsPage, array_keys($cachedProducts)));
 
-                $this->redis->delete($productFilterTypeCacheKey);
+                //$this->redis->delete($productFilterTypeCacheKey);
 
                 if(!empty($missing)){
 
@@ -242,11 +239,22 @@ class ComponentController extends AbstractController
             // Decide the key in $result (components vs peripherals)
             $collectionKey = $productCategory === 'components' ? 'components' : 'peripherals';
 
+            $peripheryIcons = [];
+
+            if (!empty(PeripheryConstraints::$PERIPHERY_ICONS[$component])) {
+                foreach (PeripheryConstraints::$PERIPHERY_ICONS[$component] as $iconConfig) {
+                    if (isset($iconConfig['label'])) {
+                        $peripheryIcons[$iconConfig['label']] = $iconConfig;
+                    }
+                }
+            }
+
             // Render product cards with correct template + data
             $productsHtml = $this->renderView($listTemplate, [
                 $collectionKey => $result[$collectionKey],  // dynamic key
                 'componentType' => $component,
                 'main_image' => ConfigurationConstraint::$PRODUCT_TEST_MAIN_IMAGES[$component] ?? "",
+                'periphery_type_icons' => $peripheryIcons,
             ]);
             // Pagination template is the same for both
             $paginationHtml = $this->renderView('pages/component_filters_page/component_templates/component_pagination.html.twig', [
@@ -261,16 +269,6 @@ class ComponentController extends AbstractController
             $aiSession = $request->getSession()->get('ai_recommended_products', []);
 
             if ($request->query->get('ajax_ai') && !empty($aiSession)) {
-
-                $peripheryIcons = [];
-
-                if (!empty(PeripheryConstraints::$PERIPHERY_ICONS[$component])) {
-                    foreach (PeripheryConstraints::$PERIPHERY_ICONS[$component] as $iconConfig) {
-                        if (isset($iconConfig['label'])) {
-                            $peripheryIcons[$iconConfig['label']] = $iconConfig;
-                        }
-                    }
-                }
 
                 $aiBlockHtml = $this->renderView('pages/pages_templates/ai_recommended_products_section.html.twig', [
                     'peripherals' => $aiSession['recommendedProducts'] ?? [],
