@@ -32,6 +32,5 @@ services:
     # please note that last definitions always *replace* previous ones
     App\Service\Impl\OpenAIServiceImpl:
         arguments:
-            $componentService: '@App\Service\ComponentService'
             $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface'
             $apiKey: '%openai.api_key%'
