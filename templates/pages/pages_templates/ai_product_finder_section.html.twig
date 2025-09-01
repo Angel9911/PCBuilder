@@ -1,0 +1,58 @@
+{# Row-only AI finder widget. No outer section, no header, no background. #}
+{# Props:
+   - component_type   (required)
+   - endpoint         (required)
+   - target_id        (optional, default: ai-reco-container)
+   - widget_id        (optional, used for id=...-input / ...-button)
+   - row_classes      (optional) classes for this row container
+   - button_classes   (optional) gradient/button classes
+   - placeholder      (optional)
+   - button_label     (optional, default: "Find with AI")
+#}
+
+{% set row = row_classes
+    |default('flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4
+            bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-2xl
+            border border-indigo-200 p-3 sm:p-4 relative overflow-visible group
+            transition-all duration-300 hover:shadow-indigo-300') %}
+{% set btn = button_classes
+    |default('bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700') %}
+{% set ph  = placeholder|default("e.g., 'I need a gaming keyboard for FPS games with tactile switches and RGB lighting'") %}
+{% set target = target_id|default('ai-reco-container') %}
+{% set btnLabel = button_label|default('Find with AI') %}
+
+<div class="{{ row }}"
+     data-role="ai-finder"
+     data-component="{{ component_type }}"
+     data-endpoint="{{ endpoint }}"
+     data-target="{{ target }}"
+>
+    <!-- Animated AI Icon -->
+    <div class="relative flex-shrink-0 self-center sm:self-auto">
+        <div class="relative w-10 h-10 sm:w-16 sm:h-16">
+            <div class="absolute inset-0 rounded-full border-[2px] sm:border-[3px] border-t-indigo-500 border-r-purple-500 animate-[spin_4s_linear_infinite]"></div>
+            <div class="absolute inset-0 rounded-full border border-indigo-300 animate-[pulse_2s_ease-in-out_infinite]"></div>
+            <div class="absolute inset-1 z-10 sm:inset-1.5 flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full shadow-md group-hover:scale-105 transition-transform duration-500">
+                <img src="{{ asset('assets/images/new_ai_field_icon-removebg-preview.png') }}"
+                     alt="AI Assistant"
+                     class="w-full h-full object-contain filter drop-shadow-md saturate-150 brightness-110">
+            </div>
+        </div>
+    </div>
+
+    <!-- Input -->
+    <input
+            {% if widget_id %} id="{{ widget_id }}-input"{% endif %}
+            type="text"
+            class="js-ai-input min-w-0 flex-1 px-3 sm:px-4 py-2.5 sm:py-4 text-sm sm:text-base border-none outline-none bg-transparent placeholder-gray-400 transition-all duration-300 focus:outline-none focus:ring-0"
+            placeholder="{{ ph }}"
+    >
+
+    <!-- Button -->
+    <button
+            {% if widget_id %} id="{{ widget_id }}-button"{% endif %}
+            class="js-ai-btn w-full sm:w-auto justify-center px-4 sm:px-5 py-2.5 sm:py-3 {{ btn }} text-white rounded-lg sm:rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-2xl flex items-center gap-2 text-sm"
+    >
+        <span>{{ btnLabel }}</span>
+    </button>
+</div>

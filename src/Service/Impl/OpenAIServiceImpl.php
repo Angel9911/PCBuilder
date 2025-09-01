@@ -18,20 +18,16 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class OpenAIServiceImpl implements OpenAIService
 {
-    private ComponentService $componentService;
-
     private HttpClientInterface $httpClient;
     private string $apiKey;
 
     /**
-     * @param ComponentService $componentService
+     *
      * @param  $apiKey
      */
-    public function __construct(ComponentService $componentService
-                            , HttpClientInterface $httpClient
+    public function __construct( HttpClientInterface $httpClient
                             , string $apiKey)
     {
-        $this->componentService = $componentService;
         $this->httpClient = $httpClient;
         $this->apiKey = $apiKey;
     }
@@ -46,10 +42,8 @@ class OpenAIServiceImpl implements OpenAIService
      * @throws Exception
      * @throws DecodingExceptionInterface
      */
-    public function generateRecommendedPcConfigurationFromQuestionnaire(array $userAnswers): array
+    public function generateRecommendedPcConfigurationFromQuestionnaire(array $availableComponents, array $userAnswers): array
     {
-        $components = $this->componentService->getAllComponents();
-
         try {
 
             $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/chat/completions', [
@@ -75,7 +69,7 @@ class OpenAIServiceImpl implements OpenAIService
                             'role' => 'user',
                             'content' => json_encode([
                                 'User Preferences' => $userAnswers,
-                                'Available Components' => $components
+                                'Available Components' => $availableComponents
                             ])
                         ]
                     ],
@@ -204,13 +198,11 @@ class OpenAIServiceImpl implements OpenAIService
      * @throws ClientExceptionInterface
      * @throws Exception
      */
-    public function reviewUserConfiguration(array $userRequirements, array $selectedComponents): array
+    public function reviewUserConfiguration(array $availableComponents, array $userRequirements, array $selectedComponents): array
     {
 
         try{
-            $components = $this->componentService->getAllComponents();
-            /*var_dump($components);
-            die();*/
+
             $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/chat/completions', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->apiKey,
@@ -250,7 +242,7 @@ class OpenAIServiceImpl implements OpenAIService
                             'content' => json_encode([
                                 'requirements' => $userRequirements,
                                 'selectedComponents' => $selectedComponents,
-                                'availableComponents' => $components
+                                'availableComponents' => $availableComponents
                             ])
                         ]
                     ],

@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const html = data.components ?? data.peripherals ?? '';
                 const container = document.getElementById('component-container');
                 container.innerHTML = html;
-                
+
                 //container.innerHTML = data.periphery_type_icons;
 
                 document.getElementById('pagination-container').innerHTML = data.pagination;

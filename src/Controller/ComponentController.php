@@ -270,8 +270,15 @@ class ComponentController extends AbstractController
 
             if ($request->query->get('ajax_ai') && !empty($aiSession)) {
 
-                $aiBlockHtml = $this->renderView('pages/pages_templates/ai_recommended_products_section.html.twig', [
-                    'peripherals' => $aiSession['recommendedProducts'] ?? [],
+                // Pick correct template for AI product cards
+                $listTemplate = match ($productCategory) {
+                    'components'  => 'pages/pages_templates/ai_recommended_components_section.html.twig',
+                    'peripherals' => 'pages/pages_templates/ai_recommended_peripherals_section.html.twig',
+                    default => throw new \InvalidArgumentException("Unknown product category: $productCategory"),
+                };
+
+                $aiBlockHtml = $this->renderView($listTemplate, [
+                    $collectionKey => $aiSession['recommendedProducts'] ?? [],
                     'user_query'  => $aiSession['user_requirement'] ?? '',
                     'main_image' => ConfigurationConstraint::$PRODUCT_TEST_MAIN_IMAGES[$component] ?? "",
                     'periphery_type_icons' => $peripheryIcons,
@@ -511,6 +518,8 @@ class ComponentController extends AbstractController
             $cachedProducts[$productId]['ai_matching'] = $recommendedProduct['matching'];
 
             $cachedProducts[$productId]['ai_description'] = $recommendedProduct['short_description'];
+
+            $cachedProducts[$productId]['product_type'] = $productType;
         }
 
         // sort by ai_matching percentage
@@ -521,7 +530,7 @@ class ComponentController extends AbstractController
 
         $result = [
             'user_requirement' => $userRequirement['user_requirement'],
-            'recommendedProducts' => $cachedProducts
+            'recommendedProducts' => $cachedProducts,
         ];
 
         $request->getSession()->set('ai_recommended_products', $result);

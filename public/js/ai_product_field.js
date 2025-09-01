@@ -1,124 +1,132 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const input     = document.getElementById('ai-periphery-input');
-    const button    = document.getElementById('ai-periphery-button');
-    const container = document.getElementById('ai-reco-container');
-    const ctx       = document.getElementById('ai-context'); // optional
+(function () {
+    function setupOne(root) {
+        const input     = root.querySelector('.js-ai-input');
+        const button    = root.querySelector('.js-ai-btn');
+        const ctx       = root.querySelector('.js-ai-context'); // optional
+        if (!input || !button) return;
 
-    // Must have these three
-    if (!input || !button || !container) return;
+        // resolve component type
+        const urlType = (window.location.pathname.match(/\/product\/([^\/\?]+)/i) || [])[1] || '';
+        const componentType =
+            (root.dataset.component || '').trim() ||
+            (ctx && (ctx.dataset.component || '').trim()) ||
+            urlType;
 
-    // Try to resolve the component type from several places
-    const urlType = (() => {
-        // Expecting /product/{type}… ; adjust if your routing differs
-        const m = window.location.pathname.match(/\/product\/([^\/\?]+)/i);
-        return m ? decodeURIComponent(m[1]) : '';
-    })();
+        // endpoints
+        const postEndpoint = root.dataset.endpoint || (componentType ? `/product/ai/${encodeURIComponent(componentType)}` : '');
+        const getEndpoint  = (() => {
+            const url = new URL(window.location.href);
+            url.searchParams.set('ajax_ai', '1');
+            return url.toString();
+        })();
 
-    const componentType =
-        (ctx && (ctx.dataset.component || '').trim()) ||
-        (button.dataset.component || '').trim() ||
-        urlType;
-
-    if (!componentType) {
-        console.warn('AI Finder: componentType not found. Set #ai-context[data-component] or button[data-component].');
-    }
-
-    // Build endpoints
-    const postEndpoint =
-        (ctx && ctx.dataset.endpoint) ||
-        `/product/ai/${encodeURIComponent(componentType)}`;
-
-    const getEndpoint = (() => {
-        const url = new URL(window.location.href);
-        url.searchParams.set('ajax_ai', '1');
-        return url.toString();
-    })();
-
-    const setLoading = (loading) => {
-        if (loading) {
-            button.disabled = true;
-            if (!button.dataset.prevText) button.dataset.prevText = button.innerHTML;
-            button.innerHTML = `
-        <svg class="animate-spin h-4 w-4 mr-2 inline-block" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" fill="none" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-        </svg>
-        Analyzing...
-      `;
-        } else {
-            button.disabled = false;
-            if (button.dataset.prevText) button.innerHTML = button.dataset.prevText;
-        }
-    };
-
-    async function fetchAi() {
-        const query = input.value.trim();
-        if (!query) {
-            input.focus();
-            input.classList.add('ring-2','ring-red-400');
-            setTimeout(() => input.classList.remove('ring-2','ring-red-400'), 900);
-            return;
-        }
-        if (!componentType) {
-            console.error('AI Finder: componentType is empty; cannot build endpoint.');
-            return;
+        // results target
+        const targetId  = root.dataset.target || 'component-container';
+        const container = document.getElementById(targetId);
+        if (!container) {
+            console.warn(`AI Finder: results container #${targetId} not found.`);
         }
 
-        setLoading(true);
-        try {
-            // 1) POST -> store AI selection in session
-            const postRes = await fetch(postEndpoint, {
-                method: 'POST',
-                headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({ user_requirement: query })
-            });
-            const postData = await postRes.json().catch(() => ({}));
+        const setLoading = (loading) => {
+            if (!button) return;
+            if (loading) {
+                button.disabled = true;
+                if (!button.dataset.prevText) button.dataset.prevText = button.innerHTML;
+                button.innerHTML = `
+          <svg class="animate-spin h-4 w-4 mr-2 inline-block" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" fill="none" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+          </svg>
+          Analyzing...
+        `;
+            } else {
+                button.disabled = false;
+                if (button.dataset.prevText) button.innerHTML = button.dataset.prevText;
+            }
+        };
 
-            if (!postRes.ok || postData.error) {
-                container.innerHTML = `
-          <div class="max-w-3xl mx-auto">
-            <div class="p-4 rounded-xl border border-red-200 bg-red-50 text-red-700">
-              ${postData?.error || 'Something went wrong.'}
-            </div>
-          </div>`;
+        async function submit() {
+            const query = input.value.trim();
+            if (!query) {
+                input.focus();
+                input.classList.add('ring-2','ring-red-400');
+                setTimeout(() => input.classList.remove('ring-2','ring-red-400'), 900);
+                return;
+            }
+            if (!componentType || !postEndpoint) {
+                console.error('AI Finder: missing componentType or endpoint.');
                 return;
             }
 
-            // 2) GET -> ask the current page for the AI block html
-            const getRes = await fetch(getEndpoint, { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
-            const data = await getRes.json().catch(() => ({}));
+            setLoading(true);
+            try {
+                // POST: store session / compute
+                const postRes  = await fetch(postEndpoint, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest'},
+                    body: JSON.stringify({ user_requirement: query })
+                });
+                const postData = await postRes.json().catch(() => ({}));
+                if (!postRes.ok || postData.error) {
+                    if (container) {
+                        container.innerHTML = `
+              <div class="max-w-3xl mx-auto">
+                <div class="p-4 rounded-xl border border-red-200 bg-red-50 text-red-700">
+                  ${postData?.error || 'Something went wrong.'}
+                </div>
+              </div>`;
+                    }
+                    return;
+                }
 
-            //console.log(getRes);
-            console.log(data);
+                // GET: fetch rendered Twig block (expects { ai_recommended: '<html>' })
+                const getRes = await fetch(getEndpoint, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                const data   = await getRes.json().catch(() => ({}));
+                if (!getRes.ok || !('ai_recommended' in data)) {
+                    if (container) {
+                        container.innerHTML = `
+              <div class="max-w-3xl mx-auto">
+                <div class="p-4 rounded-xl border border-red-200 bg-red-50 text-red-700">
+                  Could not load AI recommendations.
+                </div>
+              </div>`;
+                    }
+                    return;
+                }
 
-            if (!getRes.ok || !('ai_recommended' in data)) {
-                container.innerHTML = `
-          <div class="max-w-3xl mx-auto">
-            <div class="p-4 rounded-xl border border-red-200 bg-red-50 text-red-700">
-              Could not load AI recommendations.
-            </div>
-          </div>`;
-                return;
+                if (container) {
+                    container.innerHTML = data.ai_recommended || '';
+                    // optional: scroll into view
+                    if (data.ai_recommended) container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                    // re-init score gradients if your cards use them
+                    if (typeof window.initComponentScores === 'function') {
+                        window.initComponentScores(container);
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                if (container) {
+                    container.innerHTML = `
+            <div class="max-w-3xl mx-auto">
+              <div class="p-4 rounded-xl border border-red-200 bg-red-50 text-red-700">
+                Network error. Please try again.
+              </div>
+            </div>`;
+                }
+            } finally {
+                setLoading(false);
             }
-
-            // 3) Inject the server-rendered Twig HTML
-            container.innerHTML = data.ai_recommended || '';
-            if (data.ai_recommended) {
-                container.scrollIntoView({ behavior:'smooth', block:'start' });
-            }
-        } catch (e) {
-            console.error(e);
-            container.innerHTML = `
-        <div class="max-w-3xl mx-auto">
-          <div class="p-4 rounded-xl border border-red-200 bg-red-50 text-red-700">
-            Network error. Please try again.
-          </div>
-        </div>`;
-        } finally {
-            setLoading(false);
         }
+
+        button.addEventListener('click', submit);
+        input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
     }
 
-    button.addEventListener('click', fetchAi);
-    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') fetchAi(); });
-});
+    function initAll(ctx = document) {
+        ctx.querySelectorAll('[data-role="ai-finder"]').forEach(setupOne);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => initAll());
+    window.initAiFinder = initAll; // if you inject this block via AJAX later
+})();

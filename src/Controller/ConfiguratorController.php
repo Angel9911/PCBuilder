@@ -92,7 +92,9 @@ class ConfiguratorController extends AbstractController
 
         $userRequirements = ObjectMapper::mapJsonToObject($request->getContent());
 
-        $recommendationAi = $this->openAIService->generateRecommendedPcConfigurationFromQuestionnaire($userRequirements);
+        $components = $this->componentService->getAllComponents();
+
+        $recommendationAi = $this->openAIService->generateRecommendedPcConfigurationFromQuestionnaire($components, $userRequirements);
 
         // Store the recommendation in the session and redirect
         $session = $request->getSession();
@@ -116,7 +118,9 @@ class ConfiguratorController extends AbstractController
         $answers = $data['answers'] ?? [];
         $selectedComponents = $data['selectedComponents'] ?? [];
 
-        $aiRecommendations = $this->openAIService->reviewUserConfiguration($answers, $selectedComponents);
+        $components = $this->componentService->getAllComponents();
+
+        $aiRecommendations = $this->openAIService->reviewUserConfiguration($components, $answers, $selectedComponents);
 
         $session = $request->getSession();
 

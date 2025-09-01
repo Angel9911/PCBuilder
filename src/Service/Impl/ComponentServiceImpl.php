@@ -2,10 +2,12 @@
 
 namespace App\Service\Impl;
 
+use App\Constraints\ComponentCatalogFilter;
 use App\Private_lib\BaseProduct;
 use App\Private_lib\BaseProductService;
 use App\Repository\ComponentRepository;
 use App\Service\ComponentService;
+use App\Service\OpenAIService;
 use Doctrine\DBAL\Exception;
 use App\Constraints\ComponentConstraints;
 
@@ -13,7 +15,7 @@ use App\Constraints\ComponentConstraints;
 class ComponentServiceImpl extends BaseProduct implements BaseProductService, ComponentService
 {
     private ComponentRepository $componentRepository;
-
+    private OpenAIService $openAIService;
     private static array $UNITS = [
         'power_wattage' => 'W',
         'length_mm' => 'mm',
@@ -28,9 +30,12 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
     /**
      * @param ComponentRepository $componentRepository
      */
-    public function __construct(ComponentRepository $componentRepository)
+    public function __construct(ComponentRepository $componentRepository
+                                , OpenAIService $openAIService)
     {
         $this->componentRepository = $componentRepository;
+
+        $this->openAIService = $openAIService;
     }
 
 
@@ -208,7 +213,24 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
 
     public function getAiRecommendedProduct(string $productType, array $userRequirements): array
     {
-        // TODO: Implement getAiRecommendedProduct() method.
+        $availableComponents = $this->componentRepository->findComponentsByType($productType);
+
+        $formatAvailableProducts['available_products'] = array_map(function ($p) {
+            // Works if $p is array; also tolerates objects just in case
+            $id = is_array($p) ? ($p['id'] ?? null) : ($p->id ?? null);
+            $name = is_array($p) ? ($p['name'] ?? null) : ($p->name ?? null);
+
+            return [
+                'id'   => (int) $id,
+                'name' => (string) $name,
+            ];
+        }, $availableComponents);
+
+        $formatAvailableProducts['product_specifications'] = array_keys(ComponentCatalogFilter::get($productType)['filters']);
+
+        $recommendedProducts = $this->openAIService->generateRecommendedProducts($productType, $formatAvailableProducts, $userRequirements);
+
+        return $recommendedProducts;
     }
 
     public function getProductFiltersByType(string $type): array
