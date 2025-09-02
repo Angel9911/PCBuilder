@@ -145,6 +145,9 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
             'gpu' => ComponentConstraints::$GPU_FILTERS_COMPONENT_SCORES,
             'storage' => ComponentConstraints::$STORAGE_FILTERS_COMPONENT_SCORES,
             'ram' => ComponentConstraints::$RAM_FILTERS_COMPONENT_SCORES,
+            'psu' => ComponentConstraints::$PSU_FILTERS_COMPONENT_SCORES,
+            'pc_case' => ComponentConstraints::$PC_CASE_FILTERS_COMPONENT_SCORES
+
         ];
 
         return $componentScores[$type] ?? [];

@@ -11,7 +11,9 @@ final class ComponentConstraints
     public static array $GPU_FILTERS_COMPONENT = ['power_wattage'];
     public static array $GPU_FILTERS_COMPONENT_SCORES = ['gaming_score', 'efficiency'];
     public static array $PC_CASE_FILTERS_COMPONENT = ['gpu_clearance_mm', 'max_cooler_height_mm	', 'psu_length_limit_mm'];
+    public static array $PC_CASE_FILTERS_COMPONENT_SCORES = ['airflow_score', 'future_proofing'];
     public static array $PSU_FILTERS_COMPONENT = ['power_wattage'];
+    public static array $PSU_FILTERS_COMPONENT_SCORES = ['efficiency', 'noise_level'];
     public static array $STORAGE_FILTERS_COMPONENT = ['type', 'interface', 'capacity_gb'];
     public static array $STORAGE_FILTERS_COMPONENT_SCORES = ['speed_score', 'longevity'];
     public static array $RAM_FILTERS_COMPONENT = ['type', 'capacity_gb', 'speed_mhz'];

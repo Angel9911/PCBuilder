@@ -98,7 +98,140 @@ final class ComponentCatalogFilter
                 ],
             ],
         ],
-        'gpu' => [],
+        'gpu' => [
+            'table' => 'gpu',
+
+            // We need components for brand + name-based "series"
+            'base_joins' => [
+                ['type' => 'INNER', 'table' => 'components', 'alias' => 'c', 'on' => 'c.id = t.component_id'],
+            ],
+
+            'filters' => [
+                // Brand (board AIB brand stored on the components row; e.g., MSI, ASUS, PNY, …)
+                'brand' => [
+                    'label'   => 'Brand',
+                    'kind'    => 'checkbox',
+                    'source'  => 'join',
+                    'expr'    => 'cb.name',
+                    'enabled' => true,
+                    'joins'   => [
+                        ['type' => 'LEFT', 'table' => 'component_brands', 'alias' => 'cb', 'on' => 'cb.id = c.brand_id'],
+                    ],
+                ],
+
+                // Chip manufacturer (GPU silicon vendor – NVIDIA / AMD)
+                'chip_manufacturer' => [
+                    'label'   => 'Chip Manufacturer',
+                    'kind'    => 'checkbox',
+                    'source'  => 'join',
+                    'expr'    => 'cm.name',
+                    'enabled' => true,
+                    'joins'   => [
+                        ['type' => 'LEFT', 'table' => 'chip_makers', 'alias' => 'cm', 'on' => 'cm.id = t.chip_maker_id'],
+                    ],
+                ],
+
+                // Series (computed from components.name, removing the vendor prefix)
+                //  "NVIDIA GeForce RTX 4090" -> "GeForce RTX 4090"
+                //  "AMD Radeon RX 6700 XT"   -> "Radeon RX 6700 XT"
+                'series' => [
+                    'label'   => 'Series',
+                    'kind'    => 'checkbox',
+                    'source'  => 'column',
+                    'expr'    => "regexp_replace(c.name, '^(NVIDIA|AMD)\\s+', '')",
+                    'enabled' => true,
+                ],
+
+                // Video output types (HDMI 2.1, DP 1.4a, …) via the m:n table
+                'video_output' => [
+                    'label'   => 'Interface Type',
+                    'kind'    => 'checkbox',
+                    'source'  => 'junction',
+                    'expr'    => 'vot.name',    // we’ll compare by type name
+                    'enabled' => true,
+                    'junction' => [
+                        // chain: gpu -> gpu_video_outputs -> video_output_types
+                        ['type'=>'LEFT', 'table' => 'gpu_video_outputs', 'alias' => 'gvo', 'on' => 'gvo.gpu_id = t.id'],
+                        ['type'=>'LEFT', 'table' => 'video_output_types', 'alias' => 'vot', 'on' => 'vot.id = gvo.output_type_id'],
+                    ],
+                ],
+
+                // VRAM capacity (GB)
+                'vram_gb' => [
+                    'label'   => 'Memory Capacity (GB)',
+                    'kind'    => 'range',
+                    'source'  => 'column',
+                    'expr'    => 't.vram_gb',
+                    'enabled' => true,
+                ],
+
+                // VRAM type (GDDR6X, GDDR6, …)
+                'vram_type' => [
+                    'label'   => 'Memory Type',
+                    'kind'    => 'checkbox',
+                    'source'  => 'column',
+                    'expr'    => 't.vram_type',
+                    'enabled' => true,
+                ],
+
+                // Card length (mm)
+                'length_mm' => [
+                    'label'   => 'Length (mm)',
+                    'kind'    => 'range',
+                    'source'  => 'column',
+                    'expr'    => 't.length_mm',
+                    'enabled' => true,
+                ],
+
+                // Board power
+                'power_wattage' => [
+                    'label'   => 'Power (W)',
+                    'kind'    => 'range',
+                    'source'  => 'column',
+                    'expr'    => 't.power_wattage',
+                    'enabled' => true,
+                ],
+
+                // Core/boost clock (MHz)
+                'core_clock_mhz' => [
+                    'label'   => 'Frequency (MHz)',
+                    'kind'    => 'range',
+                    'source'  => 'column',
+                    'expr'    => 't.core_clock_mhz',
+                    'enabled' => true,
+                ],
+
+                // (Optional toggles you can enable later)
+                'pcie_version' => [
+                    'label'   => 'PCIe Version',
+                    'kind'    => 'checkbox',
+                    'source'  => 'column',
+                    'expr'    => 't.pcie_version',
+                    'enabled' => false,
+                ],
+                'slot_width' => [
+                    'label'   => 'Slot Width',
+                    'kind'    => 'range',
+                    'source'  => 'column',
+                    'expr'    => 't.slot_width',
+                    'enabled' => false,
+                ],
+                'cooling_type' => [
+                    'label'   => 'Cooling',
+                    'kind'    => 'checkbox',
+                    'source'  => 'column',
+                    'expr'    => 't.cooling_type',
+                    'enabled' => false,
+                ],
+                'tdp' => [
+                    'label'   => 'TDP',
+                    'kind'    => 'range',
+                    'source'  => 'column',
+                    'expr'    => 't.tdp',
+                    'enabled' => false,
+                ],
+            ],
+        ],
         'motherboard' => [
             'table' => 'motherboard',
 
@@ -398,7 +531,200 @@ final class ComponentCatalogFilter
                 //     'enabled' => false,
                 // ],
             ],
-        ]
+        ],
+        'psu' => [
+            'table' => 'psu',
+
+            // join components mainly to expose brand via component_brands
+            'base_joins' => [
+                ['type' => 'INNER', 'table' => 'components',       'alias' => 'c',  'on' => 'c.id = t.component_id'],
+            ],
+
+            'filters' => [
+                // Brand (AIB/retail brand on components)
+                'brand' => [
+                    'label'   => 'Brand',
+                    'kind'    => 'checkbox',
+                    'source'  => 'join',
+                    'expr'    => 'cb.name',
+                    'enabled' => true,
+                    'joins'   => [
+                        ['type' => 'LEFT', 'table' => 'component_brands', 'alias' => 'cb', 'on' => 'cb.id = c.brand_id'],
+                    ],
+                ],
+
+                // Power (W)
+                'power_wattage' => [
+                    'label'   => 'Power (W)',
+                    'kind'    => 'range',
+                    'source'  => 'column',
+                    'expr'    => 't.power_wattage',
+                    'enabled' => true,
+                ],
+
+                // Form factor (ATX, SFX, SFX-L, …) via FK
+                'form_factor' => [
+                    'label'   => 'Form Factor',
+                    'kind'    => 'checkbox',
+                    'source'  => 'join',
+                    'expr'    => 'pf.name',
+                    'enabled' => true,
+                    'joins'   => [
+                        ['type' => 'LEFT', 'table' => 'psu_form_factors', 'alias' => 'pf', 'on' => 'pf.id = t.form_factor_id'],
+                    ],
+                ],
+
+                // Length (mm)
+                'length_mm' => [
+                    'label'   => 'Length (mm)',
+                    'kind'    => 'range',
+                    'source'  => 'column',
+                    'expr'    => 't.length_mm',
+                    'enabled' => true,
+                ],
+
+                // 80 PLUS rating (Gold, Platinum, Titanium, …)
+                'efficiency_rating' => [
+                    'label'   => 'Energy Efficiency',
+                    'kind'    => 'checkbox',
+                    'source'  => 'column',
+                    'expr'    => 't.efficiency_rating',
+                    'enabled' => true,
+                ],
+
+                // Modular type (Fully Modular / Semi-Modular / Non-Modular)
+                'modular_type' => [
+                    'label'   => 'Module Type',
+                    'kind'    => 'checkbox',
+                    'source'  => 'column',
+                    'expr'    => 't.modular_type',
+                    'enabled' => true,
+                ],
+
+                // (Optional) Fanless: enable if you want a Yes/No toggle
+                // 'fanless' => [
+                //     'label'   => 'Fanless',
+                //     'kind'    => 'radio',
+                //     'source'  => 'column',
+                //     'expr'    => 't.fanless',
+                //     'enabled' => false,
+                // ],
+            ],
+        ],
+        'pc_case' => [
+            'table' => 'pc_case',
+
+            // Join components to expose brand (through component_brands)
+            'base_joins' => [
+                ['type' => 'INNER', 'table' => 'components', 'alias' => 'c', 'on' => 'c.id = t.component_id'],
+            ],
+
+            'filters' => [
+                // Brand (from components.brand_id)
+                'brand' => [
+                    'label'   => 'Brand',
+                    'kind'    => 'checkbox',
+                    'source'  => 'join',
+                    'expr'    => 'cb.name',
+                    'enabled' => true,
+                    'joins'   => [
+                        ['type' => 'LEFT', 'table' => 'component_brands', 'alias' => 'cb', 'on' => 'cb.id = c.brand_id'],
+                    ],
+                ],
+
+                // PC Case format (ATX, mATX, ITX, …) via junction pc_case_form_factors → form_factors
+                'form_factor' => [
+                    'label'   => 'PC Case Format',
+                    'kind'    => 'checkbox',
+                    'source'  => 'junction',
+                    'expr'    => 'ff.name',
+                    'enabled' => true,
+                    'junction'=> [
+                        // t (pc_case) → pc_case_form_factors (pcf) → form_factors (ff)
+                        ['type' => 'INNER', 'table' => 'pc_case_form_factors', 'alias' => 'pcf', 'on' => 'pcf.pc_case_id = t.id'],
+                        ['type' => 'INNER', 'table' => 'form_factors',         'alias' => 'ff',  'on' => 'ff.id = pcf.form_factor_id'],
+                    ],
+                ],
+
+                // Color
+                'color' => [
+                    'label'   => 'Color',
+                    'kind'    => 'checkbox',
+                    'source'  => 'column',
+                    'expr'    => 't.color',
+                    'enabled' => true,
+                ],
+
+                // Max GPU length (mm)
+                'gpu_clearance_mm' => [
+                    'label'   => 'Max GPU Length (mm)',
+                    'kind'    => 'range',
+                    'source'  => 'column',
+                    'expr'    => 't.gpu_clearance_mm',
+                    'enabled' => true,
+                ],
+
+                // Max CPU cooler height (mm)
+                'max_cooler_height_mm' => [
+                    'label'   => 'Max CPU Cooler Height (mm)',
+                    'kind'    => 'range',
+                    'source'  => 'column',
+                    'expr'    => 't.max_cooler_height_mm',
+                    'enabled' => true,
+                ],
+
+                // Front panel outputs (USB types) via junction pc_case_usb_types → usb_header_types
+                'front_panel_output' => [
+                    'label'   => 'Front Panel Output',
+                    'kind'    => 'checkbox',
+                    'source'  => 'junction',
+                    'expr'    => 'uht.name',
+                    'enabled' => true,
+                    'junction'=> [
+                        // t (pc_case) → pc_case_usb_types (pcu) → usb_header_types (uht)
+                        ['type' => 'INNER', 'table' => 'pc_case_usb_types', 'alias' => 'pcu', 'on' => 'pcu.pc_case_id = t.id'],
+                        ['type' => 'INNER', 'table' => 'usb_header_types',  'alias' => 'uht', 'on' => 'uht.id = pcu.usb_type_id'],
+                    ],
+                ],
+
+                // Length (mm) – first number before 'x', keep dot, strip other chars, ceil, cast to int
+                'length_mm' => [
+                    'label'   => 'Length (mm)',
+                    'kind'    => 'range',
+                    'source'  => 'column',
+                    'expr'    =>
+                        "CEIL((" .
+                        "NULLIF(regexp_replace(split_part(t.dimensions_mm, 'x', 1), '[^0-9\\.]', '', 'g'), '')" .
+                        ")::numeric)::int",
+                    'enabled' => true,
+                ],
+
+                // Width (mm) – second number
+                'width_mm' => [
+                    'label'   => 'Width (mm)',
+                    'kind'    => 'range',
+                    'source'  => 'column',
+                    'expr'    =>
+                        "CEIL((" .
+                        "NULLIF(regexp_replace(split_part(t.dimensions_mm, 'x', 2), '[^0-9\\.]', '', 'g'), '')" .
+                        ")::numeric)::int",
+                    'enabled' => true,
+                ],
+
+                // Height (mm) – third number
+                'height_mm' => [
+                    'label'   => 'Height (mm)',
+                    'kind'    => 'range',
+                    'source'  => 'column',
+                    'expr'    =>
+                        "CEIL((" .
+                        "NULLIF(regexp_replace(split_part(t.dimensions_mm, 'x', 3), '[^0-9\\.]', '', 'g'), '')" .
+                        ")::numeric)::int",
+                    'enabled' => true,
+                ],
+            ],
+        ],
+        'cpu_cooling' => [],
     ];
 
     public static function get(string $type): array
