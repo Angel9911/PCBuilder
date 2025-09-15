@@ -2,6 +2,7 @@
 
 namespace App\Private_lib\trait;
 
+use App\Constraints\ComponentCatalogFilter;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -27,20 +28,81 @@ trait ProductDetailsTrait
         $conn = $this->entityManager->getConnection();
 
         $params = ['slugify_name' => $slugifyName];
-        $where = "WHERE p.slugify_name = :slugify_name";
 
-        $sqlDetails = "
-            SELECT t.*, p.name
-            FROM {$productTable} t
-            JOIN {$tableAlias} p ON p.id = t.{$productIdField}
-            $where
-        ";
+        $productCatalogTable = ComponentCatalogFilter::get($productTable);
+
+        // start select
+        $select = ["t.*"];
+        $joins = [];
+
+        // add base joins
+        foreach ($productCatalogTable['base_joins'] as $j) {
+
+            $joins[] = sprintf(
+                "%s JOIN %s %s ON %s",
+                $j['type'],
+                $j['table'],
+                $j['alias'],
+                $j['on']
+            );
+        }
+
+        // add filters
+        foreach ($productCatalogTable['filters'] as $filterKey => $filter) {
+
+            if ($filter['source'] === 'join' && !empty($filter['joins'])) {
+
+                foreach ($filter['joins'] as $fj) {
+                    $joins[] = sprintf(
+                        "%s JOIN %s %s ON %s",
+                        $fj['type'],
+                        $fj['table'],
+                        $fj['alias'],
+                        $fj['on']
+                    );
+                }
+
+                // also add the column for SELECT
+                $alias = preg_replace('/\W+/', '_', $filterKey);
+
+                $select[] = $filter['expr'] . " AS " . $alias;
+            }
+            elseif ($filter['source'] === 'column') {
+
+                $alias = preg_replace('/\W+/', '_', $filterKey);
+
+                $select[] = $filter['expr'] . " AS " . $alias;
+            }
+        }
+
+        // 3) WHERE (use configured slug_expr)
+        $slugExpr = $productCatalogTable['slug_expr'] ?? 'c.slugify_name';
+
+        $whereDetails = "WHERE {$slugExpr} = :slugify_name";
+
+        // 3a) OPTIONAL: also select the product name from the same alias as slug_expr
+        // Extract alias before the dot from slug_expr (e.g., 'c.slugify_name' -> 'c')
+        if (preg_match('/^([a-zA-Z_][a-zA-Z0-9_]*)\./', $slugExpr, $m)) {
+
+            $nameAlias = $m[1];
+            // Add "alias.name AS name" only if that alias is present in the joins (or is the main table alias)
+            // In practice base_joins includes it, so this is safe:
+            $select[] = "{$nameAlias}.name";
+        }
+
+        // details query
+        $sqlDetails = "SELECT " . implode(", ", $select) . "
+        FROM {$productCatalogTable['table']} t
+        " . implode(" ", array_unique($joins)) . "
+        {$whereDetails}";
+
+        $imageAlias = isset($nameAlias) ? $nameAlias : 'p';
 
         $sqlImages = "
             SELECT img.image_url, img.is_primary
             FROM {$imageTable} img
-            JOIN {$tableAlias} p ON p.id = img.{$imageJoinField}
-            $where
+            JOIN {$tableAlias} {$imageAlias} ON {$imageAlias}.id = img.{$imageJoinField}
+            WHERE {$slugExpr} = :slugify_name
         ";
 
         $details = $conn->prepare($sqlDetails)->executeQuery($params)->fetchAllAssociative();

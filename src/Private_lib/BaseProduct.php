@@ -11,6 +11,9 @@ abstract class BaseProduct
     abstract public static function getUnits(): array;
 
     abstract public function getProductKeySpecificationsByType(string $type): array;
+
+    abstract public function getProductMainSpecificationsByType(string $type): array;
+    abstract public function getProductGeneralSpecificationsByType(string $type): array;
     abstract public function getProductFiltersByType(string $type): array;
     public function getAdvancedFilterProducts(
         string $type,
@@ -122,6 +125,15 @@ abstract class BaseProduct
     protected function getImagesByProduct(array $product): array
     {
         $imagesRaw = $product[0]['images'] ?? [];
+
+        if(empty($imagesRaw)){
+
+            return [
+                'main_image_url' => null,
+                'all_image_urls' => []
+            ];
+        };
+
         $images = isset($imagesRaw[0]) ? $imagesRaw : [$imagesRaw];
 
         $mainImage = array_filter($images, fn($img) =>
@@ -132,7 +144,13 @@ abstract class BaseProduct
             ? array_values($mainImage)[0]['component_image_url']
             : $images[0]['component_image_url'] ?? null;
 
-        $allImageUrls = array_map(fn($img) => ['url' => $img['component_image_url']], $images);
+        $allImageUrls = [];
+
+        foreach ($images as $image) {
+
+            $allImageUrls[] = $image['component_image_url'] ?? null;
+        }
+        //$allImageUrls = array_map(fn($img) => ['url' => $img['component_image_url']], $images);
 
         return [
             'main_image_url' => $mainImageUrl,

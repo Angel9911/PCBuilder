@@ -7,186 +7,311 @@
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200">
-            <div class="block lg:hidden p-6 border-b border-slate-200">
-                <div class="flex items-center gap-2 mb-2"><span
-                            class="px-2 py-1 text-xs font-medium bg-gradient-to-r from-indigo-100 to-cyan-100 text-indigo-700 rounded-full">Processor</span>
-                </div>
-                <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-700 to-cyan-500 bg-clip-text text-transparent mb-4">
-                    Intel Core i9-14900K</h1>
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="lucide lucide-star h-5 w-5 text-yellow-400 fill-current">
-                            <polygon
-                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                        </svg>
-                        <span class="ml-1 text-slate-700 font-medium">4.8</span></div>
-                    <span class="text-slate-400">•</span><span class="text-slate-600">245 reviews</span></div>
-                 </div>
-            <div class="flex flex-col lg:flex-row">
-                <div class="lg:w-1/2 p-6 lg:border-r border-slate-200">
-                    <div class="aspect-square rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 shadow-inner">
-                        <img id="mainImage"
-                             src="{{ componentSpecifications.component_images.main_image_url }}"
-                             alt="{{ componentSpecifications.name }}"
-                             class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105 cursor-pointer"
-                             onclick="openImageModal(selectedImage)">
+                <div class="flex flex-col lg:flex-row">
+                    <div class="lg:w-1/2 p-6 lg:border-r border-slate-200">
+
+                        {# main image #}
+                        {% set mainImage = componentSpecifications.component_images.main_image_url ?? null %}
+
+                        <div class="aspect-square rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 shadow-inner flex items-center justify-center">
+                            {% if mainImage %}
+                                <img id="mainImage"
+                                     src="{{ mainImage }}"
+                                     alt="{{ componentSpecifications.name }}"
+                                     class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105 cursor-pointer"
+                                     onclick="openImageModal(selectedImage)">
+                            {% else %}
+                                <span class="text-slate-400 text-sm">No images available</span>
+                            {% endif %}
+                        </div>
+
+                        {# thumbnails #}
+                        {% set gallery = componentSpecifications.component_images.all_image_urls ?? [] %}
+                        {% if gallery|length > 1 %}
+                            <div class="mt-4 flex justify-center gap-3">
+                                {% for url in gallery %}
+                                    <img src="{{ url }}"
+                                         alt="Thumbnail"
+                                         class="w-20 h-20 object-cover rounded-md border-2 cursor-pointer transition-transform hover:scale-105"
+                                         onclick="changeMainImage('{{ url }}')">
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
-
-                    {% if componentSpecifications.component_images.all_image_urls is defined and componentSpecifications.component_images.all_image_urls|length > 1 %}
-                        <div class="mt-4 flex justify-center gap-3">
-                            {% for image in componentSpecifications.component_images.all_image_urls %}
-                                <img src="{{ image.url }}"
-                                     alt="Thumbnail"
-                                     class="w-20 h-20 object-cover rounded-md border-2 cursor-pointer transition-transform hover:scale-105"
-                                     onclick="changeMainImage('{{ image.url }}')">
-                            {% endfor %}
+                    <div class="lg:w-1/2 p-6">
+                        <div class="hidden lg:block mb-6">
+                            <h1 class="text-3xl font-bold bg-gradient-to-r from-indigo-700 to-cyan-500 bg-clip-text text-transparent mb-4">
+                                {{ componentSpecifications.name }}
+                            </h1>
+                            <div class="flex items-center gap-2">
+                                <div class="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                         class="lucide lucide-star h-5 w-5 text-yellow-400 fill-current">
+                                        <polygon
+                                                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                    </svg>
+                                    <span class="ml-1 text-slate-700 font-medium">4.8</span>
+                                </div>
+                                <span class="text-slate-400">•</span>
+                                <span class="text-slate-600">245 reviews</span>
+                            </div>
                         </div>
-                    {% endif %}
 
-                </div>
-                <div class="lg:w-1/2 p-6">
-                    <div class="hidden lg:block mb-6">
-                        <div class="flex items-center gap-2 mb-2"><span
-                                    class="px-3 py-1 text-sm font-medium bg-gradient-to-r from-indigo-100 to-cyan-100 text-indigo-700 rounded-full">Processor</span>
+                        {# --- Price Block --- #}
+                        <div class="mb-6 p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-2xl border border-emerald-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="flex items-baseline gap-2">
+                    <span class="text-2xl font-bold text-slate-900">
+                        {{ offers_price_range.lowest_price }} - {{ offers_price_range.highest_price }} лв
+                    </span>
+                                    </div>
+                                    <div class="mt-1">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                 bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800">
+                        Save 60 лв
+                    </span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm text-slate-600 mb-1">Compare Vendors</div>
+                                    <div class="text-xs text-slate-500">
+                                        {{ componentOffers|length }} offers available
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <h1 class="text-3xl font-bold bg-gradient-to-r from-indigo-700 to-cyan-500 bg-clip-text text-transparent mb-4">
-                            {{ componentSpecifications.name }}</h1>
-                        <div class="flex items-center gap-2">
-                            <div class="flex items-center">
+
+                        {# --- Key Specifications --- #}
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round" class="lucide lucide-zap h-5 w-5 text-indigo-600">
+                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                                </svg>
+                                Key Specifications
+                            </h3>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {% for label, value in componentSpecifications.specifications.main_specifications %}
+                                    <div class="p-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl border border-slate-200
+                            hover:shadow-md transition-all duration-200">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <div class="p-1.5 bg-indigo-100 rounded-lg">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                         class="lucide lucide-cpu w-3.5 h-3.5 text-indigo-600">
+                                                        <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                                                        <rect x="9" y="9" width="6" height="6"></rect>
+                                                        <path d="M15 2v2"></path>
+                                                        <path d="M15 20v2"></path>
+                                                        <path d="M2 15h2"></path>
+                                                        <path d="M2 9h2"></path>
+                                                        <path d="M20 15h2"></path>
+                                                        <path d="M20 9h2"></path>
+                                                        <path d="M9 2v2"></path>
+                                                        <path d="M9 20v2"></path>
+                                                    </svg>
+                                                </div>
+                                                <span class="text-sm font-medium text-slate-600">{{ label }}</span>
+                                            </div>
+                                            <span class="px-2 py-1 bg-white rounded-full text-sm font-semibold text-slate-900 shadow-sm">
+                            {{ value }}
+                        </span>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        {# --- Vendor Offers (keep as is) --- #}
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round"
-                                     class="lucide lucide-star h-5 w-5 text-yellow-400 fill-current">
-                                    <polygon
-                                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                     class="lucide lucide-external-link h-5 w-5 text-indigo-600">
+                                    <path d="M15 3h6v6"></path>
+                                    <path d="M10 14 21 3"></path>
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                                 </svg>
-                                <span class="ml-1 text-slate-700 font-medium">4.8</span></div>
-                            <span class="text-slate-400">•</span><span class="text-slate-600">245 reviews</span></div>
-                    </div>
-                    <div class="mb-8">
-                        <div class="flex items-baseline gap-2"><span
-                                    class="text-3xl font-bold text-slate-900">{{ offers_price_range.lowest_price}} - {{ offers_price_range.highest_price }}лв</span></div>
-                        <div class="mt-1"><span
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800">Save $60.00</span>
+                                Available From
+                            </h3>
+                            <div id="vendor-offers" class="space-y-3">
+                                {% include 'pages/pc_configurator_page/pc_config_templates/mobile_offers_section.html.twig' %}
+                            </div>
                         </div>
                     </div>
-                    <div id="specifications-container" class="grid grid-cols-2 gap-4 mb-8">
-
-                        {% for label, value in componentSpecifications.specifications%}
-                            <div class="spec-box p-4 rounded-lg border border-slate-200 transition-all duration-300 cursor-pointer transform hover:scale-102 hover:shadow-md"
-                                 style="background: linear-gradient(135deg, rgb(248, 250, 252), rgb(241, 245, 249));"
-                                 data-spec-label="{{ label }}">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <div class="p-2 rounded-lg bg-white shadow-sm transition-all duration-300">
-                                        <i data-lucide="circle" class="h-5 w-5 text-slate-600 transition-colors duration-300"></i>
-                                    </div>
-                                    <span class="text-sm font-medium text-slate-700 transition-colors duration-300">{{ label }}</span>
-                                </div>
-                                <p class="text-lg font-semibold text-slate-900 transition-colors duration-300">{{ value }}</p>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    <div class="space-y-4" id="vendor-offers-container">
-                        <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-external-link h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path d="M15 3h6v6"></path>
-                                <path d="M10 14 21 3"></path>
-                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                </div>
+                {# --- Performance Scores --- #}
+                {% if componentSpecifications.component_scores is defined and componentSpecifications.component_scores|length > 0 %}
+                    <div class="border-t border-slate-200 p-6 bg-gradient-to-r from-slate-50 to-slate-100">
+                        <h3 class="text-xl font-semibold text-slate-900 mb-6 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-zap h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                             </svg>
-                            Available From
+                            Performance Scores
                         </h3>
 
-                        {# JS will render offers here #}
-                        <div id="vendor-offers" class="space-y-3">
-                            {% include 'pages/pc_configurator_page/pc_config_templates/mobile_offers_section.html.twig' %}
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 js-score-root">
+                            {# Loop over all backend-provided scores dynamically #}
+                            {% for label, value in componentSpecifications.component_scores %}
+                                <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 circle-score-item"
+                                     data-score="{{ value|default(0) }}" data-label="{{ label }}">
+                                    <div class="text-center">
+                                        <div class="text-lg font-semibold text-slate-700 capitalize mb-2">{{ label }}</div>
+                                        <div class="relative w-24 h-24 mx-auto mb-4">
+                                            <svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                                                <!-- Background track -->
+                                                <circle
+                                                        cx="50" cy="50" r="40"
+                                                        stroke="currentColor"
+                                                        stroke-width="8"
+                                                        fill="transparent"
+                                                        class="text-slate-200"
+                                                ></circle>
+
+                                                <!-- Foreground progress bar (hidden until JS runs) -->
+                                                <circle
+                                                        cx="50" cy="50" r="40"
+                                                        stroke="transparent"
+                                                        stroke-width="8"
+                                                        fill="transparent"
+                                                        stroke-dasharray="251 251"
+                                                        stroke-dashoffset="251"
+                                                        class="circle-score-bar transition-all duration-1000 ease-out"
+                                                ></circle>
+                                            </svg>
+                                            <div class="absolute inset-0 flex items-center justify-center">
+                                                <span class="text-2xl font-bold text-slate-900">{{ value|default(0) }}</span>
+                                            </div>
+                                        </div>
+                                        <!-- status message -->
+                                        <div class="inline-block px-3 py-1 rounded-full text-sm font-medium circle-score-status"></div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+                            {# Use Case Suitability (hardcoded for now) #}
+                            <div class="bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 border-purple-200">
+                                <div class="text-center">
+                                    <div class="text-lg font-semibold text-purple-800 capitalize mb-4">Use Case Suitability</div>
+                                    <div class="relative mb-4">
+                                        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center shadow-lg">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-hard-drive w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="22" x2="2" y1="12" y2="12"></line>
+                                                <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+                                                <line x1="6" x2="6.01" y1="16" y2="16"></line>
+                                                <line x1="10" x2="10.01" y1="16" y2="16"></line>
+                                            </svg>
+                                        </div>
+                                        <div class="bg-white px-4 py-2 rounded-full shadow-md border border-purple-200 mt-4">
+                                            <span class="text-lg font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">OS Drive</span>
+                                        </div>
+                                        <div class="mt-3">
+                                            <span class="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-purple-500 to-indigo-500 text-white">Recommended</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                {% endif %}
+                <div class="border-t border-slate-200">
+                    <!-- Tabs -->
+                    <div class="flex border-b border-slate-200 overflow-x-auto">
+                        <button class="tab-btn px-6 py-3 text-sm font-medium transition-all duration-200 relative whitespace-nowrap text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50"
+                                data-tab-target="specifications">
+                            Specifications
+                        </button>
+                        <button class="tab-btn px-6 py-3 text-sm font-medium transition-all duration-200 relative whitespace-nowrap text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                                data-tab-target="benchmarks">
+                            Benchmarks
+                        </button>
+                        <button class="tab-btn px-6 py-3 text-sm font-medium transition-all duration-200 relative whitespace-nowrap text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                                data-tab-target="reviews">
+                            Reviews
+                        </button>
+                    </div>
 
-                </div>
-            </div>
-            <div class="border-t border-slate-200">
-                <div class="flex border-b border-slate-200 overflow-x-auto">
-                    <button class="px-6 py-3 text-sm font-medium transition-all duration-200 relative whitespace-nowrap text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50">
-                        Specifications
-                    </button>
-                    <button class="px-6 py-3 text-sm font-medium transition-all duration-200 relative whitespace-nowrap text-slate-600 hover:text-slate-900 hover:bg-slate-50">
-                        Benchmarks
-                    </button>
-                    <button class="px-6 py-3 text-sm font-medium transition-all duration-200 relative whitespace-nowrap text-slate-600 hover:text-slate-900 hover:bg-slate-50">
-                        Reviews
-                    </button>
-                </div>
-                <div class="p-6">
-                    <div class="space-y-6">
-                        <div class="border border-slate-200 rounded-lg overflow-hidden transition-all duration-200 hover:shadow-md">
-                            <button class="w-full px-6 py-4 flex items-center justify-between bg-gradient-to-r from-slate-50 to-slate-100 hover:from-slate-100 hover:to-slate-200 transition-all duration-200">
-                                <span class="font-medium text-slate-900">Performance</span>
-                                <div class="flex items-center gap-2"><span
-                                            class="text-xs text-slate-500 bg-slate-200 px-2 py-1 rounded-full">5 specs</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                         stroke-linejoin="round"
-                                         class="lucide lucide-chevron-up h-5 w-5 text-slate-400 transition-transform duration-200">
-                                        <path d="m18 15-6-6-6 6"></path>
-                                    </svg>
+                    <!-- Panels -->
+                    <div class="p-6">
+                        <!-- Specifications Panel -->
+                        <div class="tab-panel active" data-tab="specifications">
+                            <div class="space-y-6">
+                                <div class="bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl overflow-hidden border border-slate-200 hover:shadow-lg transition-all duration-300">
+                                    <div class="px-6 py-4 bg-gradient-to-r from-indigo-500 to-cyan-500">
+                                        <h4 class="font-semibold text-white flex items-center gap-2">
+                                            <i data-lucide="hard-drive" class="h-5 w-5"></i>
+                                            General Specifications
+                                        </h4>
+                                    </div>
+
+                                    <div class="p-6 space-y-4">
+                                        {% for label, value in componentSpecifications.specifications.general_specifications %}
+                                            <div class="flex justify-between items-center py-3 border-b border-slate-200 last:border-0 hover:bg-white px-4 rounded-lg transition-all duration-200 hover:scale-[1.01] spec-box"
+                                                 data-spec-label="{{ label }}">
+                                                <span class="text-slate-700 font-medium">{{ label }}</span>
+                                                {% if value is same as(true) or value == 'Yes' %}
+                                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                        <i data-lucide="check" class="h-3 w-3"></i> Yes
+                                    </span>
+                                                {% elseif value is same as(false) or value == 'No' %}
+                                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                        <i data-lucide="x" class="h-3 w-3"></i> No
+                                    </span>
+                                                {% elseif value matches '/\\d+/' %}
+                                                    <span class="px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800">
+                                        {{ value }}
+                                    </span>
+                                                {% else %}
+                                                    <span class="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                                        {{ value }}
+                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        {% else %}
+                                            <p class="text-slate-500 italic">No specifications available.</p>
+                                        {% endfor %}
+                                    </div>
                                 </div>
-                            </button>
-                            <div class="px-6 py-4 space-y-3 animate-fadeIn bg-white">
-                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
-                                    <span class="text-slate-600 font-medium">Total Cores</span><span
-                                            class="text-slate-900 font-semibold">24 (8P + 16E)</span></div>
-                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
-                                    <span class="text-slate-600 font-medium">Performance-cores Base Frequency</span><span
-                                            class="text-slate-900 font-semibold">3.2 GHz</span></div>
-                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
-                                    <span class="text-slate-600 font-medium">Performance-cores Max Turbo Frequency</span><span
-                                            class="text-slate-900 font-semibold">5.8 GHz</span></div>
-                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
-                                    <span class="text-slate-600 font-medium">Cache</span><span
-                                            class="text-slate-900 font-semibold">36MB Intel® Smart Cache</span></div>
-                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
-                                    <span class="text-slate-600 font-medium">Total L2 Cache</span><span
-                                            class="text-slate-900 font-semibold">32 MB</span></div>
                             </div>
                         </div>
-                        <div class="border border-slate-200 rounded-lg overflow-hidden transition-all duration-200 hover:shadow-md">
-                            <button class="w-full px-6 py-4 flex items-center justify-between bg-gradient-to-r from-slate-50 to-slate-100 hover:from-slate-100 hover:to-slate-200 transition-all duration-200">
-                                <span class="font-medium text-slate-900">General</span>
-                                <div class="flex items-center gap-2"><span
-                                            class="text-xs text-slate-500 bg-slate-200 px-2 py-1 rounded-full">5 specs</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                         stroke-linejoin="round"
-                                         class="lucide lucide-chevron-up h-5 w-5 text-slate-400 transition-transform duration-200">
-                                        <path d="m18 15-6-6-6 6"></path>
-                                    </svg>
+
+                        <!-- Benchmarks Panel -->
+                        <div class="tab-panel hidden" data-tab="benchmarks">
+                            {% if benchmarks is empty %}
+                                <div class="text-center py-12">
+                                    <div class="text-slate-400 mb-4">
+                                        <i data-lucide="zap" class="h-12 w-12 mx-auto"></i>
+                                    </div>
+                                    <h3 class="text-lg font-medium text-slate-900 mb-2">Benchmark Data Coming Soon</h3>
+                                    <p class="text-slate-600">We're working on comprehensive benchmark results for this component.</p>
                                 </div>
-                            </button>
-                            <div class="px-6 py-4 space-y-3 animate-fadeIn bg-white">
-                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
-                                    <span class="text-slate-600 font-medium">Socket</span><span
-                                            class="text-slate-900 font-semibold">LGA 1700</span></div>
-                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
-                                    <span class="text-slate-600 font-medium">Memory Type</span><span
-                                            class="text-slate-900 font-semibold">DDR5-5600, DDR4-3200</span></div>
-                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
-                                    <span class="text-slate-600 font-medium">TDP</span><span
-                                            class="text-slate-900 font-semibold">125W</span></div>
-                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
-                                    <span class="text-slate-600 font-medium">Max Memory Size</span><span
-                                            class="text-slate-900 font-semibold">192 GB</span></div>
-                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors duration-150">
-                                    <span class="text-slate-600 font-medium">Lithography</span><span
-                                            class="text-slate-900 font-semibold">10nm</span></div>
-                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Reviews Panel -->
+                        <div class="tab-panel hidden" data-tab="reviews">
+                            {% if reviews is empty %}
+                                <div class="text-center py-12">
+                                    <div class="text-slate-400 mb-4">
+                                        <i data-lucide="star" class="h-12 w-12 mx-auto"></i>
+                                    </div>
+                                    <h3 class="text-lg font-medium text-slate-900 mb-2">Reviews Coming Soon</h3>
+                                    <p class="text-slate-600">User reviews and ratings will be available here.</p>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
         <!-- Modal -->
         <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 hidden">

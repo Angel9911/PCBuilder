@@ -12,8 +12,10 @@
     <link rel="stylesheet" href="{{ asset('css/home_page.css') }}">
     <script src="{{ asset('js/home_page.js') }}"></script>
     <!-- <link rel="stylesheet" href="path to css file"> -->
+    {# Importmap – loads the map and your app entrypoint #}
+    {{ importmap('app') }}
 </head>
-<body>
+<body data-page="{{ app.request.attributes.get('_route') }}">
 
 {% include 'layout/header.html.twig' %}
 
@@ -31,9 +33,8 @@
 
 <script src="{{ asset('js/ui/spinner.js') }}"></script>
 <script src="{{ asset('js/ui/errors.js') }}"></script>
-<script src="{{ asset('js/ui/mobile_menu_toggle.js') }}"></script>
 <script src="{{ asset('js/ui/navigation_bar.js') }}"></script>
-<script src="{{ asset('js/component_image_button.js') }}"></script>
+{#<script src="{{ asset('js/component_image_button.js') }}"></script>
 <script src="{{ asset('js/ui/offer_template.js') }}"></script>
 <script src="{{ asset('js/component_scores_section.js') }}"></script>
 <script src="{{ asset('js/new_product_filters.js') }}"></script>
@@ -45,7 +46,7 @@
 <script src="{{ asset('js/auth_login_registration.js') }}"></script>
 <script src="{{ asset('js/ai_questionnaire.js') }}"></script>
 <script src="{{ asset('js/ai_product_field.js') }}"></script>
-<script src="{{ asset('js/pc_build_configuration.js') }}"></script>
+<script src="{{ asset('js/pc_build_configuration.js') }}"></script>#}
 
 </body>
 </html>

@@ -365,9 +365,11 @@ class ComponentController extends AbstractController
             ]);
         }
 
-        $service = $this->productServiceDispatcher->getService($type);
+        $service = $this->productServiceDispatcher->getService($productCategory);
 
         $cacheKey = CacheConstraints::$COMPONENT_KEY . '_' . $type . '_' . $component;
+
+        $this->redis->delete($cacheKey);
 
         if (!$this->redis->isKeyExist($cacheKey)) {
 
@@ -379,6 +381,10 @@ class ComponentController extends AbstractController
 
             $productData = $this->redis->get($cacheKey);
         }
+
+        /*echo '<pre>';
+        return $this->json($productData);
+        echo '</pre>';*/
 
         $componentOffersCacheKey = CacheConstraints::$OFFERS_COMPONENT_KEY . '_' . $productData['component_id'];
 
@@ -392,10 +398,16 @@ class ComponentController extends AbstractController
             $componentOffers = $this->redis->get($componentOffersCacheKey);
         }
 
+
+        /*echo '<pre>';
+        print_r($productData);
+        echo '</pre>';*/
         return $this->render('pages/component_filters_page/component_specifications.html.twig',[
             'componentSpecifications' => $productData,
-            'componentOffers' => $componentOffers[$componentSpecifications['component_id']] ?? [],
+            'componentOffers' => $componentOffers[$productData['component_id']] ?? [],
             'offers_price_range' => $componentOffers['offers_price_range'],
+            'benchmarks' => [],
+            'reviews' => [],
         ]);
     }
 

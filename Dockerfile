@@ -14,6 +14,8 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libzip-dev \
     libssl-dev \
+	nodejs \
+    npm \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && docker-php-ext-install pdo pdo_pgsql pgsql mbstring zip
@@ -29,6 +31,10 @@ RUN chown -R www-data:www-data /var/www
 
 # Install PHP dependencies
 RUN composer install --optimize-autoloader --no-scripts
+
+# (Must run after code is copied and dependencies are installed)
+RUN php bin/console importmap:install
+RUN php bin/console asset-map:compile
 
 # Expose the correct port
 EXPOSE 8080

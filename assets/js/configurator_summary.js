@@ -51,7 +51,7 @@ perfButtons.forEach(button => {
     });
 });
 
-function setupInitialQuestionListeners() {
+export function setupInitialQuestionListeners() {
     const reviewBtn = document.getElementById("submit-review");
 
     // Handle use case selection (multi-select)
@@ -143,7 +143,7 @@ document.getElementById("submit-review").addEventListener("click", async () => {
     }
 });
 
-function updateBuildSummaryState({ selectedCount, lowestPrice, highestPrice, powerWattage }) {
+export function updateBuildSummaryState({ selectedCount, lowestPrice, highestPrice, powerWattage }) {
 
     buildSummaryState.selectedCount = selectedCount;
 
@@ -166,7 +166,7 @@ function updateBuildSummaryState({ selectedCount, lowestPrice, highestPrice, pow
     renderBuildSummary();
 }
 
-function calculateTotalRangePrices({componentPriceRanges}) {
+export function calculateTotalRangePrices({componentPriceRanges}) {
     let totalLowest = 0;
     let totalHighest = 0;
 
@@ -181,7 +181,7 @@ function calculateTotalRangePrices({componentPriceRanges}) {
     };
 }
 
-function calculatePowerWattage({selectedComponentsPowerWattage}) {
+export function calculatePowerWattage({selectedComponentsPowerWattage}) {
 
     let totalPowerWattage = 0;
 
@@ -297,7 +297,3 @@ document.getElementById("closeReviewModal").addEventListener("click", () => {
 document.getElementById("cancelReviewModal").addEventListener("click", () => {
     document.getElementById("reviewModal").classList.add("hidden");
 });
-
-window.updateBuildSummaryState = updateBuildSummaryState;
-window.calculateTotalRangePrices = calculateTotalRangePrices;
-window.setupInitialQuestionListeners = setupInitialQuestionListeners;

@@ -24,6 +24,8 @@
 ###> symfony/asset-mapper ###
 /assets/vendor/
 # Don't ignore specific static files
+!assets/js/**
+!assets/css/**
 !public/assets/images/
 !public/css/
 !public/js/

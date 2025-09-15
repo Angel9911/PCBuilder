@@ -228,4 +228,14 @@ class PeripheryServiceImpl extends BaseProduct implements BaseProductService, Pe
     {
         return $this->peripheryRepository->getProductSpecsByTypeAndIds($peripheryType, $ids);
     }
+
+    public function getProductMainSpecificationsByType(string $type): array
+    {
+        // TODO: Implement getProductMainSpecificationsByType() method.
+    }
+
+    public function getProductGeneralSpecificationsByType(string $type): array
+    {
+        // TODO: Implement getProductGeneralSpecificationsByType() method.
+    }
 }

@@ -67,6 +67,21 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
         }
     }
 
+    private function getComponentTypesSpecsScores(string $type): array
+    {
+        $componentScores = [
+            'cpu' => ComponentConstraints::$CPU_FILTERS_COMPONENT_SCORES,
+            'gpu' => ComponentConstraints::$GPU_FILTERS_COMPONENT_SCORES,
+            'storage' => ComponentConstraints::$STORAGE_FILTERS_COMPONENT_SCORES,
+            'ram' => ComponentConstraints::$RAM_FILTERS_COMPONENT_SCORES,
+            'psu' => ComponentConstraints::$PSU_FILTERS_COMPONENT_SCORES,
+            'pc_case' => ComponentConstraints::$PC_CASE_FILTERS_COMPONENT_SCORES
+
+        ];
+
+        return $componentScores[$type] ?? [];
+    }
+
     /**
      * @throws Exception
      */
@@ -125,34 +140,6 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
         return $this->componentRepository->getTotalsCountComponent($componentType);
     }
 
-    private function getComponentTypesFilter(): array
-    {
-        return [
-        'cpu' => ComponentConstraints::$CPU_FILTERS_COMPONENT,
-        'motherboard' => ComponentConstraints::$MOTHERBOARD_FILTERS_COMPONENT,
-        'gpu' => ComponentConstraints::$GPU_FILTERS_COMPONENT,
-        'pc_case' => ComponentConstraints::$PC_CASE_FILTERS_COMPONENT,
-        'psu' => ComponentConstraints::$PSU_FILTERS_COMPONENT,
-        'storage' => ComponentConstraints::$STORAGE_FILTERS_COMPONENT,
-        'ram' => ComponentConstraints::$RAM_FILTERS_COMPONENT,
-        ];
-    }
-
-    private function getComponentTypesSpecsScores(string $type): array
-    {
-        $componentScores = [
-            'cpu' => ComponentConstraints::$CPU_FILTERS_COMPONENT_SCORES,
-            'gpu' => ComponentConstraints::$GPU_FILTERS_COMPONENT_SCORES,
-            'storage' => ComponentConstraints::$STORAGE_FILTERS_COMPONENT_SCORES,
-            'ram' => ComponentConstraints::$RAM_FILTERS_COMPONENT_SCORES,
-            'psu' => ComponentConstraints::$PSU_FILTERS_COMPONENT_SCORES,
-            'pc_case' => ComponentConstraints::$PC_CASE_FILTERS_COMPONENT_SCORES
-
-        ];
-
-        return $componentScores[$type] ?? [];
-    }
-
 
     public function updateComponentName(string $existingName, string $slugifyName): void
     {
@@ -173,13 +160,43 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
     public function getProductKeySpecificationsByType(string $type): array
     {
         $componentFilters = [
-            'cpu' => ComponentConstraints::$CPU_FILTERS_COMPONENT,
-            'motherboard' => ComponentConstraints::$MOTHERBOARD_FILTERS_COMPONENT,
-            'gpu' => ComponentConstraints::$GPU_FILTERS_COMPONENT,
-            'pc_case' => ComponentConstraints::$PC_CASE_FILTERS_COMPONENT,
-            'psu' => ComponentConstraints::$PSU_FILTERS_COMPONENT,
-            'storage' => ComponentConstraints::$STORAGE_FILTERS_COMPONENT,
-            'ram' => ComponentConstraints::$RAM_FILTERS_COMPONENT,
+            'cpu' => ComponentConstraints::$CPU_FILTERS_COMPONENT['card_specifications'],
+            'motherboard' => ComponentConstraints::$MOTHERBOARD_FILTERS_COMPONENT['card_specifications'],
+            'gpu' => ComponentConstraints::$GPU_FILTERS_COMPONENT['card_specifications'],
+            'pc_case' => ComponentConstraints::$PC_CASE_FILTERS_COMPONENT['card_specifications'],
+            'psu' => ComponentConstraints::$PSU_FILTERS_COMPONENT['card_specifications'],
+            'storage' => ComponentConstraints::$STORAGE_FILTERS_COMPONENT['card_specifications'],
+            'ram' => ComponentConstraints::$RAM_FILTERS_COMPONENT['card_specifications'],
+        ];
+
+        return $componentFilters[$type] ?? [];
+    }
+
+    public function getProductMainSpecificationsByType(string $type): array
+    {
+        $componentFilters = [
+            'cpu' => ComponentConstraints::$CPU_FILTERS_COMPONENT['main_specifications'],
+            'motherboard' => ComponentConstraints::$MOTHERBOARD_FILTERS_COMPONENT['main_specifications'],
+            'gpu' => ComponentConstraints::$GPU_FILTERS_COMPONENT['main_specifications'],
+            'pc_case' => ComponentConstraints::$PC_CASE_FILTERS_COMPONENT['main_specifications'],
+            'psu' => ComponentConstraints::$PSU_FILTERS_COMPONENT['main_specifications'],
+            'storage' => ComponentConstraints::$STORAGE_FILTERS_COMPONENT['main_specifications'],
+            'ram' => ComponentConstraints::$RAM_FILTERS_COMPONENT['main_specifications'],
+        ];
+
+        return $componentFilters[$type] ?? [];
+    }
+
+    public function getProductGeneralSpecificationsByType(string $type): array
+    {
+        $componentFilters = [
+            'cpu' => ComponentConstraints::$CPU_FILTERS_COMPONENT['general_specifications'],
+            'motherboard' => ComponentConstraints::$MOTHERBOARD_FILTERS_COMPONENT['general_specifications'],
+            'gpu' => ComponentConstraints::$GPU_FILTERS_COMPONENT['general_specifications'],
+            'pc_case' => ComponentConstraints::$PC_CASE_FILTERS_COMPONENT['general_specifications'],
+            'psu' => ComponentConstraints::$PSU_FILTERS_COMPONENT['general_specifications'],
+            'storage' => ComponentConstraints::$STORAGE_FILTERS_COMPONENT['general_specifications'],
+            'ram' => ComponentConstraints::$RAM_FILTERS_COMPONENT['general_specifications'],
         ];
 
         return $componentFilters[$type] ?? [];
@@ -202,7 +219,8 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
                 'main_image_url' => $componentImages['main_image_url'],
                 'all_image_urls' => $componentImages['all_image_urls'],
             ],
-            'specifications' => $this->formatSpecifications($componentDetails[0])
+            'component_scores' => $this->getComponentScores($productType, $componentDetails[0]),
+            'specifications' => $this->formatProductSpecifications($componentDetails[0], $productType)
         ];
     }
 
@@ -248,7 +266,6 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
     {
         return $this->componentRepository->getProductsIdsByType($type);
     }
-
     /**
      * @throws Exception
      */
@@ -256,6 +273,7 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
     {
         return $this->componentRepository->getProductSpecsByTypeAndIds($peripheryType, $ids);
     }
+
     private function getComponentScores(string $componentType, array $componentProduct): array
     {
         $componentSpecScores = $this->getComponentTypesSpecsScores($componentType);
@@ -298,5 +316,53 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
         $result['filters'] = $this->componentRepository->getAndLoadProductFiltersByType($productType);
 
         return $result;
+    }
+    public function formatProductSpecifications(array $productData, string $type): array
+    {
+        $constraints = ComponentConstraints::${strtoupper($type) . '_FILTERS_COMPONENT'} ?? null;
+
+        $productFilters = ComponentCatalogFilter::get($type)['filters'] ?? [];
+
+        if (!$constraints) {
+            return [
+                'main_specifications'    => [],
+                'general_specifications' => [],
+            ];
+        }
+
+        $formatSpecGroup = function(array $keys) use ($productData, $productFilters) {
+            $out = [];
+            foreach ($keys as $key) {
+                if (!array_key_exists($key, $productData)) {
+                    continue; // skip if not present in the row
+                }
+                $value = $productData[$key];
+
+                // format booleans
+                if (is_bool($value)) {
+                    $value = $value ? 'Yes' : 'No';
+                }
+
+                // append units where logical
+                $units = match($key) {
+                    'power_wattage'   => 'W',
+                    'length_mm'       => 'mm',
+                    'efficiency'      => '%',
+                    'noise_level'     => 'dB',
+                    default           => ''
+                };
+
+                // use label from filter config (fallback to key if missing)
+                $label = $productFilters[$key]['label'] ?? ucfirst(str_replace('_', ' ', $key));
+
+                $out[$label] = $units ? "{$value} {$units}" : $value;
+            }
+            return $out;
+        };
+
+        return [
+            'main_specifications'    => $formatSpecGroup($constraints['main_specifications'] ?? []),
+            'general_specifications' => $formatSpecGroup($constraints['general_specifications'] ?? []),
+        ];
     }
 }

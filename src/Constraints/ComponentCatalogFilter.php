@@ -7,6 +7,7 @@ final class ComponentCatalogFilter
     public const CATEGORIES = [
         'cpu' => [
             'table' => 'cpu',
+            'slug_expr'  => 'c.slugify_name',
 
             // We need components for brand and for "Series" derived from c.name
             'base_joins' => [
@@ -90,7 +91,7 @@ final class ComponentCatalogFilter
 
                 // (Future) Брой ядра / core_count — add when column exists
                 'core_count' => [
-                    'label'   => 'Брой ядра',
+                    'label'   => 'Core count',
                     'kind'    => 'range',
                     'source'  => 'column',
                     'expr'    => 't.core_count', // placeholder – column doesn’t exist yet
@@ -100,7 +101,7 @@ final class ComponentCatalogFilter
         ],
         'gpu' => [
             'table' => 'gpu',
-
+            'slug_expr'  => 'c.slugify_name',
             // We need components for brand + name-based "series"
             'base_joins' => [
                 ['type' => 'INNER', 'table' => 'components', 'alias' => 'c', 'on' => 'c.id = t.component_id'],
@@ -234,6 +235,7 @@ final class ComponentCatalogFilter
         ],
         'motherboard' => [
             'table' => 'motherboard',
+            'slug_expr'  => 'c.slugify_name',
 
             // Always join components (to reach component brand etc.)
             'base_joins' => [
@@ -334,7 +336,7 @@ final class ComponentCatalogFilter
         ],
         'ram' => [
             'table' => 'ram',
-
+            'slug_expr'  => 'c.slugify_name',
             // Always join components to reach brand
             'base_joins' => [
                 ['type' => 'INNER', 'table' => 'components', 'alias' => 'c',  'on' => 'c.id = t.component_id'],
@@ -417,7 +419,7 @@ final class ComponentCatalogFilter
         ],
         'storage' => [
             'table' => 'storage',
-
+            'slug_expr'  => 'c.slugify_name',
             // Always join components to reach brand
             'base_joins' => [
                 ['type' => 'INNER', 'table' => 'components',        'alias' => 'c',  'on' => 'c.id = t.component_id'],
@@ -492,6 +494,13 @@ final class ComponentCatalogFilter
                     'expr'    => 't.form_factor',
                     'enabled' => true,
                 ],
+                'connector_type' => [
+                    'label'   => 'Connector Type',
+                    'kind'    => 'checkbox',
+                    'source'  => 'column',
+                    'expr'    => 't.connector_type',
+                    'enabled' => false,
+                ],
 
                 // ---- Optional extras (keep off for now; uncomment if you want) ----
                 // 'bus_type' => [
@@ -499,13 +508,6 @@ final class ComponentCatalogFilter
                 //     'kind'    => 'checkbox',
                 //     'source'  => 'column',
                 //     'expr'    => 't.bus_type',
-                //     'enabled' => false,
-                // ],
-                // 'connector_type' => [
-                //     'label'   => 'Connector Type',
-                //     'kind'    => 'checkbox',
-                //     'source'  => 'column',
-                //     'expr'    => 't.connector_type',
                 //     'enabled' => false,
                 // ],
                 // 'pcie_version' => [
@@ -534,7 +536,7 @@ final class ComponentCatalogFilter
         ],
         'psu' => [
             'table' => 'psu',
-
+            'slug_expr'  => 'c.slugify_name',
             // join components mainly to expose brand via component_brands
             'base_joins' => [
                 ['type' => 'INNER', 'table' => 'components',       'alias' => 'c',  'on' => 'c.id = t.component_id'],
@@ -602,18 +604,18 @@ final class ComponentCatalogFilter
                 ],
 
                 // (Optional) Fanless: enable if you want a Yes/No toggle
-                // 'fanless' => [
-                //     'label'   => 'Fanless',
-                //     'kind'    => 'radio',
-                //     'source'  => 'column',
-                //     'expr'    => 't.fanless',
-                //     'enabled' => false,
-                // ],
+                 'fanless' => [
+                     'label'   => 'Fanless',
+                     'kind'    => 'radio',
+                     'source'  => 'column',
+                     'expr'    => 't.fanless',
+                     'enabled' => false,
+                 ],
             ],
         ],
         'pc_case' => [
             'table' => 'pc_case',
-
+            'slug_expr'  => 'c.slugify_name',
             // Join components to expose brand (through component_brands)
             'base_joins' => [
                 ['type' => 'INNER', 'table' => 'components', 'alias' => 'c', 'on' => 'c.id = t.component_id'],

@@ -3,6 +3,7 @@
 
 namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
+
 #[ORM\Entity]
 #[ORM\Table(name: "user_accounts")]
 class UserAccount
@@ -26,35 +27,4 @@ class UserAccount
         $this->username = $username;
         $this->password = $password;
     }
-
-    public function getUsername(): string
-    {
-        return $this->username;
-    }
-
-    public function setUsername(string $username): void
-    {
-        $this->username = $username;
-    }
-
-    public function getPassword(): string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): void
-    {
-        $this->password = $password;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): void
-    {
-        $this->user = $user;
-    }
-
 }
