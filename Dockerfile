@@ -14,11 +14,12 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libzip-dev \
     libssl-dev \
+	libicu-dev \
 	nodejs \
     npm \
     && pecl install redis \
     && docker-php-ext-enable redis \
-    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring zip
+    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring zip intl
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -32,13 +33,14 @@ RUN chown -R www-data:www-data /var/www
 # Install PHP dependencies
 RUN composer install --optimize-autoloader --no-scripts
 
-# ✅ Set environment variables
+# Set environment variables
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
 ENV DATABASE_URL=postgresql://postgres:QnnefRBjSBVUATXzCAFhWmnEVHTxaOpM@switchyard.proxy.rlwy.net:22412/railway?serverVersion=13&charset=utf8
 
-# ✅ Compile Importmap and AssetMap (no real DB connection needed)
-RUN php bin/console asset-map:compile
+# Install vendor JS and compile assets
+RUN php bin/console importmap:install --no-interaction
+RUN php bin/console asset-map:compile --no-interaction
 
 # Expose the correct port
 EXPOSE 8080
