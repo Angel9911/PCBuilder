@@ -35,7 +35,7 @@ RUN composer install --optimize-autoloader --no-scripts
 # ✅ Set environment variables
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
-ENV DATABASE_URL=postgres:EruaBzqaSbXcEJwnrgCybJkYqYPeyOla@postgres.railway.internal:5432/railway
+ENV DATABASE_URL=postgresql://postgres:QnnefRBjSBVUATXzCAFhWmnEVHTxaOpM@switchyard.proxy.rlwy.net:22412/railway?serverVersion=13&charset=utf8
 
 # ✅ Compile Importmap and AssetMap (no real DB connection needed)
 RUN php bin/console asset-map:compile
