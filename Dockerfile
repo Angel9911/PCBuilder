@@ -32,7 +32,11 @@ RUN chown -R www-data:www-data /var/www
 # Install PHP dependencies
 RUN composer install --optimize-autoloader --no-scripts
 
-# (Must run after code is copied and dependencies are installed)
+# ✅ Set environment variables
+ENV APP_ENV=prod
+ENV APP_DEBUG=0
+
+# ✅ Compile Importmap and AssetMap (no real DB connection needed)
 RUN php bin/console asset-map:compile
 
 # Expose the correct port
