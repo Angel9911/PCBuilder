@@ -32,6 +32,10 @@ RUN chown -R www-data:www-data /var/www
 # Install PHP dependencies
 RUN composer install --optimize-autoloader --no-scripts
 
+# ✅ Set Symfony env so bin/console doesn’t fail
+ENV APP_ENV=prod
+ENV APP_DEBUG=0
+
 # (Must run after code is copied and dependencies are installed)
 RUN php bin/console importmap:install
 RUN php bin/console asset-map:compile
