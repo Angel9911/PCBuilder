@@ -35,6 +35,7 @@ RUN composer install --optimize-autoloader --no-scripts
 # ✅ Set environment variables
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
+ENV DATABASE_URL=postgres://fake:fake@127.0.0.1:5432/fake
 
 # ✅ Compile Importmap and AssetMap (no real DB connection needed)
 RUN php bin/console asset-map:compile

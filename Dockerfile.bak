@@ -36,6 +36,9 @@ RUN composer install --optimize-autoloader --no-scripts
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
 
+# ✅ Compile Importmap and AssetMap (no real DB connection needed)
+RUN php bin/console asset-map:compile
+
 # Expose the correct port
 EXPOSE 8080
 
