@@ -384,11 +384,11 @@ final class ComponentCatalogFilter
                 ],
 
                 // Frequency (MHz) – range + distinct ticks
-                'speed_mhz' => [
+                'max_xmp_speed' => [
                     'label'        => 'Frequency (MHz)',
                     'kind'         => 'range',
                     'source'       => 'column',
-                    'expr'         => 't.speed_mhz',
+                    'expr'         => 't.max_xmp_speed',
                     'enabled'      => true,
                     'max_distinct' => 50,
                 ],

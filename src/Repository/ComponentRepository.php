@@ -171,7 +171,6 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
         $response = [];
 
         $connection = $this->entityManager->getConnection();
-
         // Get selected specs
         $cpu = isset($selected['cpu_id']) ? $this->getComponentSpecs('cpu', self::$PAGE, self::$OFFSET, self::$COMPONENT_FILTERS, self::$COMPONENT_FILTERS, $connection, $selected['cpu_id']) : null;
         $cpuCooler = isset($selected['cpu_cooling_id']) ? $this->getComponentSpecs('cpu_cooling', self::$PAGE, self::$OFFSET, self::$COMPONENT_FILTERS, self::$COMPONENT_FILTERS, $connection, $selected['cpu_cooling_id']) : null;
@@ -210,7 +209,7 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
         , int $id = 0
     ): ?array
     {
-
+        $whereSql = '';
         // If no connection is passed, use default from service container
         if ($conn === null) {
 
@@ -219,19 +218,23 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
 
         $params = [];
 
-        $cfg = ComponentCatalogFilter::get($type);
+        if($id > 0){
 
-        $filtersCfg = $cfg['filters'] ?? [];
+            $conditions[] = "t.component_id = :id";
 
-        $whereSql = $this->buildQueryFilter($filtersCfg, $filters, 't', $params);
-        /*$whereSql = $this->buildWhereClauseSql(
-            'component_id',
-            $id,
-            $filters,
-            $selectedComponents,
-            't',
-            $params
-        );*/
+            $params['id'] = $id;
+
+            $whereSql = ' WHERE '.implode(' AND ', $conditions);
+        }
+
+        if(!empty($filters)){
+
+            $cfg = ComponentCatalogFilter::get($type);
+
+            $filtersCfg = $cfg['filters'] ?? [];
+
+            $whereSql = $this->buildQueryFilter($filtersCfg, $filters, 't', $params);
+        }
 
         $sql = "
             SELECT t.*, c.name, c.slugify_name, ct.name AS component_type, cb.name AS brand
@@ -820,7 +823,12 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
         $params = []; // pass parameters for filtering
 
         $results = [];
+        /* TODO:
+         * memory_channels → if ram.modules < cpu.memory_channels * 2, display a warning ("Memory will run in single-channel mode").
 
+            You can also add a check for oc_profile_support → if RAM supports XMP, but MB only supports EXPO → warning
+        ("This memory will only work in JEDEC mode, the XMP profile is not supported by the motherboard").
+         */
         if ($selectedRam) {
             $conditions[] = "ram.component_id != :selected_id";
             $params['selected_id'] = $selectedRam['component_id'];
@@ -866,17 +874,19 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
            $conditions[] = "ram.ecc = :ecc_support";
             $params['ecc_support'] = $mb['ecc_support'];*/
 
-            $motherboardSupportedSpeed = str_getcsv(trim($mb['supported_memory_speeds'], '{}'));
+            // Speed check
+            $ocSpeeds = str_getcsv(trim($mb['oc_memory_speeds'], '{}'));
 
-            if (!empty($motherboardSupportedSpeed)) {
+            $conditions[] = "(
+            ram.jedec_speed <= :base_speed
+                OR
+            ram.max_xmp_speed = ANY(:oc_speeds::int[])
+            )";
 
-                $maxSpeed = max($motherboardSupportedSpeed);
+            $params['base_speed'] = $mb['base_memory_speed'];
+            $params['oc_speeds'] = '{' . implode(',', $ocSpeeds) . '}';
 
-                $conditions[] = "ram.speed_mhz <= :max_speed";
-                $params['max_speed'] = $maxSpeed;
-            }
-
-            if(isset($ram['form_factor']) && isset($mb['form_factor_id'])){
+            if(isset($mb['form_factor_id'])){
 
                 $allFormFactors = $this->getFormFactorMap($conn);
 
@@ -961,10 +971,15 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
             $conditions[] = "mb.max_memory_supported >= :capacity_gb";
             $params['capacity_gb'] = $ram['capacity_gb'];
 
-            $conditions[] = "EXISTS (
-                SELECT 1 FROM unnest(mb.supported_memory_speeds) AS s(speed)
-                WHERE s.speed >= :speed_mhz)";
-            $params['speed_mhz'] = $ram['speed_mhz'];
+            // Speed compatibility
+            $conditions[] = "(
+                mb.base_memory_speed >= :jedec_speed
+                    OR
+                :max_xmp_speed = ANY(mb.oc_memory_speeds)
+            )";
+
+            $params['jedec_speed'] = $ram['jedec_speed'];
+            $params['max_xmp_speed'] = $ram['max_xmp_speed'];
 
             /*if (isset($ram['ecc']) && $ram['ecc']) {
                 $conditions[] = "mb.ecc_support = true";

@@ -20,7 +20,7 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
         'power_wattage' => 'W',
         'length_mm' => 'mm',
         'capacity_gb' => 'GB',
-        'speed_mhz' => 'MHz',
+        'max_xmp_speed' => 'MHz',
         'max_memory_supported' => 'GB',
         'gpu_clearance_mm' => 'mm',
         'max_cooler_height_mm' => 'mm',

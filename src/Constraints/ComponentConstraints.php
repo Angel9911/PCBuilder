@@ -41,9 +41,9 @@ final class ComponentConstraints
     ];
     public static array $STORAGE_FILTERS_COMPONENT_SCORES = ['speed_score', 'longevity'];
     public static array $RAM_FILTERS_COMPONENT = [
-        'card_specifications' => ['type', 'capacity_gb', 'speed_mhz'],
-        'main_specifications' => ['type', 'capacity_gb', 'speed_mhz', 'cas_latency'],
-        'general_specifications' => ['brand', 'type', 'capacity_gb', 'speed_mhz', 'cas_latency', 'timings', 'form_factor']
+        'card_specifications' => ['type', 'capacity_gb', 'max_xmp_speed'],
+        'main_specifications' => ['type', 'capacity_gb', 'max_xmp_speed', 'cas_latency'],
+        'general_specifications' => ['brand', 'type', 'capacity_gb', 'max_xmp_speed', 'cas_latency', 'timings', 'form_factor']
     ];
     public static array $RAM_FILTERS_COMPONENT_SCORES = ['gaming_score', 'productivity_score'];
 
