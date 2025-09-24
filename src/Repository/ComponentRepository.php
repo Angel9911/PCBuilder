@@ -401,18 +401,7 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
 
             $params['form_factor_id'] = $mb['form_factor_id'];
 
-            $motherboardUsbTypes = ComponentHelper::getUsbMotherboardHeaders($conn, $mb['id']);// $this->getUsbMotherboardHeaders($conn, $mb['id']);
-
-            foreach ($motherboardUsbTypes as $i => $type) {
-                $conditions[] = "EXISTS (
-                SELECT 1 FROM pc_case_usb_types u
-                WHERE u.pc_case_id = pc.id
-                  AND u.usb_type_id = :usb_type_{$i}
-                  AND u.quantity >= :usb_qty_{$i}
-            )";
-                $params["usb_type_{$i}"] = $type['usb_header_type_id'];
-                $params["usb_qty_{$i}"] = $type['quantity'];
-            }
+            $mbPorts  = ComponentHelper::getMotherboardUsbPorts($conn, $mb['id']);// $this->getUsbMotherboardHeaders($conn, $mb['id']);
         }
 
         if ($gpu) {
@@ -464,6 +453,38 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
         $stmt = $conn->prepare($sql);
 
         $results = array_merge($results, $stmt->executeQuery($params)->fetchAllAssociative());
+
+        if($mb) {
+
+            $filteredResults = [];
+
+            foreach ($results as $case) {
+
+                $pcCaseId = $this->findComponentIdByComponentId($case['component_id'], 'pc_case', $conn);
+
+                $casePorts = ComponentHelper::getPcCaseUsbPorts($conn, $pcCaseId);
+                // e.g. [1 => 2, 2 => 1]
+
+                $compatible = true;
+
+                foreach ($casePorts as $portType => $qty) {
+
+                    if (!isset($mbPorts[$portType]) || $mbPorts[$portType] < $qty) {
+
+                        $compatible = false;
+
+                        break;
+                    }
+                }
+
+                if ($compatible) {
+
+                    $filteredResults[] = $case;
+                }
+            }
+
+            return $filteredResults;
+        }
 
         return $results;
 
@@ -576,7 +597,13 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
         return $filteredResults;
     }
 
-    function getCompatibleStorage($conn, ?array $selectedStorage, ?array $mb): array {
+    /**
+     * @throws Exception
+     */
+    function getCompatibleStorage($conn
+        , ?array                  $selectedStorage
+        , ?array                  $mb
+    ): array {
         $conditions = []; // used for where clause in sql
         $params = []; // pass parameters for filtering
 
@@ -592,15 +619,23 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
             ];
         }
 
-        if($mb){
 
-            // TODO: Maybe this will be replace because the following checks are more detailed
-            $storageInterfaces = str_getcsv(trim($mb['storage_interfaces'], '{}'));
+        if ($mb) {
 
-            if(!empty($storageInterfaces)){
+            // get real slots from motherboard_slots
+            $slots = ComponentHelper::getMotherboardSlots($conn, $mb['id']);
 
-                $conditions[] = "s.interface = ANY(:interfaces::text[])";
-                $params['interfaces'] = '{' . implode(',', $storageInterfaces) . '}';
+            if (!empty($slots)) {
+                //  EXISTS checking storage.interface
+                $conditions[] = "EXISTS (
+                SELECT 1
+                FROM motherboard_slots ms
+                WHERE ms.motherboard_id = :mb_id
+                  AND ms.interface = s.interface
+                  AND (ms.lanes_count IS NULL OR ms.lanes_count >= s.lane_count)
+                )";
+
+                $params['mb_id'] = $mb['id'];
             }
 
             // Bus type compatibility (PCIe, SATA, etc.)
@@ -617,7 +652,7 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
                 $params['connectors'] = '{' . implode(',', $connectors) . '}';
             }
 
-            // PCIe version filter for PCIe drives
+            // PCIe version filter
             $conditions[] = "(s.bus_type != 'PCIe' OR s.pcie_version IS NULL OR s.pcie_version <= :mb_pcie_version)";
             $params['mb_pcie_version'] = $mb['pcie_version'];
 
@@ -625,7 +660,7 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
             $conditions[] = "(s.nvme = false OR :nvme_supported = true)";
             $params['nvme_supported'] = $mb['supports_nvme'];
 
-            // M.2 slot availability
+            // Slot availability
             $conditions[] = "(s.connector_type != 'M.2' OR :mb_m2_slots > 0)";
             $params['mb_m2_slots'] = $mb['m2_slots'];
 
@@ -987,8 +1022,6 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
         }
 
         if ($storage) {
-            $conditions[] = ":interface = ANY(mb.storage_interfaces)";
-            $params['interface'] = $storage['interface'];
 
             if ($storage['connector_type'] === 'SATA') {
                 $conditions[] = "mb.sata_ports >= 1";
@@ -1014,27 +1047,17 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
         }
 
         if ($pcCase) {
+
             $conditions[] = "EXISTS (
             SELECT 1 FROM pc_case_form_factors cf
             WHERE cf.pc_case_id = :case_id
               AND cf.form_factor_id = mb.form_factor_id
-        )";
-            $params['case_id'] = $pcCase['component_id'];
+            )";
 
-            $caseUsbTypes = ComponentHelper::getCaseUsbHeaderTypes($conn, $pcCase['id'] ?? 0);
+            $params['case_id'] = $pcCase['id'];
 
-            if ($caseUsbTypes) {
-                foreach ($caseUsbTypes as $usbTypeId => $qty) {
-                    $conditions[] = "EXISTS (
-                    SELECT 1 FROM motherboard_usb_headers mu
-                    WHERE mu.motherboard_id = mb.id
-                    AND mu.usb_header_type_id = :usb_type_$usbTypeId
-                    AND mu.quantity >= :usb_qty_$usbTypeId
-                )";
-                    $params["usb_type_$usbTypeId"] = $usbTypeId;
-                    $params["usb_qty_$usbTypeId"] = $qty;
-                }
-            }
+            // --- Get case ports ---
+            $casePorts = ComponentHelper::getPcCaseUsbPorts($conn, $pcCase['id']);
         }
 
         if ($gpu) {
@@ -1049,7 +1072,8 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
             WHERE ps.motherboard_id = mb.id
             AND ps.gen::float >= :gpu_pcie_version
             AND ps.lanes >= :gpu_lanes
-        )";
+            )";
+
             $params['gpu_lanes'] = $gpuLanes;
         }
 
@@ -1063,12 +1087,101 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
         FROM motherboard mb
         JOIN components comp ON comp.id = mb.component_id
         {$whereSql}
-    ";
+        ";
 
         $stmt = $conn->prepare($sql);
+
         $results = array_merge($results, $stmt->executeQuery($params)->fetchAllAssociative());
 
-        return $results;
+        // Start with SQL candidates
+        $filteredResults = $results;
+
+        if($storage){
+
+            $tmpMotherBoards = [];
+
+            foreach ($results as $motherboard) {
+
+                $motherboardId = $this->findComponentIdByComponentId($motherboard['component_id'], 'motherboard', $conn);
+
+                $slots = ComponentHelper::getMotherboardSlots($conn, $motherboardId);
+                // $slots = [ ['interface' => 'M.2 PCIe 4.0', 'lanes_count' => 4], ... ]
+
+                $compatible = false;
+                foreach ($slots as $slot) {
+
+                    $slotIface = $slot['interface'];
+                    $storageIface = $storage['interface'];
+
+                    // 1) Ако е PCIe (M.2 PCIe ...)
+                    if (ComponentHelper::isM2Pcie($slotIface) && ComponentHelper::isM2Pcie($storageIface)) {
+
+                        $slotVer = ComponentHelper::extractPcieVersion($slotIface);
+                        $storageVer = ComponentHelper::extractPcieVersion($storageIface);
+
+                        if ($slotVer !== null && $storageVer !== null && $slotVer >= $storageVer) {
+
+                            if ($slot['lanes_count'] === null || $slot['lanes_count'] >= $storage['lane_count']) {
+
+                                $compatible = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    // 2) Всички останали (SATA3, M.2 SATA и т.н.) → сравняваме директно
+                    elseif ($slotIface === $storageIface) {
+
+                        if ($slot['lanes_count'] === null || $slot['lanes_count'] >= $storage['lane_count']) {
+
+                            $compatible = true;
+                            break;
+                        }
+                    }
+                }
+
+                if ($compatible) {
+                    $tmpMotherBoards[] = $motherboard;
+                }
+            }
+
+            $filteredResults = $tmpMotherBoards;
+        }
+
+      /*  echo '<pre>';
+        print_r($filteredResults);
+        echo '</pre>';*/
+
+        // --- PC Case compatibility ---
+        if ($pcCase) {
+
+            $tmp = [];
+
+            foreach ($filteredResults as $mb) {
+
+                $mbId = $this->findComponentIdByComponentId($mb['component_id'], 'motherboard', $conn);
+
+                $mbPorts = ComponentHelper::getMotherboardUsbPorts($conn, $mbId);
+
+                $compatible = true;
+
+                foreach ($casePorts as $portType => $qty) {
+                    if (!isset($mbPorts[$portType]) || $mbPorts[$portType] < $qty) {
+                        $compatible = false;
+                        break;
+                    }
+                }
+
+                if ($compatible) {
+                    $tmp[] = $mb;
+                }
+            }
+
+            $filteredResults = $tmp;
+        }
+
+
+        return $filteredResults;
     }
 
     function getCompatibleCPUs( $conn

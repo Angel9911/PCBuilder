@@ -317,6 +317,7 @@ final class ComponentCatalogFilter
 
                 // Ports (checkbox) — many-to-many via motherboard_usb_headers → usb_header_types
                 // We expose the USB header type names as “Ports”
+                // TODO: THIS information maybe isn't properly
                 'ports' => [
                     'label'   => 'Ports',
                     'kind'    => 'checkbox',
@@ -676,12 +677,13 @@ final class ComponentCatalogFilter
                 ],
 
                 // Front panel outputs (USB types) via junction pc_case_usb_types → usb_header_types
+                // TODO: pc_case_usb_types is already dropped
                 'front_panel_output' => [
                     'label'   => 'Front Panel Output',
                     'kind'    => 'checkbox',
                     'source'  => 'junction',
                     'expr'    => 'uht.name',
-                    'enabled' => true,
+                    'enabled' => false, // TODO: MAKE IT true
                     'junction'=> [
                         // t (pc_case) → pc_case_usb_types (pcu) → usb_header_types (uht)
                         ['type' => 'INNER', 'table' => 'pc_case_usb_types', 'alias' => 'pcu', 'on' => 'pcu.pc_case_id = t.id'],
