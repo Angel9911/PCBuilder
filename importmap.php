@@ -12,14 +12,8 @@
  * The "importmap:require" command can be used to add new entries to this file.
  */
 return [
-    '@hotwired/stimulus' => [
-        'version' => '3.2.2',
-    ],
     '@symfony/stimulus-bundle' => [
         'path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js',
-    ],
-    '@hotwired/turbo' => [
-        'version' => '7.3.0',
     ],
     'app' => [
         'path' => './assets/app.js',
@@ -72,5 +66,17 @@ return [
     ],
     'app/component_specifications' => [
         'path' => './assets/js/component_specifications.js',
+    ],
+    'app/ui/rating_modal' => [
+        'path' => './assets/js/ui/rating_modal.js',
+    ],
+    'lucide' => [
+        'version' => '0.547.1',
+    ],
+    'app/ui/ai_config_form' => [
+        'path' => './assets/js/ui/ai_config_form.js',
+    ],
+    'app/recommendation_section' => [
+        'path' => './assets/js/recommendation_section.js',
     ],
 ];

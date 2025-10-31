@@ -1,9 +1,8 @@
-
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php
 /.env.*.local
-/.env.dev
+/.env
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
@@ -22,11 +21,6 @@
 ###< symfony/phpunit-bridge ###
 
 ###> symfony/asset-mapper ###
+/public/assets/
 /assets/vendor/
-# Don't ignore specific static files
-!assets/js/**
-!assets/css/**
-!public/assets/images/
-!public/css/
-!public/js/
 ###< symfony/asset-mapper ###
