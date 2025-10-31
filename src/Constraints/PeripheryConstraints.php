@@ -9,6 +9,12 @@ final class PeripheryConstraints
     public static array $KEYBOARD_FILTERS_PERIPHERY = ['switch_type', 'is_mechanical', 'form_factor', 'lighting_type', 'has_multimedia_keys', 'anti_ghosting', 'waterproof', 'color'];
     public static array $KEYBOARD_KEY_SPECIFICATIONS = ['connection_type', 'switch_type', 'lighting_type'];
 
+    public static array $HEADSET_KEY_SPECIFICATIONS = ['design', 'noise_cancelling', 'has_microphone'];
+    public static array $HEADSET_FILTERS_PERIPHERY = ['sensor', 'dpi_min', 'dpi_max', 'response_time_ms', 'programmable_buttons', 'weight_grams', 'color'];
+
+    public static array $WEBCAM_KEY_SPECIFICATIONS = ['resolution', 'autofocus', 'built_in_mic'];
+    public static array $WEBCAM_FILTERS_PERIPHERY = ['sensor', 'dpi_min', 'dpi_max', 'response_time_ms', 'programmable_buttons', 'weight_grams', 'color'];
+
     public static array $PERIPHERY_LABELS = [
         'mouse' => 'Мишка',
         'keyboard' => 'Клавиатура',
@@ -57,19 +63,19 @@ final class PeripheryConstraints
         ],
         'webcam' => [
             [
-                //"label" => "4K Resolution",
+                "label" => "Resolution",
                 "icon" => "4k_resolution_icon.png",
                 "bgClass" => "bg-red-100",
                 "textClass" => "text-red-600"
             ],
             [
-                //"label" => "Auto Focus",
+                "label" => "Autofocus",
                 "icon" => "autofocus_icon.png",
                 "bgClass" => "bg-blue-100",
                 "textClass" => "text-blue-600"
             ],
             [
-                //"label" => "Built-in Mic",
+                "label" => "Built In Mic",
                 "icon" => "microphone_purple_icon.png",
                 "bgClass" => "bg-purple-100",
                 "textClass" => "text-purple-600"
@@ -77,19 +83,19 @@ final class PeripheryConstraints
         ],
         'headset' => [
             [
-                //"label" => "7.1 Surround",
+                "label" => "Design",
                 "icon" => "headphones_icon.png",
-                "bgClass" => "bg-emerald-100",
-                "textClass" => "text-emerald-600"
+                "bgClass" => "bg-blue-100",  //text-emerald-600
+                "textClass" => "text-blue-600"  //text-emerald-600
             ],
             [
-                //"label" => "Noise Cancelling",
+                "label" => "Noise Cancelling",
                 "icon" => "shield_icon.png",
                 "bgClass" => "bg-amber-100",
                 "textClass" => "text-amber-600"
             ],
             [
-                //"label" => "Retractable Mic",
+                "label" => "Has Microphone",
                 "icon" => "microphone_green_icon.png",
                 "bgClass" => "bg-cyan-100",
                 "textClass" => "text-cyan-600"

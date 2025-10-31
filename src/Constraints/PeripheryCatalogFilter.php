@@ -235,7 +235,146 @@ class PeripheryCatalogFilter
                     'enabled' => false,
                 ],
             ],
-        ]
+        ],
+        'headset' => [
+            'table' => 'headset',
+            'filters' => [
+                'brand' => [
+                    'label'   => 'Brand',
+                    'kind'    => 'checkbox',
+                    'source'  => 'join',
+                    'expr'    => 'pb.name',
+                    'enabled' => true,
+                    'joins'   => [
+                        ['type'=>'LEFT','table'=>'peripherals','alias'=>'p','on'=>'p.id = t.peripheral_id'],
+                        ['type'=>'LEFT','table'=>'brands','alias'=>'pb','on'=>'pb.id = p.brand_id'],
+                    ],
+                ],
+                'connection_type' => [
+                    'label'   => 'Connection Type',
+                    'kind'    => 'checkbox',
+                    'source'  => 'junction',
+                    'expr'    => 'c.name',
+                    'enabled' => true,
+                    'joins'   => [
+                        ['type'=>'INNER','table'=>'peripherals','alias'=>'p','on'=>'p.id = t.peripheral_id'],
+                    ],
+                    'junction'=> [
+                        ['type'=>'INNER','table'=>'peripheral_connections','alias'=>'pc','on'=>'pc.peripheral_id = p.id'],
+                        ['type'=>'INNER','table'=>'periphery_connections','alias'=>'c','on'=>'c.id = pc.connection_id'],
+                    ],
+                ],
+                'design' => [
+                    'label'   => 'Design / Type',
+                    'kind'    => 'checkbox',
+                    'source'  => 'column',
+                    'expr'    => 't.design',
+                    'enabled' => true,
+                ],
+                'noise_cancelling' => [
+                    'label'   => 'Noise Cancelling',
+                    'kind'    => 'radio',
+                    'source'  => 'column',
+                    'expr'    => 't.noise_cancelling',
+                    'enabled' => true,
+                ],
+                'has_microphone' => [
+                    'label'   => 'Microphone',
+                    'kind'    => 'radio',
+                    'source'  => 'column',
+                    'expr'    => 't.has_microphone',
+                    'enabled' => true,
+                ],
+                'battery_life_hours' => [
+                    'label'   => 'Battery Life (hours)',
+                    'kind'    => 'range',
+                    'source'  => 'column',
+                    'expr'    => 't.battery_life_hours',
+                    'enabled' => true,
+                    'max_distinct' => 50,
+                ],
+                'color' => [
+                    'label'   => 'Color',
+                    'kind'    => 'checkbox',
+                    'source'  => 'column',
+                    'expr'    => 't.color',
+                    'enabled' => true,
+                ],
+            ],
+        ],
+        'webcam' => [
+            'table' => 'webcam',
+            'filters' => [
+                'brand' => [
+                    'label'   => 'Brand',
+                    'kind'    => 'checkbox',
+                    'source'  => 'join',
+                    'expr'    => 'pb.name',
+                    'enabled' => true,
+                    'joins'   => [
+                        ['type'=>'LEFT','table'=>'peripherals','alias'=>'p','on'=>'p.id = t.peripheral_id'],
+                        ['type'=>'LEFT','table'=>'brands','alias'=>'pb','on'=>'pb.id = p.brand_id'],
+                    ],
+                ],
+                'connection_type' => [
+                    'label'   => 'Connection Type',
+                    'kind'    => 'checkbox',
+                    'source'  => 'junction',
+                    'expr'    => 'c.name',
+                    'enabled' => true,
+                    'joins'   => [
+                        ['type'=>'INNER','table'=>'peripherals','alias'=>'p','on'=>'p.id = t.peripheral_id'],
+                    ],
+                    'junction'=> [
+                        ['type'=>'INNER','table'=>'peripheral_connections','alias'=>'pc','on'=>'pc.peripheral_id = p.id'],
+                        ['type'=>'INNER','table'=>'periphery_connections','alias'=>'c','on'=>'c.id = pc.connection_id'],
+                    ],
+                ],
+                'resolution' => [
+                    'label'   => 'Resolution',
+                    'kind'    => 'checkbox',
+                    'source'  => 'column',
+                    'expr'    => 't.resolution',
+                    'enabled' => true,
+                ],
+                'autofocus' => [
+                    'label'   => 'Autofocus',
+                    'kind'    => 'radio',
+                    'source'  => 'column',
+                    'expr'    => 't.autofocus',
+                    'enabled' => true,
+                ],
+                'built_in_mic' => [
+                    'label'   => 'Microphone',
+                    'kind'    => 'radio',
+                    'source'  => 'column',
+                    'expr'    => 't.built_in_mic',
+                    'enabled' => true,
+                ],
+                'max_frame_rate_fps' => [
+                    'label'   => 'Frame Rate (FPS)',
+                    'kind'    => 'range',
+                    'source'  => 'column',
+                    'expr'    => 't.max_frame_rate_fps',
+                    'enabled' => true,
+                    'max_distinct' => 50,
+                ],
+                'mounting_options' => [
+                    'label'   => 'Mount Type',
+                    'kind'    => 'checkbox',
+                    'source'  => 'column',
+                    'expr'    => 't.mounting_options',
+                    'enabled' => true,
+                ],
+                'color' => [
+                    'label'   => 'Color',
+                    'kind'    => 'checkbox',
+                    'source'  => 'column',
+                    'expr'    => 't.color',
+                    'enabled' => true,
+                ],
+            ],
+        ],
     ];
     /**
      * Optional normalizers you can reference in facets.

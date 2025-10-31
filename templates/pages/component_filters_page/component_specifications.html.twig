@@ -43,19 +43,46 @@
                             <h1 class="text-3xl font-bold bg-gradient-to-r from-indigo-700 to-cyan-500 bg-clip-text text-transparent mb-4">
                                 {{ componentSpecifications.name }}
                             </h1>
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2"
+                                 id="product-rating"
+                                 data-component-id="{{ componentSpecifications.component_id }}"
+                                 data-product-type="{{ componentSpecifications.product_type  }}"
+                                 data-component-name="{{ componentSpecifications.name }}">
+
+                                <!-- Average rating -->
                                 <div class="flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                         stroke="currentColor"
-                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                         class="lucide lucide-star h-5 w-5 text-yellow-400 fill-current">
-                                        <polygon
-                                                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                         fill="currentColor" class="text-yellow-400">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14
+                             18.18 21.02 12 17.77 5.82 21.02
+                             7 14.14 2 9.27 8.91 8.26 12 2"/>
                                     </svg>
-                                    <span class="ml-1 text-slate-700 font-medium">4.8</span>
+                                    <span class="ml-1 text-slate-700 font-medium">
+                                        {{ componentSpecifications.rating.average|default(0) }}
+                                     </span>
                                 </div>
+
                                 <span class="text-slate-400">•</span>
-                                <span class="text-slate-600">245 reviews</span>
+                                <span class="text-slate-600">
+                                        {{ componentSpecifications.rating.count|default(0) }} reviews
+                                </span>
+
+                                <!-- User star rating interaction -->
+                                <div class="flex items-center gap-1 ml-4">
+                                    {% for i in 1..5 %}
+                                        <button class="star-btn text-gray-300 hover:text-yellow-400 transition-transform hover:scale-110"
+                                                data-value="{{ i }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                 fill="none" stroke="currentColor" stroke-width="2"
+                                                 stroke-linecap="round" stroke-linejoin="round"
+                                                 class="lucide lucide-star w-6 h-6">
+                                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14
+                                     18.18 21.02 12 17.77 5.82 21.02
+                                     7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                            </svg>
+                                        </button>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
 
@@ -64,15 +91,15 @@
                             <div class="flex items-center justify-between">
                                 <div>
                                     <div class="flex items-baseline gap-2">
-                    <span class="text-2xl font-bold text-slate-900">
-                        {{ offers_price_range.lowest_price }} - {{ offers_price_range.highest_price }} лв
-                    </span>
+                        <span class="text-2xl font-bold text-slate-900">
+                            {{ offers_price_range.lowest_price }} - {{ offers_price_range.highest_price }} лв
+                        </span>
                                     </div>
                                     <div class="mt-1">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                  bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800">
-                        Save 60 лв
-                    </span>
+                            Save 60 лв
+                        </span>
                                     </div>
                                 </div>
                                 <div class="text-right">
@@ -312,7 +339,8 @@
                 </div>
             </div>
         </div>
-
+        <!-- Rating Modal -->
+        {% include 'pages/pages_templates/rating_dialog_form.html.twig' %}
         <!-- Modal -->
         <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 hidden">
             <div class="bg-white p-4 rounded-lg shadow-xl max-w-lg w-full relative">

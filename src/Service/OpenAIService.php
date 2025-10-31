@@ -12,4 +12,5 @@ interface OpenAIService
     public function calculateBottleneckConfiguration(array $bottleneckComponents): array;
     public function reviewUserConfiguration(array $availableComponents, array $userRequirements, array $selectedComponents): array;
     public function generateRecommendedProducts(string $productType, array $availableProducts, array $userAnswer): array;
+    public function generateRecommendedPcConfigurations(array $availablePcConfigurations, array $userAnswer): array;
 }

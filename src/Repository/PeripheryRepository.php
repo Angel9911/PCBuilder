@@ -173,7 +173,7 @@ class PeripheryRepository extends ServiceEntityRepository implements IndexablePr
      */
     public function getPeripheryDetailsBySlugifyNameAndType(string $slugifyComponentName, string $peripheryType): array
     {
-        $details = $this->getProductDetailsBySlugifyName(
+        /*$details = $this->getProductDetailsBySlugifyName(
             $slugifyComponentName,
             'peripherals',
             $peripheryType,
@@ -182,7 +182,7 @@ class PeripheryRepository extends ServiceEntityRepository implements IndexablePr
             'peripheral_id'
         );
 
-        return $details;
+        return $details;*/
     }
 
     /**
@@ -387,5 +387,13 @@ class PeripheryRepository extends ServiceEntityRepository implements IndexablePr
         }
 
         return $out;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function findComponentsRatings(string $productType, int $productId): array
+    {
+        return $this->getProductsRatings($productType, $productId);
     }
 }

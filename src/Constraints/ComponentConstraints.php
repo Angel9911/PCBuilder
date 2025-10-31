@@ -25,7 +25,7 @@ final class ComponentConstraints
     public static array $PC_CASE_FILTERS_COMPONENT = [
         'card_specifications' => ['gpu_clearance_mm', 'max_cooler_height_mm	', 'psu_length_limit_mm'],
         'main_specifications' => ['form_factor','gpu_clearance_mm', 'psu_length_limit_mm', 'color'],
-        'general_specifications' => ['form_factor', 'gpu_clearance_mm', 'gpu_clearance_mm', 'psu_length_limit_mm', 'color', 'dimensions_mm', 'side_panel_material', '']
+        'general_specifications' => ['form_factor', 'gpu_clearance_mm', 'gpu_clearance_mm', 'psu_length_limit_mm', 'color', 'dimensions_mm', 'side_panel_material', ''],
     ];
     public static array $PC_CASE_FILTERS_COMPONENT_SCORES = ['airflow_score', 'future_proofing'];
     public static array $PSU_FILTERS_COMPONENT = [

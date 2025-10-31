@@ -5,7 +5,7 @@ use App\Entity\Brand;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 
-#[ORM\Entity]
+#[ORM\Entity(readOnly: true)]
 #[ORM\Table(name: "peripherals")]
 class Periphery
 {

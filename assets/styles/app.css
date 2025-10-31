@@ -1,3 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
-    background-color: skyblue;
+    background-color: white;
 }
+
+/* Import your existing CSS */
+/*@import "auth_login_registration.css";
+@import "review_summary_modal.css";
+@import "filter_section.css";
+@import "home_page.css";*/

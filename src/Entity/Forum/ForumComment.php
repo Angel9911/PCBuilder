@@ -5,7 +5,7 @@ namespace App\Entity\Forum;
 use App\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(readOnly: true)]
 #[ORM\Table(name: 'forum_comments')]
 class ForumComment
 {

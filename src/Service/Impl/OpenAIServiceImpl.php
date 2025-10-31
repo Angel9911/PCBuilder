@@ -46,6 +46,9 @@ class OpenAIServiceImpl implements OpenAIService
     {
         try {
 
+            echo '<pre>';
+            echo '</pre>';
+
             $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/chat/completions', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->apiKey,
@@ -58,7 +61,7 @@ class OpenAIServiceImpl implements OpenAIService
                             'role' => 'system',
                             'content' => "You are a PC build expert. Recommend a **compatible** PC build using only the provided components. 
 
-                            - Match components to user preferences (brand, budget, usage) given as structured answers and/or free-text (“User Request”).
+                            - Match components to user preferences (brand, budget, usage) given as structured answers or free-text field (“User Request”).
                             - Ensure **full compatibility**.
                             - The computer parts you will choose should only be for: CPU, GPU, PSU, MOTHERBOARD, RAM, STORAGE
                             - Output **only JSON**:  
@@ -318,7 +321,7 @@ class OpenAIServiceImpl implements OpenAIService
                                   {\"id\": <int>, \"name\": \"<catalog name>\", \"matching\": <int 0-100>, \"short_description\": \"<<=20 words>\"}
                                 ]
                               }
-                            - Output at most 3 items in \"recommended_products\".
+                            - Output at most 5 items in \"recommended_products\".
                             - \"matching\" is an integer from 0 to 100 (no % sign).
                             - \"short_description\" in the SAME LANGUAGE as the user's requirement.
                             - If nothing fits, return:
@@ -357,6 +360,101 @@ class OpenAIServiceImpl implements OpenAIService
     public function generateRecommendedPcConfigurationFromField()
     {
         // TODO: Implement generateRecommendedPcConfigurationFromField() method.
+    }
+
+    /**
+     * @param array $availablePcConfigurations
+     * @param array $userAnswer
+     * @return array
+     * @throws Exception
+     */
+    public function generateRecommendedPcConfigurations(array $availablePcConfigurations, array $userAnswer): array
+    {
+        try {
+
+            $userPayload = [
+                'available_configurations' => implode("\n", $availablePcConfigurations),
+                'available_configurations_ids' => implode(", ", array_keys($availablePcConfigurations)),
+                'user_requirement' => sprintf
+                (
+                    "Budget Focused: %s; Primary use: %s; Specific Requirement: %s"
+                    , $userAnswer['budget_focused']
+                    , $userAnswer['primary_use']
+                    , $userAnswer['specific_requirement']
+                )
+            ];
+
+            $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/chat/completions', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->apiKey,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'model' => 'gpt-3.5-turbo',
+                    'temperature' => 0.5,
+                    'messages' => [
+                        [
+                            'role' => 'system',
+                            'content' => "
+                            You are an AI assistant that recommends complete PC configurations based on the user’s requirements.
+                                - Use ONLY the catalog of builds provided in the input;
+                                - Return STRICT JSON(UTF-8), if nothing matches, return {'recommended_builds': []} only.
+                            ## Rules:
+                                - You will receive:
+                                1. A catalog of **available PC configurations** (with IDs and component lists).
+                                2  A catalog of with only available pc configurations ids.
+                                3. The **user’s requirements** (budget, primary use, and specific needs).
+
+                            - Your task:
+                                - Select up to **5 of the most suitable builds** from the provided catalog ONLY (never invent new builds).
+                                - Evaluate based on the user’s requirements (budget, use case, special needs).
+                                - Ensure compatibility is considered and mention if the build has excellent synergy or any minor bottleneck.
+                                
+                            ## JSON Schema
+                                {
+                                  \"recommended_builds\": [
+                                    {
+                                      \"id\": \"<catalog id>\",
+                                      \"matching\": <int 0-100>,
+                                      \"ai_summary\": \"<=30 words>\",
+                                      \"compatibility_score\": <int 0-100>,
+                                      \"bottleneck_percentage\": <int 0+>,
+                                      \"price_range\": \"<range or empty>\"
+                                    }
+                                  ]
+                                }
+                            ## Guidelines:
+                                - \"matching\" must reflect how closely the build fits (consider budget, primary use, and special requirement).
+                                - \"ai_summary\" should be short and user-friendly in the SAME LANGUAGE as the user's requirement.
+                                - \"compatibility_score\" checks if parts are balanced to ensure better performance
+                                - \"bottleneck_percentage\" checks CPU and GPU, estimate if there is a performance bottleneck
+                                - If multiple builds fit, prioritize diversity (different performance tiers).
+",
+                        ],
+                        ['role' => 'user', 'content' => json_encode($userPayload, JSON_UNESCAPED_UNICODE)],
+                    ],
+                ],
+            ]);
+
+            $result = $response->toArray();
+
+            $resultText = $result['choices'][0]['message']['content'] ?? '{}';
+
+            $decodedResult = ObjectMapper::mapJsonToObject($resultText);
+
+            if(!isset($decodedResult['recommended_builds'])) {
+
+                throw new Exception("Invalid AI response format.");
+            }
+
+            return [
+                'recommended_builds' => $decodedResult['recommended_builds']
+            ];
+
+        } catch (Exception | TransportExceptionInterface $e) {
+
+            throw new Exception("Failed to generate user configuration recommendations: " . $e->getMessage());
+        }
     }
 
     public function getHardcodedArray(): array

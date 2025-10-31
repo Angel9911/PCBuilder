@@ -463,7 +463,7 @@ function init() {
         }
 
         showSpinner();
-        //console.log(userAnswers)
+        console.log(userRequirement);
         fetch("/configurator/ai", {
             method: "POST",
             headers: {

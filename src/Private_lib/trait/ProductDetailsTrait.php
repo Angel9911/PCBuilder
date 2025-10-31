@@ -125,6 +125,34 @@ trait ProductDetailsTrait
     /**
      * @throws Exception
      */
+    public function getProductsRatings(string $productType, int $productId): array
+    {
+        $conn = $this->entityManager->getConnection();
+
+        $sql = "
+            SELECT ROUND(AVG(rating)::numeric, 2) AS avg_rating,
+                   COUNT(rating) AS count_ratings
+            FROM product_ratings
+            WHERE product_type = :product_type
+            AND product_id = :product_id
+        ";
+
+        $productRatings = $conn->prepare($sql)->executeQuery(['product_type' => $productType, 'product_id' => $productId])->fetchAssociative();
+
+        if(empty($productRatings)){
+
+            return [];
+        }
+
+        return [
+            'average' => $productRatings['avg_rating'] !== null ? round((float)$productRatings['avg_rating'], 1) : 0.0,
+            'count' => (int)$productRatings['count_ratings'],
+        ];
+    }
+
+    /**
+     * @throws Exception
+     */
     public function getProductsTypeCount(string $type): int
     {
         $conn = $this->entityManager->getConnection(); // Make sure this is injected in your service constructor

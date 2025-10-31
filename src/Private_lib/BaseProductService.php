@@ -16,4 +16,8 @@ interface BaseProductService
 
     /** Return full rows (cards) for the given IDs within the subtype’s table(s). */
     public function getProductCardSpecsByTypeAndIds(string $peripheryType, array $ids): array; // array of rows
+
+    public function rateProduct(string $baseProductType, array $productRatingData, array $userData);
+
+    public function getProductRating(string $productType, int $productId): array;
 }

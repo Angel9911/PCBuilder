@@ -52,6 +52,8 @@ class PeripheryServiceImpl extends BaseProduct implements BaseProductService, Pe
         $peripheryFilters = [
             'mouse' => PeripheryConstraints::$MOUSE_KEY_SPECIFICATIONS,
             'keyboard' => PeripheryConstraints::$KEYBOARD_KEY_SPECIFICATIONS,
+            'headset' => PeripheryConstraints::$HEADSET_KEY_SPECIFICATIONS,
+            'webcam' => PeripheryConstraints::$WEBCAM_KEY_SPECIFICATIONS,
         ];
 
         return $peripheryFilters[$type] ?? [];
@@ -84,6 +86,7 @@ class PeripheryServiceImpl extends BaseProduct implements BaseProductService, Pe
             $peripherals,
             'peripheral_id',
             'peripherals',
+            fn(int $productId) => $this->peripheryRepository->findComponentsRatings('peripherals', $productId),
             fn(array $peripheryProduct) => [
                 'brand_name' => $peripheryProduct['brand_name'],
                 'description' => $peripheryProduct['description'],
@@ -142,6 +145,7 @@ class PeripheryServiceImpl extends BaseProduct implements BaseProductService, Pe
                 'main_image_url' => $peripheryImages['main_image_url'],
                 'all_image_urls' => $peripheryImages['all_image_urls'],
             ],
+            'rating' => $this->peripheryRepository->findComponentsRatings('peripherals', $details[0]['id']),
             'specifications' => $this->formatSpecifications($details[0])
         ];
     }
@@ -237,5 +241,16 @@ class PeripheryServiceImpl extends BaseProduct implements BaseProductService, Pe
     public function getProductGeneralSpecificationsByType(string $type): array
     {
         // TODO: Implement getProductGeneralSpecificationsByType() method.
+    }
+
+
+    public function rateProduct(string $baseProductType, array $productRatingData, array $userData)
+    {
+        // TODO: Implement rateProduct() method.
+    }
+
+    public function getProductRating(string $productType, int $productId): array
+    {
+        // TODO: Implement getProductRating() method.
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Constraints\CompatibilityConstraints;
 use App\Constraints\ComponentCatalogFilter;
 use App\Entity\Component;
 use App\Private_lib\helpers\ComponentHelper;
@@ -62,6 +63,28 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
         }
 
         return $result;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function findComponentImages(int $componentId): array
+    {
+        $conn = $this->entityManager->getConnection();
+
+        $sql = "
+            SELECT image_url, is_primary
+            FROM component_images
+            WHERE component_id = :component_id
+            ORDER BY is_primary DESC, id ASC
+        ";
+
+        $images = $conn->prepare($sql)->executeQuery(['component_id' => $componentId])->fetchAllAssociative();
+
+        return array_map(fn($img) => [
+            'component_image_url' => $img['image_url'],
+            'is_main' => (bool)$img['is_primary']
+        ], $images);
     }
 
     public function updateComponentName(string $existingName, string $slugifyName): void
@@ -135,18 +158,9 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
     /**
      * @throws Exception
      */
-    public function findComponentSpecificationsByNameAndType(string $componentName, string $componentType): array
+    public function findComponentsRatings(string $productType, int $productId): array
     {
-        $details = $this->getProductDetailsBySlugifyName(
-            $componentName,
-            'components',
-            $componentType,
-            'component_id',
-            'component_images',
-            'component_id'
-        );
-
-        return $details;
+        return $this->getProductsRatings($productType, $productId);
     }
 
     public function findComponentNameBySlugifyName(string $slugifyName): array
@@ -158,6 +172,75 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
             ->getQuery()
             ->getResult();
     }
+
+    // NEW METHOD FOR GET PRODUCT DETAILS
+
+    /**
+     * @throws Exception
+     */
+    public function findJoinedAttributesForComponentDetails(string $type, int $id): array
+    {
+        $conn = $this->entityManager->getConnection();
+
+        switch ($type) {
+            // GPU
+            case 'gpu':
+                $sql = "
+                SELECT cm.name AS chip_manufacturer,
+                       string_agg(DISTINCT vot.name, ', ') AS video_output
+                FROM gpu t
+                LEFT JOIN chip_makers cm ON cm.id = t.chip_maker_id
+                LEFT JOIN gpu_video_outputs gvo ON gvo.gpu_id = t.id
+                LEFT JOIN video_output_types vot ON vot.id = gvo.output_type_id
+                WHERE t.component_id = :id
+                GROUP BY cm.name
+            ";
+                break;
+
+            // Motherboard
+            case 'motherboard':
+                $sql = "
+                SELECT ff.name AS form_factor,
+                       string_agg(DISTINCT uht.name, ', ') AS ports
+                FROM motherboard t
+                LEFT JOIN form_factors ff ON ff.id = t.form_factor_id
+                LEFT JOIN motherboard_usb_headers muh ON muh.motherboard_id = t.id
+                LEFT JOIN usb_header_types uht ON uht.id = muh.usb_header_type_id
+                WHERE t.component_id = :id
+                GROUP BY ff.name
+            ";
+                break;
+
+            // PSU
+            case 'psu':
+                $sql = "
+                SELECT pf.name AS form_factor
+                FROM psu t
+                LEFT JOIN psu_form_factors pf ON pf.id = t.form_factor_id
+                WHERE t.component_id = :id
+            ";
+                break;
+
+            //  PC Case
+            case 'pc_case':
+                $sql = "
+                SELECT string_agg(DISTINCT ff.name, ', ') AS form_factor
+                FROM pc_case t
+                LEFT JOIN pc_case_form_factors pcf ON pcf.pc_case_id = t.id
+                LEFT JOIN form_factors ff ON ff.id = pcf.form_factor_id
+                WHERE t.component_id = :id
+            ";
+                break;
+
+            // CPU, RAM, STORAGE
+            default:
+                // No additional joins needed — brand already fetched.
+                return [];
+        }
+
+        return $conn->prepare($sql)->executeQuery(['id' => $id])->fetchAssociative() ?: [];
+    }
+
 
     /**
      * Second algorithm for compatibility because the first algorithm generates many records and breaks the server
@@ -391,17 +474,29 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
 
         if ($mb) {
 
+            $formFactors = $this->getFormFactorMap($conn);
+
+            $compatibleFormFactorNames = CompatibilityConstraints::$formFactorCompatibility[$formFactors[$mb['form_factor_id']]] ?? [];
+
+            $compatibleFormFactorIds = array_keys(array_filter($formFactors, fn($name) => in_array($name, $compatibleFormFactorNames)));
+
+            $placeholdersFormFactors = [];
+
+            foreach ($compatibleFormFactorIds as $index => $id) {
+                $key = "form_factor_id_$index";
+                $placeholdersFormFactors[] = ":$key";
+                $params[$key] = $id;
+            }
+
             $conditions[] = "
             EXISTS (
                 SELECT 1
-                FROM pc_case_psu_form_factors cf         
+                FROM pc_case_form_factors cf         
                 WHERE cf.pc_case_id = pc.id
-                    AND cf.psu_form_factor_id = :form_factor_id
+                AND cf.form_factor_id IN (" . implode(', ', $placeholdersFormFactors) . ")
             )";
 
-            $params['form_factor_id'] = $mb['form_factor_id'];
-
-            $mbPorts  = ComponentHelper::getMotherboardUsbPorts($conn, $mb['id']);// $this->getUsbMotherboardHeaders($conn, $mb['id']);
+            $mbPorts  = ComponentHelper::getMotherboardUsbPorts($conn, $mb['id']); // $this->getUsbMotherboardHeaders($conn, $mb['id']);
         }
 
         if ($gpu) {
@@ -545,6 +640,10 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
         $filteredResults = [];
 
         // TODO: It needs to be checked!!!
+
+        /*echo '<pre>';
+        print_r($initialResults);
+        echo '</pre>';*/
 
         foreach ($initialResults as $psu) {
             $psuId = $psu['id'];
@@ -1048,13 +1147,23 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
 
         if ($pcCase) {
 
-            $conditions[] = "EXISTS (
-            SELECT 1 FROM pc_case_form_factors cf
-            WHERE cf.pc_case_id = :case_id
-              AND cf.form_factor_id = mb.form_factor_id
-            )";
+            $pcCaseFormFactors = ComponentHelper::getPcCaseFormFactors($conn, $pcCase['id']);
 
-            $params['case_id'] = $pcCase['id'];
+            if (!empty($pcCaseFormFactors)) {
+
+                $placeholders = [];
+
+                foreach ($pcCaseFormFactors as $i => $formFactorId) {
+
+                    $key = "form_factor_id_$i";
+                    $placeholders[] = ":$key";
+                    $params[$key] = $formFactorId;
+                }
+
+                $conditions[] = "mb.form_factor_id IN (" . implode(', ', $placeholders) . ")";
+            }
+
+            //$params['case_id'] = $pcCase['id'];
 
             // --- Get case ports ---
             $casePorts = ComponentHelper::getPcCaseUsbPorts($conn, $pcCase['id']);

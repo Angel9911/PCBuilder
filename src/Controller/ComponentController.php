@@ -126,7 +126,7 @@ class ComponentController extends AbstractController
         } else {
                 // NEW WAY CACHING
 
-                // CACHE MEY FILTERS
+                // CACHE KEY FILTERS
                 $productFiltersCacheKey = CacheConstraints::getProductFiltersCacheKeyByProductType($productType);
 
                 $productFilterTypeCacheKey = $productFiltersCacheKey . '_' . $component;
@@ -152,8 +152,6 @@ class ComponentController extends AbstractController
                 $cachedProducts = ProductCache::getCachedCards($this->redis, $productType, $componentType, $currentProductIdsPage);
 
                 $missing = array_values(array_diff($currentProductIdsPage, array_keys($cachedProducts)));
-
-                //$this->redis->delete($productFilterTypeCacheKey);
 
                 if(!empty($missing)){
 
@@ -208,6 +206,13 @@ class ComponentController extends AbstractController
 
                 if (isset($cachedProducts[$id])) {
 
+                    // get fresh rating from cache - ttl - 15min
+                    $freshRatingData = ProductCache::getProductRating($this->redis, $productType, $componentType, $id);
+
+                    if (!empty($freshRatingData)) {
+
+                        $cachedProducts[$id]['rating'] = $freshRatingData;
+                    }
                     $rowsOrdered[] = $cachedProducts[$id]; // these are already formatted cards (you cached $result[$productType])
                 }
             }
@@ -265,23 +270,23 @@ class ComponentController extends AbstractController
 
             // Optional: also inject AI block if requested (see previous answer)
             $aiBlockHtml = '';
-
             $aiSession = $request->getSession()->get('ai_recommended_products', []);
 
             if ($request->query->get('ajax_ai') && !empty($aiSession)) {
-
-                // Pick correct template for AI product cards
-                $listTemplate = match ($productCategory) {
-                    'components'  => 'pages/pages_templates/ai_recommended_components_section.html.twig',
-                    'peripherals' => 'pages/pages_templates/ai_recommended_peripherals_section.html.twig',
-                    default => throw new \InvalidArgumentException("Unknown product category: $productCategory"),
-                };
+                $listTemplate = 'pages/shared/recommendations_section.html.twig';
 
                 $aiBlockHtml = $this->renderView($listTemplate, [
-                    $collectionKey => $aiSession['recommendedProducts'] ?? [],
-                    'user_query'  => $aiSession['user_requirement'] ?? '',
+                    'title'      => 'AI Recommended ' . ucfirst($productCategory),
+                    'subtitle'   => 'Top matches based on your preferences',
+                    'items'      => $aiSession['recommendedProducts'] ?? [],
                     'main_image' => ConfigurationConstraint::$PRODUCT_TEST_MAIN_IMAGES[$component] ?? "",
                     'periphery_type_icons' => $peripheryIcons,
+                    'type'       => match ($productCategory) {
+                        'components'  => 'component',
+                        'peripherals' => 'peripheral',
+                        default       => 'config',
+                    },
+                    'user_query' => $aiSession['user_requirement'] ?? '',
                 ]);
             }
 
@@ -319,7 +324,7 @@ class ComponentController extends AbstractController
             }
         }
 
-        //return $this->json($result['filters']);
+        //return $this->json($result[$collectionKey]);
 
         return $this->render($templatePath, [
             $collectionKey => $result[$collectionKey],
@@ -367,24 +372,58 @@ class ComponentController extends AbstractController
 
         $service = $this->productServiceDispatcher->getService($productCategory);
 
-        $cacheKey = CacheConstraints::$COMPONENT_KEY . '_' . $type . '_' . $component;
+        // Try to resolve product ID from slug → id cache
+        $productId = ProductCache::getIdFromSlugCache($this->redis, $productCategory, $type, $component);
 
-        $this->redis->delete($cacheKey);
+        $productData = null;
 
-        if (!$this->redis->isKeyExist($cacheKey)) {
+        // If ID exists, try fetching details from Redis cache
+        if ($productId) {
 
-            $productData = $service->getProductDetailsByProductNameAndType($component, $type);
+            $cached = ProductCache::getProductDetails($this->redis, $productCategory, $type, $productId);
 
-            $this->redis->set($cacheKey, $productData, 10800); // 3 hours
+            if (!empty($cached['formatted_details'])) {
 
-        } else {
-
-            $productData = $this->redis->get($cacheKey);
+                $productData = $cached['formatted_details'];
+            }
         }
 
-        /*echo '<pre>';
-        return $this->json($productData);
-        echo '</pre>';*/
+        // Cache miss → Fetch from DB (and populate cache)
+        if (empty($productData)) {
+            $fetched = $service->getProductDetailsByProductNameAndType($component, $type);
+
+            if (!empty($fetched)) {
+                // Create slug → id mapping
+                ProductCache::putSlugIdMapping(
+                    $this->redis,
+                    $productCategory,
+                    $type,
+                    $component,
+                    $fetched['component_id']
+                );
+
+                // Store full formatted details
+                ProductCache::putProductDetails(
+                    $this->redis,
+                    $productCategory,
+                    $type,
+                    $fetched['component_id'],
+                    ['formatted_details' => $fetched],
+                    21600 // 6h TTL
+                );
+
+                $productData = $fetched;
+            }
+        } else {
+
+            // we already fetch the product details from cache, now fetch only rating information.
+            $freshRatingData = ProductCache::getProductRating($this->redis, $productCategory, $type, $productId);
+
+            if (!empty($freshRatingData)) {
+
+                $productData['rating'] = $freshRatingData;
+            }
+        }
 
         $componentOffersCacheKey = CacheConstraints::$OFFERS_COMPONENT_KEY . '_' . $productData['component_id'];
 
@@ -398,14 +437,12 @@ class ComponentController extends AbstractController
             $componentOffers = $this->redis->get($componentOffersCacheKey);
         }
 
+        $productData['product_type'] = $type;// TODO: MOVE IT TO BE IN THE FIRST POSITION
 
-        /*echo '<pre>';
-        print_r($productData);
-        echo '</pre>';*/
         return $this->render('pages/component_filters_page/component_specifications.html.twig',[
             'componentSpecifications' => $productData,
             'componentOffers' => $componentOffers[$productData['component_id']] ?? [],
-            'offers_price_range' => $componentOffers['offers_price_range'],
+            'offers_price_range' => $componentOffers['offers_price_range'] ?? [],
             'benchmarks' => [],
             'reviews' => [],
         ]);
@@ -427,7 +464,7 @@ class ComponentController extends AbstractController
             ]);
         }
 
-        if(!in_array($componentType, ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS)){
+        if(!array_key_exists($componentType, ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS)){
 
             return $this->json([
                 'error' => 'Component type not found',
@@ -467,6 +504,7 @@ class ComponentController extends AbstractController
 
         return $this->redirectToRoute('configurator.build');
     }
+
     #[Route('/product/ai/{product}', name: 'component.ai.recommended', methods: ['POST'])]
     public function generateAiRecommendationProducts($product, Request $request): Response
     {
@@ -548,7 +586,56 @@ class ComponentController extends AbstractController
         $request->getSession()->set('ai_recommended_products', $result);
 
         return $this->json(['ok' => true]);
-        //return $this->redirectToRoute('component.filter');
+    }
+
+    #[Route('/product/rate/{product}', name: 'product.rate', methods: ['POST'])]
+    public function rateProduct($product, Request $request): Response
+    {
+        $productType = (string) $product;
+
+        $isValidProductType = ValidatorUtils::validateAsString($productType);
+
+        if(!$isValidProductType){
+
+            return $this->json([
+
+                'error' => 'Invalid product type',
+                'field' =>  $productType
+            ], 400);
+        }
+
+        /*echo '<pre>';
+        print_r($productType);
+        echo '</pre>';*/
+
+        $baseProductType = ConfigurationConstraint::getProductType($productType);
+
+        if ($baseProductType === null) {
+
+            return $this->json(['error' => 'Product category not found', 'field' => $productType], 400);
+        }
+
+        $productService = $this->productServiceDispatcher->getService($baseProductType);
+
+        $rateProductData = ObjectMapper::mapJsonToObject($request->getContent());
+
+        $productService->rateProduct($baseProductType, $rateProductData['rating_product'], $rateProductData['user']);
+
+        $productId = (int) $rateProductData['rating_product']['product_id'];
+
+        $ratingSummary = $productService->getProductRating($baseProductType, $productId);
+
+        // 4️⃣ Store fresh rating in cache
+        ProductCache::putProductRating(
+            $this->redis,
+            $baseProductType,
+            $productType,
+            $productId,
+            $ratingSummary,
+            900 // 15 minutes
+        );
+
+        return $this->json(['message' => 'You have successfully rated the product.']);
     }
 
     private function getCompatIdsFor(string $componentType, Request $request): array {

@@ -273,9 +273,9 @@ class ConfiguratorController extends AbstractController
             ], 400);
         }
 
-        $validComponents = ValidatorUtils::validateAsKey($componentsParams, ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS);
+        $validComponents = ValidatorUtils::validateAsKey($componentsParams, array_keys(ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS));
 
-        $missingFields = array_diff(ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS, array_keys($validComponents));
+        $missingFields = array_diff(array_keys(ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS), array_keys($validComponents));
 
         if(!empty($missingFields)){
 
@@ -340,7 +340,7 @@ class ConfiguratorController extends AbstractController
 
         $isComponentValsValid = ValidatorUtils::validateAsFieldType(
             $validComponents
-            , ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS
+            , array_keys(ConfigurationConstraint::$AVAILABLE_MANDATORY_PC_COMPONENTS)
             , 'number'
         );
 

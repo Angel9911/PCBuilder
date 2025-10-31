@@ -60,17 +60,23 @@ class CompletedConfigurationRepository extends ServiceEntityRepository
         return $resultArray;
     }
 
-    private function findPcConfigurations(int $limit = 8, int $offset = 0): array
+    private function findPcConfigurations(int $limit = 8, int $offset = 0, ?array $configIds = null): array
     {
-        $resultArray = $this->createQueryBuilder('config')
+        $query = $this->createQueryBuilder('config')
             ->select('config.id', 'config.name', 'config.totalWattage', 'config.createdAt', 'config.lowestPrice', 'config.highestPrice')
-            ->orderBy('config.createdAt', 'DESC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset)
-            ->getQuery()
-            ->getArrayResult();
+            ->orderBy('config.createdAt', 'DESC');
 
-        return $resultArray;
+        if ($configIds !== null && count($configIds) > 0) {
+
+            $query->where('config.id IN (:ids)')
+                ->setParameter('ids', $configIds);
+        } elseif($limit > 0){
+
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
+        return $query->getQuery()->getArrayResult();
     }
 
     private function findComponentsByPcConfigurations(array $pcIds): array
@@ -89,9 +95,15 @@ class CompletedConfigurationRepository extends ServiceEntityRepository
         return $resultArray;
     }
 
-    public function getAllPcConfigurations(int $limit, int $offset): array
+    public function getAllPcConfigurations(int $limit = 0, int $offset = 0, ?array $configIds = null): array
     {
-        $configs = $this->findPcConfigurations($limit, $offset);
+        $configs = $this->findPcConfigurations($limit, $offset, $configIds);
+
+        if(empty($configs)){
+
+            return [];
+        }
+
         $configIds = array_column($configs, 'id');
 
         $components = $this->findComponentsByPcConfigurations($configIds);
@@ -117,7 +129,7 @@ class CompletedConfigurationRepository extends ServiceEntityRepository
                 $componentData['image_url'] = $comp['image_url'];
             }
 
-            $final[$comp['config_id']]['components'][$comp['component_type']][] = $componentData;
+            $final[$comp['config_id']]['components'][$comp['component_type']] = $componentData;
         }
 
         return array_values($final);

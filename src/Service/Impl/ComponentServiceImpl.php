@@ -3,11 +3,20 @@
 namespace App\Service\Impl;
 
 use App\Constraints\ComponentCatalogFilter;
+use App\Entity\ProductRating;
+use App\Entity\User\User;
+use App\Entity\User\UserAccount;
 use App\Private_lib\BaseProduct;
 use App\Private_lib\BaseProductService;
+use App\Private_lib\helpers\UserHelper;
+use App\Private_lib\redis\RedisWrapper;
 use App\Repository\ComponentRepository;
+use App\Repository\ProductRatingRepository;
+use App\Repository\UserRepository;
+use App\Repository\UserRoleRepository;
 use App\Service\ComponentService;
 use App\Service\OpenAIService;
+use App\utils\ProductCache;
 use Doctrine\DBAL\Exception;
 use App\Constraints\ComponentConstraints;
 
@@ -15,7 +24,9 @@ use App\Constraints\ComponentConstraints;
 class ComponentServiceImpl extends BaseProduct implements BaseProductService, ComponentService
 {
     private ComponentRepository $componentRepository;
+    private ProductRatingRepository $productRatingRepository;
     private OpenAIService $openAIService;
+    private RedisWrapper $redis;
     private static array $UNITS = [
         'power_wattage' => 'W',
         'length_mm' => 'mm',
@@ -26,16 +37,29 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
         'max_cooler_height_mm' => 'mm',
         'psu_length_limit_mm' => 'mm',
     ];
+    private UserHelper $userHelper;
 
     /**
      * @param ComponentRepository $componentRepository
+     * @param OpenAIService $openAIService
+     * @param ProductRatingRepository $productRatingRepository
+     * @param RedisWrapper $redis
+     * @param UserHelper $userHelper
      */
     public function __construct(ComponentRepository $componentRepository
-                                , OpenAIService $openAIService)
+                                , OpenAIService $openAIService
+                                , ProductRatingRepository $productRatingRepository
+                                , RedisWrapper $redis
+                                , UserHelper $userHelper)
     {
         $this->componentRepository = $componentRepository;
+        $this->productRatingRepository = $productRatingRepository;
 
         $this->openAIService = $openAIService;
+
+        $this->redis = $redis;
+
+        $this->userHelper = $userHelper;
     }
 
 
@@ -95,12 +119,15 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
 
         $components = $this->componentRepository->getComponentSpecs($productType, $limit, $offset, [], $selectedCompatibleProducts);
 
+        $this->populateFormattedProductCache($components, $productType);
+
         $result = $this->getAdvancedFilterProducts(
             $productType,
             'component_type',
             $components,
             'component_id',
             'components',
+            fn(int $productId) => $this->componentRepository->findComponentsRatings('components', $productId),
             fn(array $componentProduct) => $this->getComponentScores($productType, $componentProduct),
         );
 
@@ -207,20 +234,46 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
      */
     public function getProductDetailsByProductNameAndType(string $productName, string $productType): array
     {
-        $componentDetails = $this->componentRepository->findComponentSpecificationsByNameAndType($productName, $productType);
+        // Try to resolve ID from slug cache (fast lookup)
+        $productId = ProductCache::getIdFromSlugCache($this->redis, 'components', $productType, $productName);
 
-        $componentImages = $this->getImagesByProduct($componentDetails);
+        // If not cached yet, fetch from DB by name
+        if (!$productId) {
+
+            $componentRow = $this->componentRepository->findComponentNameBySlugifyName($productName);
+
+            if (!$componentRow) {
+
+                return [];
+            }
+
+            $productId = (int) $componentRow[0]['component_id'];
+
+            ProductCache::putSlugIdMapping($this->redis, 'components', $productType, $productName, $productId);
+        }
+
+        // Fetch full product record by ID
+        $componentDetails = $this->componentRepository->getComponentSpecs($productType, 0, 0, [], [], null, $productId);
+
+        if (empty($componentDetails)) {
+            return [];
+        }
+
+        // Load and format images
+        $componentImagesRaw = $this->componentRepository->findComponentImages($componentDetails['component_id']);
+        $componentImages = $this->getImagesByProduct([['images' => $componentImagesRaw]]);
+
+        // Format specs and scores
+        $formatted = $this->formatProductSpecifications($componentDetails, $productType);
 
         return [
-            'id' => $componentDetails[0]['id'],
-            'component_id' => $componentDetails[0]['component_id'],
-            'name' => $componentDetails[0]['name'],
-            'component_images' => [
-                'main_image_url' => $componentImages['main_image_url'],
-                'all_image_urls' => $componentImages['all_image_urls'],
-            ],
-            'component_scores' => $this->getComponentScores($productType, $componentDetails[0]),
-            'specifications' => $this->formatProductSpecifications($componentDetails[0], $productType)
+            'id' => $componentDetails['id'],
+            'component_id' => $componentDetails['component_id'],
+            'name' => $componentDetails['name'],
+            'component_images' => $componentImages,
+            'rating' => $this->componentRepository->findComponentsRatings('components', $componentDetails['id']) ?? 0,
+            'component_scores' => $this->getComponentScores($productType, $componentDetails),
+            'specifications' => $formatted
         ];
     }
 
@@ -316,6 +369,129 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
         $result['filters'] = $this->componentRepository->getAndLoadProductFiltersByType($productType);
 
         return $result;
+    }
+
+
+    public function rateProduct(string $baseProductType, array $productRatingData, array $userData): void
+    {
+        $user = $this->userHelper->getOrCreateAnonymousUser(
+            $userData['name'],
+            $userData['email']
+        );
+
+        //$componentData = $this->componentRepository->findComponentNameBySlugifyName($productRatingData['product']);
+
+        $productRating = new ProductRating((int) $productRatingData['product_id'], $baseProductType, (int) $productRatingData['stairs']);
+
+        $productRating->setUser($user);
+
+        $productRating->setReview($productRatingData['comment']);
+
+        $this->productRatingRepository->saveProductRating($productRating);
+
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getProductRating(string $productType, int $productId): array
+    {
+        $componentData = $this->componentRepository->findComponentsRatings($productType, $productId);
+
+        if (!$componentData) {
+
+            throw new \InvalidArgumentException("Invalid product: {$productId}");
+        }
+
+        return $componentData;
+        //$productId = (int)$componentData['component_id'];
+
+        //$productType = 'components';
+
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function populateFormattedProductCache(array $components, string $productType): void
+    {
+        $start = microtime(true);
+
+        foreach ($components as $component) {
+
+            $componentId = (int) $component['component_id'];
+            $slug = $component['slugify_name'] ?? null;
+
+            // 1. Skip if no slug (should never happen, but safe)
+            if (empty($slug)) {
+                continue;
+            }
+
+            // 2. Store slug→id mapping (no TTL)
+            ProductCache::putSlugIdMapping(
+                $this->redis,
+                'components',
+                $productType,
+                $slug,
+                $componentId
+            );
+
+            // 3. Check if already cached
+            $cached = ProductCache::getProductDetails(
+                $this->redis,
+                'components',
+                $productType,
+                $componentId
+            );
+
+            if (!empty($cached)) {
+                continue;
+            }
+
+            //  4. Merge joined attributes (if needed)
+            $needsJoin = in_array($productType, ['gpu', 'motherboard', 'pc_case', 'psu']);
+            $joined = $needsJoin
+                ? $this->componentRepository->findJoinedAttributesForComponentDetails($productType, $componentId)
+                : [];
+
+            $merged = array_merge($component, $joined ?? []);
+
+            // 5. Format using existing formatter
+            $formatted = $this->formatProductSpecifications($merged, $productType);
+
+            $getComponentImages = $this->componentRepository->findComponentImages($componentId);
+
+            $componentImages = $this->getImagesByProduct($getComponentImages);
+
+
+            // Fetch rating and scores (reuse closures from main service)
+            $rating = $this->componentRepository->findComponentsRatings('components', $componentId);
+            $scores = $this->getComponentScores($productType, $component);
+
+            //  6. Store formatted details in cache (6h TTL)
+            ProductCache::putProductDetails(
+                $this->redis,
+                'components',
+                $productType,
+                $componentId,
+                [
+                    'formatted_details' => [
+                        'id' => $component['id'],
+                        'component_id' => $componentId,
+                        'name' => $component['name'],
+                        'component_images' => $componentImages,
+                        'rating' => $rating,
+                        'component_scores' => $scores,
+                        'specifications' => $formatted
+                    ]
+                ],
+                21600
+            );
+        }
+
+        $duration = round((microtime(true) - $start) * 1000, 2);
+        //var_dump("Formatted and cached " . count($components) . " {$productType} products in {$duration} ms");
+
     }
     public function formatProductSpecifications(array $productData, string $type): array
     {

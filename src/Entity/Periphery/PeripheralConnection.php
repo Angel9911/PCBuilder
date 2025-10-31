@@ -4,6 +4,8 @@ namespace App\Entity\Periphery;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
+#[ORM\Entity(readOnly: true)]
+#[ORM\Table(name: 'peripheral_connections')]
 class PeripheralConnection
 {
     #[ORM\Id]

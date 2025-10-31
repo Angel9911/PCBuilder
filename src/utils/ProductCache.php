@@ -16,6 +16,22 @@ class ProductCache
         return "{$productCategory}:{$productType}:card:{$productId}";
     }
 
+    // ─────────────────────────────────────────────
+    // NEW KEYS FOR PRODUCT DETAILS / RATINGS
+    // ─────────────────────────────────────────────
+
+    private static function slugToIdKey(string $category, string $type, string $slug): string {
+        return "{$category}:{$type}:slug:{$slug}:id";
+    }
+
+    private static function detailsKey(string $category, string $type, int $id): string {
+        return "{$category}:{$type}:{$id}:details";
+    }
+
+    private static function ratingKey(string $category, string $type, int $id): string {
+        return "{$category}:{$type}:{$id}:rating";
+    }
+
     public static function deleteIndex(RedisWrapper $r, string $cat, string $sub): void {
         $r->delete(self::idxKey($cat, $sub));
     }
@@ -102,4 +118,49 @@ class ProductCache
             }
         }
     }
+
+    // 🔹 Store slug → ID mapping (no TTL)
+    public static function putSlugIdMapping(RedisWrapper $redis, string $category, string $type, string $slug, int $id): void {
+        $redis->set(self::slugToIdKey($category, $type, $slug), $id);
+    }
+
+    // 🔹 Get ID from slug (fast lookup)
+    public static function getIdFromSlugCache(RedisWrapper $redis, string $category, string $type, string $slug): ?int {
+        $key = self::slugToIdKey($category, $type, $slug);
+        if ($redis->isKeyExist($key)) {
+            return (int)$redis->get($key);
+        }
+        return null;
+    }
+
+    // 🔹 Store full product details (long TTL)
+    public static function putProductDetails(RedisWrapper $redis, string $category, string $type, int $id, array $details, int $ttlSeconds = 86400): void {
+        $redis->set(self::detailsKey($category, $type, $id), $details, $ttlSeconds);
+    }
+
+    // 🔹 Get cached product details
+    public static function getProductDetails(RedisWrapper $redis, string $category, string $type, int $id): ?array {
+        $key = self::detailsKey($category, $type, $id);
+        if ($redis->isKeyExist($key)) {
+            $data = $redis->get($key);
+            if (is_array($data)) return $data;
+        }
+        return null;
+    }
+
+    // 🔹 Store rating summary (short TTL)
+    public static function putProductRating(RedisWrapper $redis, string $category, string $type, int $id, array $rating, int $ttlSeconds = 900): void {
+        $redis->set(self::ratingKey($category, $type, $id), $rating, $ttlSeconds);
+    }
+
+    // 🔹 Get cached rating summary
+    public static function getProductRating(RedisWrapper $redis, string $category, string $type, int $id): ?array {
+        $key = self::ratingKey($category, $type, $id);
+        if ($redis->isKeyExist($key)) {
+            $data = $redis->get($key);
+            if (is_array($data)) return $data;
+        }
+        return null;
+    }
+
 }

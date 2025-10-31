@@ -1,0 +1,38 @@
+<div class="mb-12">
+    {# Header #}
+
+    {% if showHeader|default(true) %}
+        <div class="relative z-20 bg-gradient-to-r from-blue-600 via-blue-700 to-cyan-600 rounded-t-2xl p-4 text-white overflow-hidden cursor-pointer">            <div class="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
+            <div class="relative z-10 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <!-- Animated AI Icon -->
+                    <div class="relative flex-shrink-0 self-center sm:self-auto">
+                        <div class="relative w-10 h-10 sm:w-16 sm:h-16">
+                            <div class="absolute inset-0 rounded-full border-[2px] sm:border-[3px] border-t-indigo-500 border-r-purple-500 animate-[spin_4s_linear_infinite]"></div>
+                            <div class="absolute inset-0 rounded-full border border-indigo-300 animate-[pulse_2s_ease-in-out_infinite]"></div>
+                            <div class="absolute inset-1 z-10 sm:inset-1.5 flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full shadow-md group-hover:scale-105 transition-transform duration-500">
+                                <img src="{{ asset('assets/images/new_ai_field_icon-removebg-preview.png') }}"
+                                     alt="AI Assistant"
+                                     class="w-full h-full object-contain filter drop-shadow-md saturate-150 brightness-110">
+                            </div>
+                        </div>
+                    </div>
+{#                    <div class="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-bot w-6 h-6 text-white animate-pulse"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             viewBox="0 0 24 24"><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path><path d="M15 13v2"></path><path d="M9 13v2"></path></svg>
+                    </div>#}
+                    <div class="relative z-10">
+                        <h2 class="text-xl font-bold mb-1">{{ title|default('AI PC Build Finder') }}</h2>
+                        <p class="text-sm text-blue-100">{{ subtitle|default("Tell us your needs, we'll find your perfect PC") }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {# Body (form) #}
+    {% include '/pages/shared/ai_build_filter_section/ai_build_filter_form.html.twig' with {
+        button_label: button_label|default('Find My Perfect PC')
+    } %}
+</div>

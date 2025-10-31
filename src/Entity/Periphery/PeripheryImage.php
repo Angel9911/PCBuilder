@@ -4,7 +4,7 @@ namespace App\Entity\Periphery;
 
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(readOnly: true)]
 #[ORM\Table(name: 'periphery_images')]
 class PeripheryImage
 {

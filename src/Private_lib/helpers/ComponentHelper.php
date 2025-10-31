@@ -11,21 +11,6 @@ class ComponentHelper
     /**
      * @throws Exception
      */
-    public static function getUsbMotherboardHeaders(Connection $conn, int $motherboardId): array {
-
-        $sql = "SELECT usb_header_type_id, quantity FROM motherboard_usb_headers WHERE motherboard_id = :id";
-
-        $stmt = $conn->prepare($sql);
-
-        $rows = $stmt->executeQuery(['id' => $motherboardId])->fetchAllAssociative();
-
-        return $rows;
-        //return array_column($rows, 'quantity', 'connector_type_id'); // [type_id => qty]
-    }
-
-    /**
-     * @throws Exception
-     */
     public static function getMotherboardUsbPorts(Connection $conn, int $motherboardId): array {
         $sql = "
         SELECT m.id AS motherboard_id,
@@ -45,6 +30,35 @@ class ComponentHelper
     }
 
     /**
+     *
+     * @throws Exception
+     *
+     * [
+     *   ['interface' => 'M.2 PCIe 4.0', 'lanes_count' => 4],
+     *    ['interface' => 'SATA3', 'lanes_count' => null]
+     *  ]
+     */
+    public static function getMotherboardSlots(Connection $conn, int $motherboardId): array
+    {
+        $sql = "
+            SELECT interface, lanes_count
+            FROM motherboard_slots
+            WHERE motherboard_id = :id
+        ";
+
+        $stmt = $conn->prepare($sql);
+
+        $rows = $stmt->executeQuery(['id' => $motherboardId])->fetchAllAssociative();
+
+        return $rows;
+    }
+
+    public static function get()
+    {
+
+    }
+
+    /**
      * @throws Exception
      */
     public static function getPcCaseUsbPorts(Connection $conn, int $caseId): array {
@@ -56,6 +70,20 @@ class ComponentHelper
         $rows = $stmt->executeQuery(['id' => $caseId])->fetchAllAssociative();
 
         return array_column($rows, 'quantity', 'usb_port_type_id'); // [port_type_id => qty]
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function getPcCaseFormFactors(Connection $conn, int $caseId): array {
+        $sql = "SELECT form_factor_id
+            FROM pc_case_form_factors
+            WHERE pc_case_id = :id";
+
+        $stmt = $conn->prepare($sql);
+        $rows = $stmt->executeQuery(['id' => $caseId])->fetchFirstColumn();
+
+        return $rows; // [port_type_id => qty]
     }
 
     /**
@@ -114,28 +142,6 @@ class ComponentHelper
         return array_column($rows, 'quantity', 'video_output_type_id'); // [type_id => qty]
     }
 
-    /**
-     * Fetch required USB header types for a PC case (used to match with motherboard headers)
-     *
-     * @param Connection $conn
-     * @param int $pcCaseId
-     * @return array [usb_type_id => quantity]
-     * @throws Exception
-     */
-    public static function getCaseUsbHeaderTypes(Connection $conn, int $pcCaseId): array
-    {
-        // TODO: pc_case_usb_types is already dropped
-        $sql = "SELECT usb_type_id, quantity 
-            FROM pc_case_usb_types 
-            WHERE pc_case_id = :id";
-
-        $stmt = $conn->prepare($sql);
-
-        $rows = $stmt->executeQuery(['id' => $pcCaseId])->fetchAllAssociative();
-
-        return array_column($rows, 'quantity', 'usb_type_id'); // returns [type_id => quantity]
-    }
-
     public static function calculateRemainingPower(?array $psu, array $components = [], int $buffer = 100): ?int {
         if (!$psu) {
             return null; // No PSU selected = no filtering
@@ -148,29 +154,6 @@ class ComponentHelper
         }
 
         return max($psu['power_wattage'] - $totalPowerUsed - $buffer, 0);
-    }
-
-    /**
-     *
-     * @throws Exception
-     */
-    public static function getMotherboardSlots(Connection $conn, int $motherboardId): array
-    {
-        $sql = "
-            SELECT interface, lanes_count
-            FROM motherboard_slots
-            WHERE motherboard_id = :id
-        ";
-
-        $stmt = $conn->prepare($sql);
-
-        $rows = $stmt->executeQuery(['id' => $motherboardId])->fetchAllAssociative();
-
-        return $rows;
-        // [
-        //   ['interface' => 'M.2 PCIe 4.0', 'lanes_count' => 4],
-        //   ['interface' => 'SATA3', 'lanes_count' => null]
-        // ]
     }
 
     public static function isM2Pcie(string $interface): bool {

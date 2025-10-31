@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(readOnly: true)]
 #[ORM\Table(name: "pc_configurations")]
 class CompletedConfiguration
 {
@@ -35,13 +35,21 @@ class CompletedConfiguration
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
     private ?User $user;
 
+    #[ORM\ManyToOne(targetEntity: CompletedConfigurationType::class, inversedBy: "configurations")]
+    #[ORM\JoinColumn(name: "type_id", referencedColumnName: "id", nullable: false)]
+    private ?CompletedConfigurationType $type = null;
+
     #[ORM\OneToMany(targetEntity: PCConfigComponent::class, mappedBy: 'configuration', cascade: ['persist', 'remove'], fetch: 'LAZY')]
     private Collection $components;
+
+    #[ORM\OneToMany(targetEntity: CompletedConfigurationRating::class, mappedBy: "configuration", cascade: ["remove"])]
+    private Collection $ratings;
 
     public function __construct(User $user = null)
     {
         $this->user = $user;
         $this->components = new ArrayCollection();
+        $this->ratings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -169,5 +177,25 @@ class CompletedConfiguration
             }
         }
         return $this;
+    }
+
+    public function getType(): CompletedConfigurationType
+    {
+        return $this->type;
+    }
+
+    public function setType(CompletedConfigurationType $type): void
+    {
+        $this->type = $type;
+    }
+
+    public function getRatings(): Collection
+    {
+        return $this->ratings;
+    }
+
+    public function setRatings(Collection $ratings): void
+    {
+        $this->ratings = $ratings;
     }
 }

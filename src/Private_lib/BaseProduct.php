@@ -21,6 +21,7 @@ abstract class BaseProduct
         array $products,
         string $productIdField,
         string $collectionKey = 'components', // if it's called from periphery service is 'peripherals'
+        ?callable $productRatings = null,
         ?callable $additionalProductFields = null, // Optional: only passed by PeripheryService
         ?callable $connectionNameResolver = null, // Optional: only passed by PeripheryService
     ): array {
@@ -66,6 +67,8 @@ abstract class BaseProduct
                 'slugify_name' => $product['slugify_name'],
                 'image_url' => ''
             ];
+
+            $additionalFields['rating'] = $productRatings($product['id']);
 
             if(!empty($additionalProductFields)) {
 
@@ -181,4 +184,5 @@ abstract class BaseProduct
 
         return $specs;
     }
+
 }

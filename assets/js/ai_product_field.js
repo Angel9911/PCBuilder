@@ -17,7 +17,7 @@
         const getEndpoint  = (() => {
             const url = new URL(window.location.href);
             url.searchParams.set('ajax_ai', '1');
-            return url.toString();
+            return url.toString()
         })();
 
         // results target
@@ -101,7 +101,14 @@
 
                     // re-init score gradients if your cards use them
                     if (typeof window.initComponentScores === 'function') {
+
                         window.initComponentScores(container);
+                    }
+
+                    // Initialize carousel for the new unified recommendation section
+                    if (typeof window.initRecommendationSection === 'function') {
+
+                        window.initRecommendationSection(container);
                     }
                 }
             } catch (e) {

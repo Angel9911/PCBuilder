@@ -18,18 +18,6 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find a user by username
-     */
-    public function findUserByUsername(string $username): ?User
-    {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.username = :username')
-            ->setParameter('username', $username)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
-
-    /**
      * Find a user by email
      */
     public function findUserByEmail(string $email): ?User
@@ -42,52 +30,18 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find all users with a specific role
-     */
-    public function findUsersByRole(string $role): array
-    {
-        return $this->createQueryBuilder('u')
-            ->innerJoin('u.account', 'ua') // Assuming User has a relation to UserAccount
-            ->andWhere('ua.role = :role')
-            ->setParameter('role', $role)
-            ->getQuery()
-            ->getResult();
-    }
-
-    /**
-     * Check if a phone number is already registered
-     */
-    public function isPhoneNumberTaken(string $phone): bool
-    {
-        return (bool) $this->createQueryBuilder('u')
-            ->select('COUNT(u.id)')
-            ->andWhere('u.phone = :phone')
-            ->setParameter('phone', $phone)
-            ->getQuery()
-            ->getSingleScalarResult();
-    }
-
-    /**
      * Save a user (insert/update)
      */
     public function save(User $user, bool $flush = true): void
     {
+        // have to return ID of created user, to use it where it's need.
+
         $this->entityManager->persist($user);
         if ($flush) {
             $this->entityManager->flush();
         }
     }
 
-    /**
-     * Remove a user
-     */
-    public function remove(User $user, bool $flush = true): void
-    {
-        $this->entityManager->remove($user);
-        if ($flush) {
-            $this->entityManager->flush();
-        }
-    }
 
     /**
      * Find users who have saved configurations
