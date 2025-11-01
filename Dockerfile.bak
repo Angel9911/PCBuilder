@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y \
     npm \
     && pecl install redis \
     && docker-php-ext-enable redis \
-    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring zip
+    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring zip intl	
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -32,6 +32,12 @@ RUN chown -R www-data:www-data /var/www
 
 # Install PHP dependencies
 RUN composer install --optimize-autoloader --no-scripts
+
+# ⚙️ Install JS dependencies
+RUN npm install
+
+# ⚙️ Build Tailwind CSS (make sure it outputs to /public/build)
+RUN npm run build
 
 # Set environment variables
 ENV APP_ENV=prod
