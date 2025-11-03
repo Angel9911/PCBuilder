@@ -33,10 +33,10 @@ RUN chown -R www-data:www-data /var/www
 # Install PHP dependencies
 RUN composer install --optimize-autoloader --no-scripts
 
-# ⚙️ Install JS dependencies
+# Install JS dependencies
 RUN npm install
 
-# ⚙️ Build Tailwind CSS (make sure it outputs to /public/build)
+# Build Tailwind CSS (make sure it outputs to /public/build)
 RUN npm run build
 
 # Set environment variables

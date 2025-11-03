@@ -36,6 +36,9 @@ RUN composer install --optimize-autoloader --no-scripts
 # Install JS dependencies
 RUN npm install
 
+# Ensure tailwind binary is executable
+RUN chmod +x ./node_modules/.bin/tailwindcss
+
 # Build Tailwind CSS (make sure it outputs to /public/build)
 RUN npm run build
 
