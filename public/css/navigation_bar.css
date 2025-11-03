@@ -15,6 +15,7 @@
     overflow: hidden;
     opacity: 0;
     transform: translateY(20px);
+    z-index: 70; /* must be above the nav and header */
 }
 #hardwareMenu.show {
     max-height: 1000px;

@@ -37,6 +37,23 @@ class OpenAIServiceImpl implements OpenAIService
         return false;
     }
 
+    private function formatUserRequirementLabel(array $userRequirement): array
+    {
+
+        $newFormattedArray = [];
+
+        foreach ($userRequirement as $key => $value) {
+
+            $userAnswersKey = str_replace('_', ' ', $key);
+
+            $userAnswersKey = ucwords($userAnswersKey);
+
+            $newFormattedArray[$userAnswersKey] = $value;
+        }
+
+        return $newFormattedArray;
+    }
+
     /**
      * @throws TransportExceptionInterface
      * @throws Exception
@@ -46,8 +63,12 @@ class OpenAIServiceImpl implements OpenAIService
     {
         try {
 
-            echo '<pre>';
-            echo '</pre>';
+            if (isset($userAnswers['user_requirement'])) {
+                // Normalize free-text case into common structure
+                $userAnswers = [
+                    'User Requirement' => $userAnswers['user_requirement']
+                ];
+            }
 
             $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/chat/completions', [
                 'headers' => [
@@ -55,16 +76,17 @@ class OpenAIServiceImpl implements OpenAIService
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'model' => 'gpt-3.5-turbo', // or 'gpt-3.5-turbo'
+                    'model' => 'gpt-4o-mini', // or 'gpt-3.5-turbo'
+                    'response_format' => ['type' => 'json_object'],
                     'messages' => [
                         [
                             'role' => 'system',
                             'content' => "You are a PC build expert. Recommend a **compatible** PC build using only the provided components. 
 
-                            - Match components to user preferences (brand, budget, usage) given as structured answers or free-text field (“User Request”).
+                            - Match components to user preferences (brand, budget, usage) given as structured answers or given as free-text field (“User Requirement”).
                             - Ensure **full compatibility**.
                             - The computer parts you will choose should only be for: CPU, GPU, PSU, MOTHERBOARD, RAM, STORAGE
-                            - Output **only JSON**:  
+                            - Output **ONLY JSON**:
                             1. **Component Selection** (structured list).  
                             2. **Explanation** (under 50 words)."
                         ],
@@ -90,7 +112,7 @@ class OpenAIServiceImpl implements OpenAIService
 
             // Ensure JSON is properly structured
             if (!isset($decodedResponse['Component Selection']) || !isset($decodedResponse['Explanation'])) {
-                var_dump($decodedResponse);
+
                 throw new Exception("Invalid AI response format.");
             }
 

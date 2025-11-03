@@ -68,11 +68,11 @@ function init() {
     // Initialize the combobox fields if there are given AI recommendation components or given completed configuration
     if (typeof pcConfiguration !== "undefined" && pcConfiguration && Object.keys(pcConfiguration).length > 0) {
         isCompletedConfiguration = true;
+        console.log(pcConfiguration);
         Object.keys(pcConfiguration).forEach(component => {
             let componentData = pcConfiguration[component];
 
             let selectBox = document.querySelector(`.custom-select[data-component-id="${component.toLowerCase()}"]`);
-
 
             if (selectBox) {
 

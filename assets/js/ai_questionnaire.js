@@ -91,7 +91,7 @@ function hideSpinner() {
 
 function sendAnswersToBackend() {
     showSpinner();
-    //console.log(userAnswers)
+
     fetch("/configurator/ai", {
         method: "POST",
         headers: {
@@ -120,6 +120,10 @@ function sendAnswersToBackend() {
             hideSpinner()// hide spinner
         });
 }
+
+window.selectOption = selectOption;
+window.nextStep = nextStep;
+window.prevStep = prevStep;
 
 prevBtn.addEventListener("click", prevStep);
 nextBtn.addEventListener("click", nextStep);

@@ -98,3 +98,11 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* recommendation section */
+#recommendation-carousel {
+    overflow: visible;
+}
+#recommendation-carousel > div {
+    overflow: visible;
+}
