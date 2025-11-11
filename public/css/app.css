@@ -1,0 +1,20 @@
+/* app.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+    .hero-wrap      { @apply relative isolate overflow-hidden; }
+    .hero-slide     { @apply absolute inset-0 transition-opacity duration-1000; }
+    .hero-active    { @apply opacity-100 z-20; }
+    .hero-inactive  { @apply opacity-0   z-10; }
+
+    .hero-img       { @apply absolute inset-0 w-full h-full object-cover z-0; }
+    .hero-grad-1    { @apply absolute inset-0 bg-gradient-to-r from-blue-950/95 via-blue-950/85 to-transparent z-10; }
+    .hero-grad-2    { @apply absolute inset-0 bg-gradient-to-br from-blue-900/40  via-indigo-900/30 to-transparent z-20; }
+    .hero-deco      { @apply absolute inset-0 opacity-20 pointer-events-none z-30; }
+    .hero-content   { @apply absolute inset-0 flex items-center px-8 md:px-16 z-50; }
+
+    .hero-container { @apply max-w-7xl mx-auto h-full; }
+    .hero-copy      { @apply max-w-2xl text-white drop-shadow-2xl; }
+}

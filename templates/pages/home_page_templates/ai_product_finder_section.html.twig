@@ -1,0 +1,110 @@
+<section id="ai-product-finder" class="py-20 px-4 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
+    <!-- Background Decorations -->
+    <div class="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none">
+        <div class="absolute top-20 left-10 w-72 h-72 bg-cyan-200 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-20 right-10 w-96 h-96 bg-purple-200 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto relative z-10">
+        <!-- Header -->
+        <div class="text-center mb-16 opacity-0 translate-y-6 transition-all duration-700" data-animate="fade-up">
+            <div class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 shadow-lg mb-6">
+                <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+                <span class="text-white text-sm font-bold tracking-wide">AI-POWERED SELECTION</span>
+            </div>
+
+            <h2 class="text-4xl md:text-6xl font-bold mb-6">
+        <span class="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent">
+          AI Product Finder
+        </span>
+            </h2>
+
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                Let artificial intelligence find the perfect hardware components and peripherals for your needs with intelligent matching and detailed comparisons.
+            </p>
+        </div>
+
+        <!-- Two Cards Grid -->
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Hardware Components Card -->
+            <div class="group opacity-0 translate-y-6 transition-all duration-700" data-animate="fade-up" data-delay="150">
+                <div class="relative bg-white rounded-3xl p-8 shadow-lg border-2 border-gray-100 hover:border-cyan-200 hover:shadow-2xl transition-all duration-300 h-full overflow-hidden">
+                    <!-- Background Gradient -->
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-full blur-3xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
+
+                    <div class="relative">
+                        <!-- Icon -->
+                        <div class="inline-flex p-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 mb-6 shadow-lg">
+                            <i data-lucide="cpu" class="w-8 h-8 text-white"></i>
+                        </div>
+
+                        <!-- Title -->
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Hardware Components</h3>
+
+                        <!-- Description -->
+                        <p class="text-gray-600 mb-8 leading-relaxed">
+                            Find the perfect CPU, GPU, motherboard, RAM, storage, and power supply for your build. Our AI analyzes performance benchmarks, compatibility, and value to recommend the top 5 components tailored to your specific requirements and budget constraints.
+                        </p>
+
+                        <!-- Large Product Image -->
+                        <div class="relative group/img mb-8">
+                            <div class="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 opacity-0 group-hover/img:opacity-20 rounded-2xl transition-opacity"></div>
+                            <div class="absolute -inset-2 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 rounded-2xl blur-xl opacity-0 group-hover/img:opacity-100 transition-opacity"></div>
+                            <img
+                                    src="https://images.unsplash.com/photo-1591488320449-011701bb6704?w=600&q=80"
+                                    alt="Hardware Components"
+                                    class="relative w-full h-64 object-cover rounded-2xl border-2 border-gray-200 group-hover/img:border-cyan-300 transition-all shadow-lg"
+                            />
+                        </div>
+
+                        <!-- Button -->
+                        <a href="/product-finder?type=component" class="inline-flex items-center justify-center gap-2 w-full font-medium bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white border-0 shadow-lg px-8 py-4 rounded-xl transition-all duration-300 group/btn">
+                            <span>Find Best Component</span>
+                            <i data-lucide="arrow-right" class="ml-2 w-5 h-5 group-hover/btn:translate-x-1 transition-transform"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Peripherals Card -->
+            <div class="group opacity-0 translate-y-6 transition-all duration-700" data-animate="fade-up" data-delay="300">
+                <div class="relative bg-white rounded-3xl p-8 shadow-lg border-2 border-gray-100 hover:border-purple-200 hover:shadow-2xl transition-all duration-300 h-full overflow-hidden">
+                    <!-- Background Gradient -->
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full blur-3xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
+
+                    <div class="relative">
+                        <!-- Icon -->
+                        <div class="inline-flex p-4 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-600 mb-6 shadow-lg">
+                            <i data-lucide="mouse" class="w-8 h-8 text-white"></i>
+                        </div>
+
+                        <!-- Title -->
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Peripherals</h3>
+
+                        <!-- Description -->
+                        <p class="text-gray-600 mb-8 leading-relaxed">
+                            Discover ideal keyboards, mice, monitors, headsets, and gaming chairs optimized for your use case. Whether you're gaming, creating content, or working professionally, get AI-curated recommendations with ergonomic ratings and feature comparisons.
+                        </p>
+
+                        <!-- Large Product Image -->
+                        <div class="relative group/img mb-8">
+                            <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-600 opacity-0 group-hover/img:opacity-20 rounded-2xl transition-opacity"></div>
+                            <div class="absolute -inset-2 bg-gradient-to-r from-purple-500/20 to-pink-600/20 rounded-2xl blur-xl opacity-0 group-hover/img:opacity-100 transition-opacity"></div>
+                            <img
+                                    src="https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=600&q=80"
+                                    alt="Peripherals"
+                                    class="relative w-full h-64 object-cover rounded-2xl border-2 border-gray-200 group-hover/img:border-purple-300 transition-all shadow-lg"
+                            />
+                        </div>
+
+                        <!-- Button -->
+                        <a href="/product-finder?type=peripheral" class="inline-flex items-center justify-center gap-2 w-full font-medium bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white border-0 shadow-lg px-8 py-4 rounded-xl transition-all duration-300 group/btn">
+                            <span>Find Best Peripheral</span>
+                            <i data-lucide="arrow-right" class="ml-2 w-5 h-5 group-hover/btn:translate-x-1 transition-transform"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

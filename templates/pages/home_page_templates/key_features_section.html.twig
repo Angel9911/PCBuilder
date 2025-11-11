@@ -1,0 +1,76 @@
+<section id="key-features" class="py-20 px-4 bg-gradient-to-b from-white to-gray-50">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-16 opacity-0 translate-y-6 transition-all duration-700" data-animate="fade-up">
+            <div class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 shadow-lg mb-6">
+                <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+                <span class="text-white text-sm font-bold tracking-wide">KEY FEATURES</span>
+            </div>
+
+            <h2 class="text-4xl md:text-6xl font-bold mb-6">
+        <span class="bg-gradient-to-r from-cyan-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+          Everything You Need
+        </span>
+            </h2>
+
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                Comprehensive tools and intelligent features designed to make PC building effortless and enjoyable
+            </p>
+        </div>
+
+        <!-- Features grid -->
+        <div class="grid md:grid-cols-2 gap-6">
+            {% set features = [
+                {
+                    icon: 'sparkles',
+                    title: 'AI-Powered PC Builder',
+                    description: 'Build your perfect PC configuration using our intelligent AI assistant. Answer a simple questionnaire, describe your needs in a text field, or manually select components with real-time compatibility validation ensuring every part works seamlessly together.',
+                    gradient: 'from-cyan-500 to-blue-600',
+                    bg: 'from-cyan-100 to-blue-100'
+                },
+                {
+                    icon: 'cpu',
+                    title: 'Smart Component Selection',
+                    description: 'Leverage AI technology to find the ideal hardware components and peripherals for your specific requirements. Get top 5 product recommendations with detailed performance comparisons, compatibility scores, and expert insights for confident purchasing decisions.',
+                    gradient: 'from-purple-500 to-pink-600',
+                    bg: 'from-purple-100 to-pink-100'
+                },
+                {
+                    icon: 'shield',
+                    title: 'Configuration Review & Analysis',
+                    description: 'Validate your PC build with comprehensive performance analysis including bottleneck detection and FPS calculations. Use AI Review Build to ensure your configuration matches your intended use case and receive optimization suggestions for upgrades or downgrades.',
+                    gradient: 'from-indigo-500 to-purple-600',
+                    bg: 'from-indigo-100 to-purple-100'
+                },
+                {
+                    icon: 'save',
+                    title: 'Save & Manage Builds',
+                    description: 'Store unlimited PC configurations, compare different setups, and share your builds with the community. Browse thousands of user-created builds, clone and customize existing configurations, and benefit from collective builder experience and insights.',
+                    gradient: 'from-blue-500 to-cyan-600',
+                    bg: 'from-blue-100 to-cyan-100'
+                }
+            ] %}
+
+            {% for feature in features %}
+                <div class="group opacity-0 translate-y-6 transition-all duration-700" data-animate="fade-up" data-delay="{{ loop.index0 * 150 }}">
+                    <div class="relative bg-white rounded-2xl p-8 shadow-lg border-2 border-gray-100 hover:border-gray-200 hover:shadow-2xl transition-all duration-300 h-full overflow-hidden">
+                        <!-- Background -->
+                        <div class="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br {{ feature.bg }} rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
+
+                        <div class="relative">
+                            <!-- Icon -->
+                            <div class="inline-flex p-4 rounded-2xl bg-gradient-to-r {{ feature.gradient }} mb-6 shadow-lg">
+                                <i data-lucide="{{ feature.icon }}" class="w-8 h-8 text-white"></i>
+                            </div>
+
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">{{ feature.title }}</h3>
+                            <p class="text-gray-600 leading-relaxed">{{ feature.description }}</p>
+
+                            <div class="mt-6 h-1 w-0 group-hover:w-full bg-gradient-to-r {{ feature.gradient }} rounded-full transition-all duration-500"></div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>

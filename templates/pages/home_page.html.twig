@@ -8,36 +8,22 @@
         <div class="spinner"></div>
     </div>
 
-    <div id="slideshow-content">
-    <section id="hero-carousel" class="relative h-[600px] overflow-hidden">
-        <div id="carousel-slides" class="h-full w-full relative">
-            <!-- Slides are injected here -->
-        </div>
+    <!-- Slideshow Section -->
+    {% include 'pages/home_page_templates/hero_section.html.twig' %}
 
-        <!-- Navigation buttons -->
-        <button id="prev-slide" class="absolute top-1/2 left-4 z-30 -translate-y-1/2 text-white bg-black/40 hover:bg-black/60 p-3 rounded-full">
-            ←
-        </button>
-        <button id="next-slide" class="absolute top-1/2 right-4 z-30 -translate-y-1/2 text-white bg-black/40 hover:bg-black/60 p-3 rounded-full">
-            →
-        </button>
+    <!-- How it works Section -->
+    {% include 'pages/home_page_templates/how_it_works_section.html.twig' %}
 
-        <!-- Dots -->
-        <div id="carousel-dots" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-30 flex space-x-2"></div>
-    </section>
-    </div>
+    <!-- AI Product Finder Section -->
+    {% include 'pages/home_page_templates/ai_product_finder_section.html.twig' %}
+
+    <!-- Completed Builds Section -->
+
+    <!-- Key Features Section -->
+    {% include 'pages/home_page_templates/key_features_section.html.twig' %}
 
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        <!-- Features Section -->
-        <div id="main-content">
-
-            <!-- First Section: Why Choose Our PC Builder -->
-            {% include 'pages/home_page_templates/pc_builder_section.html.twig' %}
-
-            <!-- Second Section: -->
-
-        </div>
         <!-- Hidden Questionnaire Section -->
         <div class = "max-w-3xl mx-auto">
             <!-- Questionnaire (Initially Hidden) -->

@@ -14,6 +14,9 @@ const page = document.body.dataset.page;
             await import('app/home_page');
             await import('app/ai_questionnaire');
             await import('app/auth_login_registration');
+            await import('app/home/hero');
+            await import('app/home/howItWorks');
+            await import('app/home/productFinder');
             break;
         case 'configurator.build':
             await import('app/configurator');

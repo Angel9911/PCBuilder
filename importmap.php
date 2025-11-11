@@ -79,4 +79,16 @@ return [
     'app/recommendation_section' => [
         'path' => './assets/js/recommendation_section.js',
     ],
+    'app/home/hero' => [
+        'path' => './assets/js/home/hero.js',
+    ],
+    'app/home/howItWorks' => [
+        'path' => './assets/js/home/howItWorks.js',
+    ],
+    'app/home/productFinder' => [
+        'path' => './assets/js/home/productFinder.js',
+    ],
+    'app/home/keyFeatures' => [
+        'path' => './assets/js/home/keyFeatures.js',
+    ],
 ];
