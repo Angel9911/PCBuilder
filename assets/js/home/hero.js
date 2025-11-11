@@ -21,8 +21,8 @@ function initHero() {
             image: "https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=1920&q=80",
             gradient: "from-blue-950/95 via-blue-950/85 to-transparent",
             buttons: [
-                { text: "Build with AI", link: "/configuration", variant: "primary" },
-                { text: "Build Manually", link: "/configuration", variant: "secondary" }
+                { text: "Build with AI", link: "/#", variant: "primary" },
+                { text: "Build Manually", link: "/configurator/build", variant: "secondary" }
             ]
         },
         {
@@ -31,7 +31,7 @@ function initHero() {
             image: "https://images.unsplash.com/photo-1591488320449-011701bb6704?w=1920&q=80",
             gradient: "from-purple-900/90 via-purple-900/70 to-transparent",
             buttons: [
-                { text: "Build Your PC", link: "/configuration", variant: "primary" }
+                { text: "Build Your PC", link: "/configurator/build", variant: "primary" }
             ]
         },
         {
@@ -40,7 +40,7 @@ function initHero() {
             image: "https://images.unsplash.com/photo-1593640495253-23196b27a87f?w=1920&q=80",
             gradient: "from-indigo-950/95 via-indigo-900/70 to-transparent",
             buttons: [
-                { text: "View Completed PC Builds", link: "/builds", variant: "primary" }
+                { text: "View Completed PC Builds", link: "/completed/build", variant: "primary" }
             ]
         },
         {
@@ -49,8 +49,8 @@ function initHero() {
             image: "https://images.unsplash.com/photo-1616588589676-62b3bd4ff6d2?w=1920&q=80",
             gradient: "from-blue-950/95 via-blue-950/85 to-transparent",
             buttons: [
-                { text: "Find Best Component", link: "/components", variant: "primary" },
-                { text: "Find Best Peripheral", link: "/peripherals", variant: "secondary" }
+                { text: "Find Best Component", link: "/product/gpu", variant: "primary" },
+                { text: "Find Best Peripheral", link: "/product/keyboard", variant: "secondary" }
             ]
         }
     ];
