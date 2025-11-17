@@ -163,6 +163,14 @@ class ComponentRepository extends ServiceEntityRepository implements IndexablePr
         return $this->getProductsRatings($productType, $productId);
     }
 
+    /**
+     * @throws Exception
+     */
+    public function findComponentsReviews(string $productType, int $productId): array
+    {
+        return $this->getProductReviews($productType, $productId);
+    }
+
     public function findComponentNameBySlugifyName(string $slugifyName): array
     {
         return $this->createQueryBuilder('c')

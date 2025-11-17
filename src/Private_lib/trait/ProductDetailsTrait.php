@@ -153,6 +153,80 @@ trait ProductDetailsTrait
     /**
      * @throws Exception
      */
+    public function getProductReviews(string $productType, int $productId): array
+    {
+        $conn = $this->entityManager->getConnection();
+
+        $sqlSummary = "
+        SELECT
+            COUNT(*) FILTER (WHERE rating = 5) AS five_star,
+            COUNT(*) FILTER (WHERE rating = 4) AS four_star,
+            COUNT(*) FILTER (WHERE rating = 3) AS three_star,
+            COUNT(*) FILTER (WHERE rating = 2) AS two_star,
+            COUNT(*) FILTER (WHERE rating = 1) AS one_star
+        FROM product_ratings
+        WHERE product_type = :product_type
+          AND product_id = :product_id
+    ";
+
+        $summary = $conn->prepare($sqlSummary)
+            ->executeQuery([
+                'product_type' => $productType,
+                'product_id'   => $productId
+            ])
+            ->fetchAssociative();
+
+        if (empty($summary)) {
+            return [
+                'rates'   => [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0],
+                'comments' => [],
+            ];
+        }
+
+        $sqlComments = "
+        SELECT
+            pr.rating,
+            pr.review,
+            pr.created_at,
+            u.first_name AS first_name
+        FROM product_ratings pr
+        LEFT JOIN users u ON u.id = pr.user_id
+        INNER JOIN user_accounts ac ON ac.id = u.user_account_id
+        WHERE pr.product_type = :product_type
+          AND pr.product_id = :product_id
+          AND pr.review IS NOT NULL
+          AND TRIM(pr.review) <> ''
+        ORDER BY pr.created_at DESC
+    ";
+
+        $comments = $conn->prepare($sqlComments)
+            ->executeQuery([
+                'product_type' => $productType,
+                'product_id'   => $productId
+            ])
+            ->fetchAllAssociative();
+
+        // Format final response
+        return [
+            'rates'   => [
+                5 => (int)$summary['five_star'],
+                4 => (int)$summary['four_star'],
+                3 => (int)$summary['three_star'],
+                2 => (int)$summary['two_star'],
+                1 => (int)$summary['one_star'],
+            ],
+            'comments' => array_map(fn($c) => [
+                'user'       => $c['first_name'] ?? 'Anonymous',
+                'rating'     => (int)$c['rating'],
+                'comment'    => $c['review'],
+                'created_at' => $c['created_at'],
+            ], $comments),
+        ];
+    }
+
+    /**
+     * @throws Exception
+     */
     public function getProductsTypeCount(string $type): int
     {
         $conn = $this->entityManager->getConnection(); // Make sure this is injected in your service constructor

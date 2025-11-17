@@ -256,6 +256,7 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
         $componentDetails = $this->componentRepository->getComponentSpecs($productType, 0, 0, [], [], null, $productId);
 
         if (empty($componentDetails)) {
+
             return [];
         }
 
@@ -266,12 +267,21 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
         // Format specs and scores
         $formatted = $this->formatProductSpecifications($componentDetails, $productType);
 
+        $productRating = $this->componentRepository->findComponentsRatings('components', $componentDetails['component_id']) ?? 0;
+
+        if($productRating > 0){
+
+            $productReviews = $this->componentRepository->findComponentsReviews('components', $componentDetails['component_id']);
+
+            $productRating = array_merge($productRating, $productReviews);
+        }
+
         return [
             'id' => $componentDetails['id'],
             'component_id' => $componentDetails['component_id'],
             'name' => $componentDetails['name'],
             'component_images' => $componentImages,
-            'rating' => $this->componentRepository->findComponentsRatings('components', $componentDetails['id']) ?? 0,
+            'rating' => $productRating,
             'component_scores' => $this->getComponentScores($productType, $componentDetails),
             'specifications' => $formatted
         ];
@@ -404,12 +414,23 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
         }
 
         return $componentData;
-        //$productId = (int)$componentData['component_id'];
-
-        //$productType = 'components';
 
     }
 
+    /**
+     * @throws Exception
+     */
+    public function getProductReviews(string $productType, int $productId): array
+    {
+        $componentData = $this->componentRepository->findComponentsReviews($productType, $productId);
+
+        if (!$componentData) {
+
+            throw new \InvalidArgumentException("Invalid product: {$productId}");
+        }
+
+        return $componentData;
+    }
     /**
      * @throws Exception
      */
@@ -493,6 +514,7 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
         //var_dump("Formatted and cached " . count($components) . " {$productType} products in {$duration} ms");
 
     }
+
     public function formatProductSpecifications(array $productData, string $type): array
     {
         $constraints = ComponentConstraints::${strtoupper($type) . '_FILTERS_COMPONENT'} ?? null;

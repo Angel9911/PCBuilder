@@ -20,4 +20,6 @@ interface BaseProductService
     public function rateProduct(string $baseProductType, array $productRatingData, array $userData);
 
     public function getProductRating(string $productType, int $productId): array;
+
+    public function getProductReviews(string $productType, int $productId): array;
 }

@@ -296,7 +296,9 @@ class ComponentController extends AbstractController
                 'ai_recommended' => $aiBlockHtml,
             ]);
         }
-
+        /*echo '<pre>';
+        print_r($result);
+        echo '</pre>';*/
         // Determine product category (component or peripheral)
         $productCategory = ConfigurationConstraint::getProductType($component);
 
@@ -390,6 +392,7 @@ class ComponentController extends AbstractController
 
         // Cache miss → Fetch from DB (and populate cache)
         if (empty($productData)) {
+
             $fetched = $service->getProductDetailsByProductNameAndType($component, $type);
 
             if (!empty($fetched)) {
@@ -412,6 +415,29 @@ class ComponentController extends AbstractController
                     21600 // 6h TTL
                 );
 
+                $productRatings = [
+                    'average' => $fetched['rating']['average'],
+                    'count'   => $fetched['rating']['count'],
+                ];
+
+                if(!empty($productRatings)){
+
+                    // Store fresh rating in cache
+                    ProductCache::putProductRating(
+                        $this->redis,
+                        $productCategory,
+                        $type,
+                        $fetched['component_id'],
+                        $productRatings,
+                        900 // 15 minutes
+                    );
+                }
+
+                $productReviews = [
+                    'rates'    => $fetched['rating']['rates'],
+                    'comments' => $fetched['rating']['comments'],
+                ];
+
                 $productData = $fetched;
             }
         } else {
@@ -419,10 +445,59 @@ class ComponentController extends AbstractController
             // we already fetch the product details from cache, now fetch only rating information.
             $freshRatingData = ProductCache::getProductRating($this->redis, $productCategory, $type, $productId);
 
-            if (!empty($freshRatingData)) {
+            if(!empty($freshRatingData)){
 
-                $productData['rating'] = $freshRatingData;
+                $productRatings = [
+                    'average' => $freshRatingData['average'],
+                    'count' => $freshRatingData['count'],
+                ];
+
+                if(!empty($freshRatingData['rates'] || !empty($freshRatingData['comments']))){
+
+                    $productReviews = [
+                        'rates' => $freshRatingData['rates'],
+                        'comments' => $freshRatingData['comments'],
+                    ];
+                } else {
+
+                    $productReviews = $service->getProductReviews($productCategory, $productId);
+
+                    if(!empty($productReviews)){
+
+                        $freshRatingData = array_merge($productRatings, $productReviews);
+                    }
+                    ProductCache::putProductRating(
+                        $this->redis,
+                        $productCategory,
+                        $type,
+                        $productId,
+                        $freshRatingData,
+                        900
+                    );
+                }
+            } else {
+
+                $productRatings = $service->getProductRating($productCategory, $productId);
+
+                $productReviews = $service->getProductReviews($productCategory, $productId);
+
+                if(!empty($productReviews)){
+
+                    $freshRatingData = array_merge($productRatings, $productReviews);
+                }
+
+                ProductCache::putProductRating(
+                    $this->redis,
+                    $productCategory,
+                    $type,
+                    $productId,
+                    $freshRatingData,
+                    900
+                );
+
             }
+
+            $productData['rating'] = $productRatings;
         }
 
         $componentOffersCacheKey = CacheConstraints::$OFFERS_COMPONENT_KEY . '_' . $productData['component_id'];
@@ -444,7 +519,7 @@ class ComponentController extends AbstractController
             'componentOffers' => $componentOffers[$productData['component_id']] ?? [],
             'offers_price_range' => $componentOffers['offers_price_range'] ?? [],
             'benchmarks' => [],
-            'reviews' => [],
+            'reviews' => $productReviews ?? [],
         ]);
     }
 
@@ -604,10 +679,6 @@ class ComponentController extends AbstractController
             ], 400);
         }
 
-        /*echo '<pre>';
-        print_r($productType);
-        echo '</pre>';*/
-
         $baseProductType = ConfigurationConstraint::getProductType($productType);
 
         if ($baseProductType === null) {
@@ -623,15 +694,22 @@ class ComponentController extends AbstractController
 
         $productId = (int) $rateProductData['rating_product']['product_id'];
 
-        $ratingSummary = $productService->getProductRating($baseProductType, $productId);
+        $ratingProduct = $productService->getProductRating($baseProductType, $productId);
 
-        // 4️⃣ Store fresh rating in cache
+        $productReviews = $productService->getProductReviews($baseProductType, $productId);
+
+        if(!empty($productReviews)) {
+
+            $ratingProduct = array_merge($ratingProduct, $productReviews);
+        }
+
+        // Store fresh rating in cache
         ProductCache::putProductRating(
             $this->redis,
             $baseProductType,
             $productType,
             $productId,
-            $ratingSummary,
+            $ratingProduct,
             900 // 15 minutes
         );
 

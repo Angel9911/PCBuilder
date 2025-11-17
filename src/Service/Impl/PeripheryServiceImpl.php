@@ -253,4 +253,9 @@ class PeripheryServiceImpl extends BaseProduct implements BaseProductService, Pe
     {
         // TODO: Implement getProductRating() method.
     }
+
+    public function getProductReviews(string $productType, int $productId): array
+    {
+        // TODO: Implement getProductReviews() method.
+    }
 }
