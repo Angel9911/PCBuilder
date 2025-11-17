@@ -68,7 +68,7 @@ abstract class BaseProduct
                 'image_url' => ''
             ];
 
-            $additionalFields['rating'] = $productRatings($product['component_id']);
+            $additionalFields['rating'] = $productRatings($product['component_id'] ?? $product['peripheral_id']);
 
             if(!empty($additionalProductFields)) {
 
