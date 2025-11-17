@@ -373,6 +373,7 @@ class ComponentServiceImpl extends BaseProduct implements BaseProductService, Co
             $components,
             'component_id',
             'components',
+            fn(int $productId) => $this->componentRepository->findComponentsRatings('components', $productId),
             fn(array $componentProduct) => $this->getComponentScores($productType, $componentProduct),
         );
 

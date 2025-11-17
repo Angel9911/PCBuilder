@@ -113,6 +113,7 @@ class PeripheryServiceImpl extends BaseProduct implements BaseProductService, Pe
             $peripherals,
             'peripheral_id',
             'peripherals',
+            fn(int $productId) => $this->peripheryRepository->findComponentsRatings('peripherals', $productId),
             fn(array $peripheryProduct) => [
                 'brand_name' => $peripheryProduct['brand_name'],
                 'description' => $peripheryProduct['description'],
