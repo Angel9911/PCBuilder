@@ -92,7 +92,7 @@ function initHero() {
             ${slide.buttons.map(b => `
             <a href="${b.link}" class="${b.variant === 'primary'
                 ? 'inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/90 h-10 group relative overflow-hidden bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 hover:from-cyan-400 hover:via-blue-400 hover:to-purple-500 text-white border-0 shadow-2xl px-8 py-6 text-base rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-cyan-500/50'
-                : 'inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 px-8 text-base rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl border-2 border-white/60 bg-white/10 hover:bg-white/20 text-white backdrop-blur-md'
+                : 'inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 backdrop-blur-md hover:shadow-xl hover:bg-white/20 hover:bg-primary/90 h-10 group relative overflow-hidden bg-gradient-to-r text-white border-0 shadow-2xl px-8 py-6 text-base rounded-xl transition-all'
             }">${b.text}</a>`
         ).join('')}
           </div>

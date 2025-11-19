@@ -91,4 +91,7 @@ return [
     'app/home/keyFeatures' => [
         'path' => './assets/js/home/keyFeatures.js',
     ],
+    'app/home/completedBuilds' => [
+        'path' => './assets/js/home/completedBuilds.js',
+    ],
 ];

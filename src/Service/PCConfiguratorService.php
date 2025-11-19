@@ -8,7 +8,7 @@ interface PCConfiguratorService
 {
     public function savePcConfiguration(array $componentsValues): CompletedConfiguration;
 
-    public function getPcConfigurations(int $limit, int $offset): array;
+    public function getPcConfigurations(int $limit, int $offset, array $specificConfigurations = null): array;
 
     public function getPcConfigurationById(int $configurationId): array;
 

@@ -39,6 +39,7 @@ const nextBtn = document.getElementById("next-btn");
 });*/
 
 function renderStep() {
+
     const step = questions[currentStep];
     questionTitle.textContent = step.title;
     optionsContainer.innerHTML = step.options.map(option =>

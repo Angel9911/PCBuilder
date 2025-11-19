@@ -1,0 +1,61 @@
+<section id="completed-builds" class="py-20 px-4 bg-white">
+    <div class="max-w-7xl mx-auto">
+
+        {# Header #}
+        <div class="text-center mb-16" data-animate-completed style="opacity:0; transform:translateY(20px);">
+            <div class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg mb-6">
+                <i data-lucide="cpu" class="w-5 h-5 text-white"></i>
+                <span class="text-white text-sm font-bold tracking-wide">COMMUNITY BUILDS</span>
+            </div>
+
+            <h2 class="text-4xl md:text-6xl font-bold mb-6">
+                <span class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                    Pre-Built PC Configurations
+                </span>
+            </h2>
+
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                Explore expertly crafted and community-verified PC builds optimized for different budgets and use cases
+            </p>
+        </div>
+
+        {# Grid with reused configuration card #}
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {% if configurations is empty %}
+                <div class="col-span-full text-center text-gray-500">
+                    No completed builds available yet. Check back soon!
+                </div>
+            {% else %}
+                {# show only first 3 on homepage #}
+                {% include 'pages/completed_configuration_page/completed_config_templates/configuration-template.html.twig' %}
+
+                {#                <div data-animate-completed class="opacity-0 translate-y-6 transition-all duration-700">
+                    {% include 'pages/completed_configuration_page/completed_config_templates/configuration-template.html.twig' %}
+                </div>#}
+                {#{% for configuration in configurations %}
+                    {% include 'pages/completed_configuration_page/completed_config_templates/_configuration_card.html.twig' with {
+                        configuration: configuration
+                    } %}
+                {% endfor %}#}
+            {% endif %}
+        </div>
+
+        {# CTA button #}
+        <div class="text-center" data-animate-completed style="opacity:0; transform:translateY(20px);">
+            <a href="{{ path('completed.build') }}">
+                <button
+                        class="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium
+           transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring
+           disabled:pointer-events-none disabled:opacity-50
+           [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0
+           hover:bg-primary/90 h-10 bg-gradient-to-r from-blue-600 to-purple-600
+           hover:from-blue-700 hover:to-purple-700
+           text-white px-10 py-6 text-lg rounded-xl shadow-lg group">
+                    See More Configurations
+                    <i data-lucide="arrow-right"
+                       class="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </a>
+        </div>
+    </div>
+</section>

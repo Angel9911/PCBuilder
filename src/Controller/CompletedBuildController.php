@@ -88,20 +88,17 @@ class CompletedBuildController extends AbstractController
         $buildId = (int) $buildId;
 
         $cacheKey = CacheConstraints::$PC_CONFIGURATION_KEY. '_' .$buildId;
-        $this->redis->delete($cacheKey);
+
         if($this->redis->isKeyExist($cacheKey)) {
 
             $pcConfiguration = $this->redis->get($cacheKey);
-            //$result = $this->redis->get($cacheKey);
+
         } else {
 
             $pcConfiguration = $this->configuratorService->getPcConfigurationById($buildId);
-            //$result = $this->configuratorService->getPcConfigurationById($buildId);
 
             $this->redis->set($cacheKey, $pcConfiguration, 3600);
         }
-
-        //$pcConfiguration = $this->configuratorService->getPcConfigurationDetails($buildId);
 
         if($pcConfiguration[0]['name'] !== null){
 

@@ -85,6 +85,7 @@ class PcConfiguratorServiceImpl implements PCConfiguratorService
         $userPcConfiguration->setHighestPrice((int)$componentsValues['highestPrice']);
 
         $this->entityManager->persist($userPcConfiguration);
+
         $this->entityManager->flush();
 
         $componentTypes = ['cpu', 'gpu', 'ram', 'motherboard', 'storage', 'psu', 'pc_case'];
@@ -110,9 +111,9 @@ class PcConfiguratorServiceImpl implements PCConfiguratorService
         return $userPcConfiguration;
     }
 
-    public function getPcConfigurations(int $limit, int $offset): array
+    public function getPcConfigurations(int $limit, int $offset, array $specificConfigurations = null): array
     {
-        return $this->completedConfigurationRepository->getAllPcConfigurations($limit, $offset);
+        return $this->completedConfigurationRepository->getAllPcConfigurations($limit, $offset, $specificConfigurations);
     }
 
     public function getPcConfigurationById(int $configurationId): array

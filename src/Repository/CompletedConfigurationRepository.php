@@ -97,6 +97,7 @@ class CompletedConfigurationRepository extends ServiceEntityRepository
 
     public function getAllPcConfigurations(int $limit = 0, int $offset = 0, ?array $configIds = null): array
     {
+
         $configs = $this->findPcConfigurations($limit, $offset, $configIds);
 
         if(empty($configs)){
