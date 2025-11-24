@@ -5,19 +5,28 @@ function initRatingModal() {
         return;
     }
 
+    const modalTitle = document.getElementById('ratingModalTitle');
     const cancelBtn = document.getElementById('cancelRatingModal');
     const closeBtn = document.getElementById('closeRatingModal');
     const form = document.getElementById('ratingForm');
     const submitBtn = document.getElementById('submitRating');
     const modalStars = document.querySelectorAll('.modal-star-btn');
-    const productRatingSection = document.getElementById('product-rating');
-    let selectedRating = 0;
 
+    let selectedRating = 0;
+    let currentTarget = null;
     // Open modal when a star is clicked
     document.querySelectorAll('.star-btn').forEach(btn => {
         btn.addEventListener('click', () => {
+            currentTarget = btn.closest('#product-rating, #config-rating');
+
+            if (currentTarget.id === 'product-rating') {
+                modalTitle.textContent = "Rate This Product";
+            } else {
+                modalTitle.textContent = "Rate This PC Build";
+            }
+
             ratingModal.classList.remove('hidden');
-            ratingModal.classList.add('flex'); // ensure visible in Tailwind
+            ratingModal.classList.add('flex');
             document.body.classList.add('overflow-hidden');
         });
     });
@@ -67,52 +76,63 @@ function initRatingModal() {
     // Submit form logic
     form?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (!selectedRating || !productRatingSection) return;
-
-        const ratingData = {
-            product_id: productRatingSection.dataset.componentId,
-            stairs: selectedRating,
-            comment: form.comment.value
-        };
+        if (!currentTarget) return;
 
         const userData = {
             name: form.name.value,
             email: form.email.value,
         };
 
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Submitting...';
+        let endpoint = "";
+        let payload = {};
 
-        const productType = productRatingSection.dataset.productType;
+        if (currentTarget.id === "product-rating") {
+            endpoint = `/product/rate/${encodeURIComponent(currentTarget.dataset.productType)}`;
+            payload = {
+                rating_product: {
+                    product_id: currentTarget.dataset.componentId,
+                    stairs: selectedRating,
+                    comment: form.comment.value
+                },
+                user: userData
+            };
+
+        } else if (currentTarget.id === "config-rating") {
+            endpoint = "/completed/build/rate";
+
+            payload = {
+                rating_config: {
+                    pc_config_id: currentTarget.dataset.configId,
+                    stairs: selectedRating,
+                    comment: form.comment.value
+                },
+                user: userData
+            };
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Submitting...";
 
         try {
-
-            const response = await fetch(`/product/rate/${encodeURIComponent(productType)}`, {
-                method: 'POST',
+            const response = await fetch(endpoint, {
+                method: "POST",
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({rating_product: ratingData, user: userData})//({ user_requirement: query })
+                body: JSON.stringify(payload)
             });
 
             if (response.ok) {
-                alert('Thank you for your feedback!');
+                alert("Thank you for your feedback!");
                 closeModal();
-
-                // Small delay for smooth UX, then reload
-                setTimeout(() => {
-                    window.location.reload();
-                }, 500);
-
+                setTimeout(() => window.location.reload(), 500);
             } else {
-                console.log(response);
-                alert('Something went wrong. Please try again.');
+                alert("Something went wrong.");
             }
         } catch (err) {
-            console.error(err);
-            alert('Network error. Please try again.');
-        } finally {
-            submitBtn.textContent = 'Submit Rating';
-            submitBtn.disabled = false;
+            alert("Network error.");
         }
+
+        submitBtn.textContent = "Submit Rating";
+        submitBtn.disabled = false;
     });
 }
 

@@ -45,6 +45,9 @@ const page = document.body.dataset.page;
             await import('app/ui/ai_config_form');
             /*await import('app/recommendation_section');*/
             break;
+        case 'completed.build.details':
+            await import('app/ui/rating_modal');
+            break;
         default:
     }
 })();
