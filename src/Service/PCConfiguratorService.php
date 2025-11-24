@@ -12,12 +12,14 @@ interface PCConfiguratorService
 
     public function getPcConfigurationById(int $configurationId): array;
 
+    public function getPcConfigurationsIds(): array;
+
     public function getPcConfigurationDetails(int $configurationId): CompletedConfiguration;
 
     public function getAiRecommendedConfigurations(array $userRequirements): array;
 
     public function ratePcConfiguration(array $configRating, array $userData): void;
 
-    public function getPcConfigurationRating(): array;
+    public function getPcConfigurationRating(int $configurationId): array;
     public function getTotalsCountConfigurations(): int;
 }

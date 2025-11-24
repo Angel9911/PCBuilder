@@ -5,7 +5,36 @@
 
         <!-- Gradient Header -->
         <div class="bg-gradient-to-r from-indigo-600 to-cyan-500 px-6 py-4">
-            <h3 class="text-xl font-bold text-white">{{ configuration.name }}</h3>
+            <div class="flex items-center justify-between">
+                <!-- Left side: Name -->
+                <h3 class="text-xl font-bold text-white">
+                    {{ configuration.name }}
+                </h3>
+
+                <!-- Right side: Rating -->
+                {% if configuration.rating is defined %}
+                    <div class="flex items-center space-x-1">
+
+                        <!-- Always show star -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="lucide lucide-star w-5 h-5 text-yellow-400 fill-yellow-400">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14
+                     18.18 21.02 12 17.77 5.82 21.02
+                     7 14.14 2 9.27 8.91 8.26 12 2">
+                            </polygon>
+                        </svg>
+
+                        {% if configuration.rating.average > 0 %}
+                            <span class="text-white font-semibold">
+                        {{ configuration.rating.average|number_format(1, '.', '') }}
+                    </span>
+                        {% endif %}
+
+                    </div>
+                {% endif %}
+            </div>
         </div>
 
         <!-- Image Section with Hover CTA -->

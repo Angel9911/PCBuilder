@@ -33,7 +33,7 @@
                     </div>
 
                     <!-- ⭐ Rating Section -->
-                    <div id="configuration-rating"
+                    <div id="config-rating"
                          class="flex items-center gap-3 mt-3"
                          data-config-id="{{ configuration_id }}"
                          data-config-name="{{ configuration_name }}">
@@ -149,4 +149,7 @@
             </div>
         </div>
     </div>
+
+    <!-- Rating Modal -->
+    {% include 'pages/pages_templates/rating_dialog_form.html.twig' %}
 {% endblock %}

@@ -113,12 +113,46 @@ class PcConfiguratorServiceImpl implements PCConfiguratorService
 
     public function getPcConfigurations(int $limit, int $offset, array $specificConfigurations = null): array
     {
-        return $this->completedConfigurationRepository->getAllPcConfigurations($limit, $offset, $specificConfigurations);
+
+        $configurations = $this->completedConfigurationRepository->getAllPcConfigurations($limit, $offset, $specificConfigurations);
+
+        foreach ($configurations as &$configuration) {
+
+            $configurationRating = $this->completedConfigRatingRepository->getCompletedConfigurationRating((int) $configuration['id']);
+
+            $configuration['rating'] = [
+                'average' => $configurationRating['avg_rating'] !== null ? round((float)$configurationRating['avg_rating'], 1) : 0.0,
+                'count' => (int) $configurationRating['count_ratings']
+            ];
+        }
+
+        unset($configuration);
+
+        return $configurations;
     }
 
     public function getPcConfigurationById(int $configurationId): array
     {
-        return $this->completedConfigurationRepository->getAllPcConfigurations(self::$LIMIT, self::$OFFSET, [$configurationId]);
+        $configuration = $this->completedConfigurationRepository->getAllPcConfigurations(self::$LIMIT, self::$OFFSET, [$configurationId]);
+
+        $configurationRating = $this->completedConfigRatingRepository->getCompletedConfigurationRating($configurationId);
+
+        $configuration[0]['rating'] = [
+            'average' => $configurationRating['avg_rating'] !== null ? round((float)$configurationRating['avg_rating'], 1) : 0.0,
+            'count' => (int) $configurationRating['count_ratings']
+        ];
+
+        return $configuration;
+    }
+
+    public function getPcConfigurationRating(int $configurationId): array
+    {
+        $configRating = $this->completedConfigRatingRepository->getCompletedConfigurationRating($configurationId);
+
+        return [
+            'average' => $configRating['avg_rating'] !== null ? round((float)$configRating['avg_rating'], 1) : 0.0,
+            'count' => (int) $configRating['count_ratings']
+        ];
     }
 
     public function getPcConfigurationDetails(int $configurationId): CompletedConfiguration
@@ -165,18 +199,17 @@ class PcConfiguratorServiceImpl implements PCConfiguratorService
             $userData['email']
         );
 
-        $pcConfigRating = new CompletedConfigurationRating($configRating['pc_config_id'], $configRating['stairs']);
+        $currentPcConfig = $this->completedConfigurationRepository->getPcConfigurationObjectById((int) $configRating['pc_config_id']);
+
+        $pcConfigRating = new CompletedConfigurationRating((int) $configRating['stairs']);
 
         $pcConfigRating->setUser($user);
+
+        $pcConfigRating->setConfiguration($currentPcConfig);
 
         $pcConfigRating->setReview($configRating['comment']);
 
         $this->completedConfigRatingRepository->savePcConfigRating($pcConfigRating);
-    }
-
-    public function getPcConfigurationRating(): array
-    {
-        // TODO: Implement getPcConfigurationRating() method.
     }
 
     private function formatPcConfigurations(array $configurations): array
@@ -204,5 +237,10 @@ class PcConfiguratorServiceImpl implements PCConfiguratorService
         }
 
         return $formatConfigurations;
+    }
+
+    public function getPcConfigurationsIds(): array
+    {
+        return $this->completedConfigurationRepository->getPcConfigurationsIDs();
     }
 }

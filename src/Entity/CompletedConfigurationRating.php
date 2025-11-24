@@ -34,9 +34,9 @@ class CompletedConfigurationRating
     #[ORM\Column(type: "datetime", options: ["default" => "CURRENT_TIMESTAMP"])]
     private \DateTimeInterface $updatedAt;
 
-    public function __construct(int $id, int $rating)
+    public function __construct(int $rating)
     {
-        $this->id = $id;
+        //$this->id = $id;
         $this->rating = $rating;
 
         $this->createdAt = new \DateTimeImmutable();

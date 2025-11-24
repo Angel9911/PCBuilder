@@ -26,21 +26,4 @@ class ProductRatingRepository extends ServiceEntityRepository
             $this->entityManager->flush();
         }
     }
-
-   /* public function findProductRatingByProductIdAndType(int $productId, string $productType): array
-    {
-        $qb = $this->createQueryBuilder('r')
-            ->select('COUNT(r.id) as total_ratings', 'AVG(r.rating) as avg_rating')
-            ->where('r.product_id = :productId')
-            ->andWhere('r.product_type = :productType')
-            ->setParameter('productId', $productId)
-            ->setParameter('productType', $productType);
-
-        $result = $qb->getQuery()->getSingleResult();
-
-        return [
-            'average' => $result['avg_rating'] !== null ? round((float)$result['avg_rating'], 1) : 0.0,
-            'count' => (int)$result['total_ratings'],
-        ];
-    }*/
 }

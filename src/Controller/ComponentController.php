@@ -296,9 +296,7 @@ class ComponentController extends AbstractController
                 'ai_recommended' => $aiBlockHtml,
             ]);
         }
-        /*echo '<pre>';
-        print_r($result);
-        echo '</pre>';*/
+
         // Determine product category (component or peripheral)
         $productCategory = ConfigurationConstraint::getProductType($component);
 

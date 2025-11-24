@@ -28,6 +28,14 @@ class CompletedConfigurationRepository extends ServiceEntityRepository
     }
 
 
+    public function getPcConfigurationsIDs(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->select('c.id')
+            ->getQuery()
+            ->getSingleColumnResult();
+    }
+
     /**
      * @param int $id
      * @return CompletedConfiguration

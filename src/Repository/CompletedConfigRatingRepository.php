@@ -29,4 +29,19 @@ class CompletedConfigRatingRepository extends ServiceEntityRepository
             $this->entityManager->flush();
         }
     }
+
+    public function getCompletedConfigurationRating(int $configurationId): array
+    {
+        $configurationRating = $this->createQueryBuilder('c')
+            ->select('AVG(c.rating) AS avg_rating', 'COUNT(c.rating) AS count_ratings')
+            ->where('c.configuration = :configurationId')
+            ->setParameter('configurationId', $configurationId)
+            ->getQuery()
+            ->getSingleResult();
+
+        return [
+              'avg_rating' => $configurationRating['avg_rating'] != null ? round((float) $configurationRating['avg_rating'], 2) : 0,
+              'count_ratings' => (int) $configurationRating['count_ratings'],
+        ];
+    }
 }

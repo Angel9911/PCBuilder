@@ -9,6 +9,7 @@ use App\Constraints\ConfigurationConstraint;
 use App\Private_lib\redis\RedisWrapper;
 use App\Service\PCConfiguratorService;
 use App\utils\ObjectMapper;
+use App\utils\ProductCache;
 use App\utils\ValidatorUtils;
 use Doctrine\ORM\Cache;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -44,24 +45,32 @@ class CompletedBuildController extends AbstractController
 
         $offset = ($page - 1) * $limit;
 
-        $configurationsPageKey = CacheConstraints::$COMPLETED_PC_CONFIGURATION_KEY . "_page_" . $page;
+        // NEW CACHE LOGIC
+        $configIds = ProductCache::getConfigIdsFromCache($this->redis, "user");
 
-        // Check if data exists in Redis cache
-        if ($this->redis->isKeyExist($configurationsPageKey)) {
+        if($configIds === null) {
 
-            $result = $this->redis->get($configurationsPageKey);
+            $getConfigIds = $this->configuratorService->getPcConfigurationsIds();
 
-        } else {
-
-            // Fetch from database and cache the result
-            $result = $this->configuratorService->getPcConfigurations($limit, $offset);
-
-            $this->redis->set($configurationsPageKey, $result, 3600); // Cache for 1 hour
+            $configIds = ProductCache::setConfigIdsCache($this->redis, "user", $getConfigIds);
         }
 
-        /*echo '<pre>';
-        print_r($result);
-        echo '</pre>';*/
+        $currentConfigIdsPage = ProductCache::getPageIds($configIds, $page, $limit);
+
+        $cachedPcConfigs = ProductCache::getConfigCachedCards($this->redis, "user", $currentConfigIdsPage);
+
+        $missing = array_values(array_diff($currentConfigIdsPage, array_keys($cachedPcConfigs)));
+
+        if(!empty($missing)) {
+
+            // Fetch from database and cache the result
+            $result = $this->configuratorService->getPcConfigurations($limit, $offset, $missing);
+
+            ProductCache::putConfigCacheCards($this->redis, "user", $result);
+
+            // Refresh cached page cards (now everything should be present)
+            $cachedPcConfigs = ProductCache::getConfigCachedCards($this->redis, "user", $currentConfigIdsPage);
+        }
 
         $totalCount = $this->configuratorService->getTotalsCountConfigurations(); // create this method
 
@@ -69,7 +78,7 @@ class CompletedBuildController extends AbstractController
 
         return $this->render('pages/completed_configuration_page/completed_configuration.html.twig' ,
         [
-            'configurations' => $result,
+            'configurations' => $cachedPcConfigs,
             'totalPages' => $totalPages,
             'currentPage' => $page,
         ]);
@@ -87,58 +96,57 @@ class CompletedBuildController extends AbstractController
 
         $buildId = (int) $buildId;
 
-        $cacheKey = CacheConstraints::$PC_CONFIGURATION_KEY. '_' .$buildId;
+        $pcConfiguration = ProductCache::getConfigCacheDetails($this->redis, "user", $buildId);
 
-        if($this->redis->isKeyExist($cacheKey)) {
-
-            $pcConfiguration = $this->redis->get($cacheKey);
-
-        } else {
+        if(empty($pcConfiguration)) {
 
             $pcConfiguration = $this->configuratorService->getPcConfigurationById($buildId);
 
-            $this->redis->set($cacheKey, $pcConfiguration, 3600);
+            if(!empty($pcConfiguration)) {
+
+                ProductCache::putConfigCacheCards($this->redis, "user", [$pcConfiguration]);
+            }
         }
 
-        if($pcConfiguration[0]['name'] !== null){
+        if($pcConfiguration['name'] !== null){
 
-            $pcConfigurationName = $pcConfiguration[0]['name'];
+            $pcConfigurationName = $pcConfiguration['name'];
         }
 
-        if ($pcConfiguration[0]['createdAt'] instanceof \DateTimeInterface) {
+        if ($pcConfiguration['createdAt'] instanceof \DateTimeInterface) {
 
-            $pcConfigurationCreatedAt = $pcConfiguration[0]['createdAt']->format('Y-m-d');
+            $pcConfigurationCreatedAt = $pcConfiguration['createdAt']->format('Y-m-d');
         }
 
-        if($pcConfiguration[0]['lowestPrice'] !== null && (int)$pcConfiguration[0]['lowestPrice'] > 0
-            && $pcConfiguration[0]['highestPrice'] !== null && (int)$pcConfiguration[0]['highestPrice'] > 0){
+        if($pcConfiguration['lowestPrice'] !== null && (int)$pcConfiguration['lowestPrice'] > 0
+            && $pcConfiguration['highestPrice'] !== null && (int)$pcConfiguration['highestPrice'] > 0){
 
-            $pcConfigurationLowestPrice = (int)$pcConfiguration[0]['lowestPrice'];
+            $pcConfigurationLowestPrice = (int)$pcConfiguration['lowestPrice'];
 
-            $pcConfigurationHighestPrice = (int)$pcConfiguration[0]['highestPrice'];
+            $pcConfigurationHighestPrice = (int)$pcConfiguration['highestPrice'];
         }
 
 
-        if($pcConfiguration[0]['totalWattage'] !== null && (int)$pcConfiguration[0]['totalWattage'] > 0){
+        if($pcConfiguration['totalWattage'] !== null && (int)$pcConfiguration['totalWattage'] > 0){
 
-            $pcConfigurationTotalWattage = (int)$pcConfiguration[0]['totalWattage'];
+            $pcConfigurationTotalWattage = (int)$pcConfiguration['totalWattage'];
         }
-
 
         return $this->render('pages/completed_configuration_page/completed_configuration_info.html.twig', [
-            'configuration_id' => $pcConfiguration[0]['id'],
+            'configuration_id' => $pcConfiguration['id'],
             'configuration_name' => $pcConfigurationName ?? '',
             'configuration_date' => $pcConfigurationCreatedAt ?? '',
             'configuration_lowest_price' => $pcConfigurationLowestPrice ?? 0,
             'configuration_highest_price' => $pcConfigurationHighestPrice ?? 0,
             'configuration_total_wattage' => $pcConfigurationTotalWattage ?? 0,
-            'cpu' => $pcConfiguration[0]['components']['cpu']['name'],
-            'motherboard' => $pcConfiguration[0]['components']['motherboard']['name'],
-            'psu' => $pcConfiguration[0]['components']['psu']['name'],
-            'gpu' => $pcConfiguration[0]['components']['gpu']['name'],
-            'ram' => $pcConfiguration[0]['components']['ram']['name'],
-            'storage' => $pcConfiguration[0]['components']['storage']['name'],
-            'pc_case' => $pcConfiguration[0]['components']['pc_case'],
+            'configuration_rating' => $pcConfiguration['rating'],
+            'cpu' => $pcConfiguration['components']['cpu']['name'],
+            'motherboard' => $pcConfiguration['components']['motherboard']['name'],
+            'psu' => $pcConfiguration['components']['psu']['name'],
+            'gpu' => $pcConfiguration['components']['gpu']['name'],
+            'ram' => $pcConfiguration['components']['ram']['name'],
+            'storage' => $pcConfiguration['components']['storage']['name'],
+            'pc_case' => $pcConfiguration['components']['pc_case'],
         ]);
     }
 
@@ -180,21 +188,23 @@ class CompletedBuildController extends AbstractController
     #[Route('/completed/build/rate', name: 'get.completed.build')]
     public function rateBuild(Request $request): Response
     {
-/*        {
-            "rating_product": {
-              "product": "intel-core-i7-13700k",
-                "stairs": 4,
-                "comment": ""
-              },
-              "user": {
-                "name": "test",
-                "email": "email"
-              }
-        }*/
 
         $rateProductData = ObjectMapper::mapJsonToObject($request->getContent());
 
-        $this->configuratorService->ratePcConfiguration($rateProductData['rating_product'], $rateProductData['user']);
+        $this->configuratorService->ratePcConfiguration($rateProductData['rating_config'], $rateProductData['user']);
+
+        $configId = (int) $rateProductData['rating_config']['pc_config_id'];
+
+        $cacheConfig = ProductCache::getConfigCacheDetails($this->redis, "user", $configId);
+
+        $configRating = $this->configuratorService->getPcConfigurationRating($configId);
+
+        if(!empty($configRating)) {
+
+            $cacheConfig['rating'] = $configRating;
+
+            ProductCache::putConfigCacheCards($this->redis, "user", [$cacheConfig]);
+        }
 
         return $this->json(['message' => 'You have successfully rated the configuration.']);
     }
